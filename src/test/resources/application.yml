@@ -1,0 +1,25 @@
+spring:
+    output:
+        ansi:
+            enabled: always
+    application:
+        name: ticketing
+    datasource:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://localhost:3306/ticketing_test?serverTimeZone=UTC&CharacterEncoding=UTF-8
+        username: root
+        password: very_difficult_root_password
+        hikari:
+            maximum-pool-size: 30
+            connection-timeout: 5000
+    jpa:
+        database-platform: org.hibernate.dialect.MySQL57Dialect
+        hibernate:
+            ddl-auto: create
+        properties:
+            hibernate:
+                show_sql: true
+logging:
+    level:
+        org.hibernate.SQL: debug
+        org.hibernate.orm.jdbc.bind: debug
