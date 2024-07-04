@@ -4,9 +4,11 @@ spring:
             enabled: always
     application:
         name: ticketing
+    jackson:
+        time-zone: UTC
     datasource:
         driver-class-name: com.mysql.cj.jdbc.Driver
-        url: jdbc:mysql://localhost:3306/ticketing_test?serverTimeZone=UTC&CharacterEncoding=UTF-8
+        url: jdbc:mysql://localhost:3306/ticketing_test?serverTimezone=UTC&CharacterEncoding=UTF-8
         username: root
         password: very_difficult_root_password
         hikari:
@@ -18,6 +20,7 @@ spring:
             ddl-auto: create
         properties:
             hibernate:
+                jdbc.time_zone: UTC
                 show_sql: true
 logging:
     level:
