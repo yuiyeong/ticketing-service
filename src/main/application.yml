@@ -13,7 +13,7 @@ spring:
             maximum-pool-size: 30
             connection-timeout: 5000
     jpa:
-        database-platform: org.hibernate.dialect.MySQL57Dialect
+        database-platform: org.hibernate.dialect.MySQLDialect
         hibernate:
             ddl-auto: update
         properties:
