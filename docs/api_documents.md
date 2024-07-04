@@ -3,6 +3,7 @@
 ## 개요
 
 이 문서는 콘서트 좌석 예약 서비스의 API 명세를 설명합니다.
+사용자에 대한 Authorization 검증은 API Gateway 에서 진행되었다고 가정합니다.
 
 # API 목차
 
@@ -82,7 +83,6 @@ API 는 표준 HTTP 상태 코드를 사용하여 요청의 결과를 나타냅�
 
 #### Error Code
 
-- `invalid_user`
 - `invalid_token`
 - `not_found_in_queue`
 - `not_found_concert`
@@ -149,16 +149,7 @@ API 는 표준 HTTP 상태 코드를 사용하여 요청의 결과를 나타냅�
 
 ### Error
 
-#### 잘못된 요청 (400 Bad Request)
-
-```json
-{
-    "error": {
-        "code": "invalid_user",
-        "message": "유효하지 않은 userId 입니다."
-    }
-}
-```
+* 없음
 
 ## 대기열 정보 조회
 
@@ -310,7 +301,7 @@ list 의 element 는 아래와 같은 형태입니다.
 
 ### Endpoint
 
-`GET` **/api/v1/concerts/{concertId}/events/{eventId}/available-seats**
+`GET` **/api/v1/concert-events/{concertEventId}/available-seats**
 
 ### Headers
 
@@ -323,10 +314,9 @@ list 의 element 는 아래와 같은 형태입니다.
 
 #### Params
 
-| 필드        | 타입     | 필수 | 설명         |
-|-----------|--------|----|------------|
-| concertId | number | 예  | 콘서트 ID     |
-| eventId   | number | 예  | 콘서트 이벤트 ID |
+| 필드             | 타입     | 필수 | 설명         |
+|----------------|--------|----|------------|
+| concertEventId | number | 예  | 콘서트 이벤트 ID |
 
 #### Body
 
@@ -402,7 +392,7 @@ list 의 element 는 아래와 같은 형태입니다.
 
 ### Endpoint
 
-`POST` **/api/v1/events/{eventId}/seats/{seatId}/occupy**
+`POST` **/api/v1/concert-events/{concertEventId}/occupy**
 
 ### Headers
 
@@ -415,14 +405,23 @@ list 의 element 는 아래와 같은 형태입니다.
 
 #### Params
 
-| 필드      | 타입     | 필수 | 설명         |
-|---------|--------|----|------------|
-| eventId | number | 예  | 콘서트 이벤트 ID |
-| seatId  | number | 예  | 좌석 ID      |
+| 필드             | 타입     | 필수 | 설명         |
+|----------------|--------|----|------------|
+| concertEventId | number | 예  | 콘서트 이벤트 ID |
 
 #### Body
 
-* 없음
+| 필드     | 타입     | 필수 | 설명    |
+|--------|--------|----|-------|
+| seatId | number | 예  | 좌석 ID |
+
+**예시**
+
+```json
+{
+    "seatId": 1
+}
+```
 
 ### Response
 
@@ -503,13 +502,13 @@ list 의 element 는 아래와 같은 형태입니다.
 }
 ```
 
-## 좌석 결제
+## 좌석 예약
 
-점유한 좌석에 대해 결제를 진행합니다.
+점유한 좌석에 대해 결제 및 예약을 진행합니다.
 
 ### Endpoint
 
-`POST` **/api/v1/payments**
+`POST` **/api/v1/concert-events/{concertEventId}/reserve**
 
 ### Headers
 
@@ -536,13 +535,13 @@ list 의 element 는 아래와 같은 형태입니다.
 
 ### Response
 
-| 필드            | 타입     | 설명        |
-|---------------|--------|-----------|
-| id            | number | 결제 내역의 ID |
-| reservationId | number | 예약 ID     |
-| amount        | number | 결제 금액     |
-| status        | string | 결제 상태     |
-| paidAt        | string | 결제 시간     |
+| 필드             | 타입     | 설명         |
+|----------------|--------|------------|
+| id             | number | 예약의 ID     |
+| concertEventId | number | 콘서트 이벤트 ID |
+| totalSeats     | number | 총 예약한 좌석 수 |
+| totalAmount    | number | 총 결제 금액    |
+| createdAt      | string | 예약된 시간     |
 
 **예시**
 
@@ -550,10 +549,10 @@ list 의 element 는 아래와 같은 형태입니다.
 {
     "data": {
         "id": 1,
-        "reservationId": 12,
-        "amount": 50000,
-        "status": "success",
-        "paidAt": "2023-07-01T12:05:00Z"
+        "concertEventId": 1,
+        "totalSeats": 1,
+        "totalAmount": 50000,
+        "createdAt": "2023-07-01T12:05:00Z"
     }
 }
 ```
