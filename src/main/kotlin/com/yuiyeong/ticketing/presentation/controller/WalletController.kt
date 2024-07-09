@@ -6,8 +6,8 @@ import com.yuiyeong.ticketing.presentation.dto.WalletDto
 import com.yuiyeong.ticketing.presentation.dto.request.ChargingWalletRequest
 import com.yuiyeong.ticketing.presentation.dto.response.TicketingResponse
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -20,7 +20,7 @@ class WalletController {
         @PathVariable("userId") userId: Long,
     ): TicketingResponse<WalletDto> = TicketingResponse(WalletDto(50000))
 
-    @PostMapping("{userId}/wallet/charge")
+    @PatchMapping("{userId}/wallet/charge")
     fun charge(
         @PathVariable("userId") userId: Long,
         @RequestBody req: ChargingWalletRequest,

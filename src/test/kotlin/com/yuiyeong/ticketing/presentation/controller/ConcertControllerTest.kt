@@ -26,7 +26,7 @@ class ConcertControllerTest {
         // when
         val result =
             mockMvc.perform(
-                get("/api/v1/concerts/$concertId/available-dates")
+                get("/api/v1/concerts/$concertId/available-events")
                     .header("User-Token", validToken),
             )
 
@@ -48,7 +48,7 @@ class ConcertControllerTest {
         // when
         val result =
             mockMvc.perform(
-                get("/api/v1/concerts/$concertId/available-dates")
+                get("/api/v1/concerts/$concertId/available-events")
                     .header("User-Token", validToken),
             )
 
@@ -68,7 +68,7 @@ class ConcertControllerTest {
         // when
         val result =
             mockMvc.perform(
-                get("/api/v1/concerts/$concertId/available-dates"),
+                get("/api/v1/concerts/$concertId/available-events"),
             )
 
         // then
@@ -88,7 +88,7 @@ class ConcertControllerTest {
         // when
         val result =
             mockMvc.perform(
-                get("/api/v1/concerts/$concertId/available-dates")
+                get("/api/v1/concerts/$concertId/available-events")
                     .header("User-Token", invalidToken),
             )
 
@@ -109,7 +109,7 @@ class ConcertControllerTest {
         // when
         val result =
             mockMvc.perform(
-                get("/api/v1/concerts/$nonExistentConcertId/available-dates")
+                get("/api/v1/concerts/$nonExistentConcertId/available-events")
                     .header("User-Token", validToken),
             )
 
