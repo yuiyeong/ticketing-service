@@ -2,7 +2,7 @@ package com.yuiyeong.ticketing.config.swagger.annotation.api
 
 import com.yuiyeong.ticketing.config.swagger.annotation.common.InternalServerErrorResponse
 import com.yuiyeong.ticketing.config.swagger.annotation.common.NoAuthErrorResponse
-import com.yuiyeong.ticketing.config.swagger.schema.PaymentHistoryResponse
+import com.yuiyeong.ticketing.config.swagger.schema.response.PaymentHistoryResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.enums.ParameterIn

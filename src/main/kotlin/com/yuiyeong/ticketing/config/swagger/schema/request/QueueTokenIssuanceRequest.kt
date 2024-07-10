@@ -1,4 +1,4 @@
-package com.yuiyeong.ticketing.config.swagger.schema
+package com.yuiyeong.ticketing.config.swagger.schema.request
 
 import io.swagger.v3.oas.annotations.media.Schema
 

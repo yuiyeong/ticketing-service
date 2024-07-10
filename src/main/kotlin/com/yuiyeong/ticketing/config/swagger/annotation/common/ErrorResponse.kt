@@ -1,6 +1,6 @@
 package com.yuiyeong.ticketing.config.swagger.annotation.common
 
-import com.yuiyeong.ticketing.config.swagger.schema.ErrorResponse
+import com.yuiyeong.ticketing.config.swagger.schema.response.ErrorResponse
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.ExampleObject
 import io.swagger.v3.oas.annotations.media.Schema

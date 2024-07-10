@@ -4,10 +4,10 @@ import com.yuiyeong.ticketing.config.swagger.annotation.common.InternalServerErr
 import com.yuiyeong.ticketing.config.swagger.annotation.common.InvalidTokenErrorResponse
 import com.yuiyeong.ticketing.config.swagger.annotation.common.NoAuthErrorResponse
 import com.yuiyeong.ticketing.config.swagger.annotation.common.UserTokenHeader
-import com.yuiyeong.ticketing.config.swagger.schema.ErrorResponse
-import com.yuiyeong.ticketing.config.swagger.schema.QueueStatusResponse
-import com.yuiyeong.ticketing.config.swagger.schema.QueueTokenIssuanceRequest
-import com.yuiyeong.ticketing.config.swagger.schema.QueueTokenIssuanceResponse
+import com.yuiyeong.ticketing.config.swagger.schema.request.QueueTokenIssuanceRequest
+import com.yuiyeong.ticketing.config.swagger.schema.response.ErrorResponse
+import com.yuiyeong.ticketing.config.swagger.schema.response.QueueStatusResponse
+import com.yuiyeong.ticketing.config.swagger.schema.response.QueueTokenIssuanceResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.ExampleObject

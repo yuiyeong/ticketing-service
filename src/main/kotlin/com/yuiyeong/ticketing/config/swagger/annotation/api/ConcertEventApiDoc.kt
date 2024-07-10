@@ -9,11 +9,11 @@ import com.yuiyeong.ticketing.config.swagger.annotation.common.NotFoundConcertEv
 import com.yuiyeong.ticketing.config.swagger.annotation.common.NotFoundSeatErrorResponse
 import com.yuiyeong.ticketing.config.swagger.annotation.common.OccupationExpiredErrorResponse
 import com.yuiyeong.ticketing.config.swagger.annotation.common.UserTokenHeader
-import com.yuiyeong.ticketing.config.swagger.schema.AvailableSeatsResponse
-import com.yuiyeong.ticketing.config.swagger.schema.OccupySeatRequest
-import com.yuiyeong.ticketing.config.swagger.schema.OccupySeatResponse
-import com.yuiyeong.ticketing.config.swagger.schema.ReserveSeatRequest
-import com.yuiyeong.ticketing.config.swagger.schema.ReserveSeatResponse
+import com.yuiyeong.ticketing.config.swagger.schema.request.OccupySeatRequest
+import com.yuiyeong.ticketing.config.swagger.schema.request.ReserveSeatRequest
+import com.yuiyeong.ticketing.config.swagger.schema.response.AvailableSeatsResponse
+import com.yuiyeong.ticketing.config.swagger.schema.response.OccupySeatResponse
+import com.yuiyeong.ticketing.config.swagger.schema.response.ReserveSeatResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.enums.ParameterIn

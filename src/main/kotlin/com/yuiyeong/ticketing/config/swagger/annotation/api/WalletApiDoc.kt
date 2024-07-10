@@ -3,9 +3,9 @@ package com.yuiyeong.ticketing.config.swagger.annotation.api
 import com.yuiyeong.ticketing.config.swagger.annotation.common.InternalServerErrorResponse
 import com.yuiyeong.ticketing.config.swagger.annotation.common.InvalidAmountErrorResponse
 import com.yuiyeong.ticketing.config.swagger.annotation.common.NoAuthErrorResponse
-import com.yuiyeong.ticketing.config.swagger.schema.ChargeWalletRequest
-import com.yuiyeong.ticketing.config.swagger.schema.ChargeWalletResponse
-import com.yuiyeong.ticketing.config.swagger.schema.WalletBalanceResponse
+import com.yuiyeong.ticketing.config.swagger.schema.request.ChargeWalletRequest
+import com.yuiyeong.ticketing.config.swagger.schema.response.ChargeWalletResponse
+import com.yuiyeong.ticketing.config.swagger.schema.response.WalletBalanceResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.enums.ParameterIn

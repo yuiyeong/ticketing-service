@@ -5,7 +5,7 @@ import com.yuiyeong.ticketing.config.swagger.annotation.common.InvalidTokenError
 import com.yuiyeong.ticketing.config.swagger.annotation.common.NoAuthErrorResponse
 import com.yuiyeong.ticketing.config.swagger.annotation.common.NotFoundConcertErrorResponse
 import com.yuiyeong.ticketing.config.swagger.annotation.common.UserTokenHeader
-import com.yuiyeong.ticketing.config.swagger.schema.AvailableConcertEventsResponse
+import com.yuiyeong.ticketing.config.swagger.schema.response.AvailableConcertEventsResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.enums.ParameterIn
