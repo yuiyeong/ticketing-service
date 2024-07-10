@@ -8,7 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -49,7 +49,7 @@ class WalletControllerTest {
         // when
         val result =
             mockMvc.perform(
-                post("/api/v1/users/$userId/wallet/charge")
+                patch("/api/v1/users/$userId/wallet/charge")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(chargeRequest)),
             )
@@ -70,7 +70,7 @@ class WalletControllerTest {
         // when
         val result =
             mockMvc.perform(
-                post("/api/v1/users/$userId/wallet/charge")
+                patch("/api/v1/users/$userId/wallet/charge")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(invalidChargeRequest)),
             )
@@ -92,7 +92,7 @@ class WalletControllerTest {
         // when
         val result =
             mockMvc.perform(
-                post("/api/v1/users/$nonExistentUserId/wallet/charge")
+                patch("/api/v1/users/$nonExistentUserId/wallet/charge")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(chargeRequest)),
             )
