@@ -40,3 +40,65 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 @NoAuthErrorResponse
 @InternalServerErrorResponse
 annotation class QueueTokenIssuanceApiDoc
+
+@Target(AnnotationTarget.FUNCTION)
+@Retention(AnnotationRetention.RUNTIME)
+@Operation(summary = "대기열 정보 조회", description = "발급받은 Token으로 대기 정보를 조회합니다.")
+@UserTokenHeader
+@ApiResponse(
+    responseCode = "200",
+    description = "성공",
+    content = [
+        Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = QueueStatusResponse::class),
+        ),
+    ],
+)
+@ApiResponse(
+    responseCode = "400",
+    description = "유효하지 않은 토큰",
+    content = [
+        Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+            examples = [
+                ExampleObject(
+                    value = """
+                    {
+                        "error": {
+                            "code": "invalid_token",
+                            "message": "유효하지 않은 token 입니다."
+                        }
+                    }
+                    """,
+                ),
+            ],
+        ),
+    ],
+)
+@ApiResponse(
+    responseCode = "404",
+    description = "대기열에 없는 토큰",
+    content = [
+        Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+            examples = [
+                ExampleObject(
+                    value = """
+                    {
+                        "error": {
+                            "code": "not_found_in_queue",
+                            "message": "해당 토큰으로 대기 중인 정보를 찾을 수 없습니다."
+                        }
+                    }
+                    """,
+                ),
+            ],
+        ),
+    ],
+)
+@NoAuthErrorResponse
+@InternalServerErrorResponse
+annotation class QueueStatusApiDoc

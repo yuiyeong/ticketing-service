@@ -1,5 +1,6 @@
 package com.yuiyeong.ticketing.presentation.controller
 
+import com.yuiyeong.ticketing.config.swagger.annotation.api.QueueStatusApiDoc
 import com.yuiyeong.ticketing.config.swagger.annotation.api.QueueTokenIssuanceApiDoc
 import com.yuiyeong.ticketing.domain.exception.InvalidTokenException
 import com.yuiyeong.ticketing.domain.exception.NotFoundTokenException
@@ -26,6 +27,7 @@ class QueueController {
     ): TicketingResponse<WaitingInfoTokenDto> = TicketingResponse(WaitingInfoTokenDto("validQueueToken", 10))
 
     @GetMapping("status")
+    @QueueStatusApiDoc
     fun getStatus(
         @RequestHeader(name = "User-Token", required = false) userToken: String?,
     ): TicketingResponse<WaitingInfoPositionDto> =
