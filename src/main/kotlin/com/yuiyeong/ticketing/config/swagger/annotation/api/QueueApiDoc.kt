@@ -1,6 +1,7 @@
 package com.yuiyeong.ticketing.config.swagger.annotation.api
 
 import com.yuiyeong.ticketing.config.swagger.annotation.common.InternalServerErrorResponse
+import com.yuiyeong.ticketing.config.swagger.annotation.common.InvalidTokenErrorResponse
 import com.yuiyeong.ticketing.config.swagger.annotation.common.NoAuthErrorResponse
 import com.yuiyeong.ticketing.config.swagger.annotation.common.UserTokenHeader
 import com.yuiyeong.ticketing.config.swagger.schema.ErrorResponse
@@ -55,28 +56,7 @@ annotation class QueueTokenIssuanceApiDoc
         ),
     ],
 )
-@ApiResponse(
-    responseCode = "400",
-    description = "유효하지 않은 토큰",
-    content = [
-        Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-            examples = [
-                ExampleObject(
-                    value = """
-                    {
-                        "error": {
-                            "code": "invalid_token",
-                            "message": "유효하지 않은 token 입니다."
-                        }
-                    }
-                    """,
-                ),
-            ],
-        ),
-    ],
-)
+@InvalidTokenErrorResponse
 @ApiResponse(
     responseCode = "404",
     description = "대기열에 없는 토큰",
