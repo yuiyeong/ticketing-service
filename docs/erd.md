@@ -33,7 +33,7 @@ erDiagram
         bigint wallet_id FK
         decimal amount
         string type "enum: charged, used"
-        datetime at
+        datetime created_at
     }
     PAYMENT {
         bigint id PK
