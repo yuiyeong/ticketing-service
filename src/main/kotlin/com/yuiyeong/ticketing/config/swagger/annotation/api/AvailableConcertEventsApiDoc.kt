@@ -3,9 +3,9 @@ package com.yuiyeong.ticketing.config.swagger.annotation.api
 import com.yuiyeong.ticketing.config.swagger.annotation.common.InternalServerErrorResponse
 import com.yuiyeong.ticketing.config.swagger.annotation.common.InvalidTokenErrorResponse
 import com.yuiyeong.ticketing.config.swagger.annotation.common.NoAuthErrorResponse
+import com.yuiyeong.ticketing.config.swagger.annotation.common.NotFoundConcertErrorResponse
 import com.yuiyeong.ticketing.config.swagger.annotation.common.UserTokenHeader
 import com.yuiyeong.ticketing.config.swagger.schema.AvailableConcertEventsResponse
-import com.yuiyeong.ticketing.config.swagger.schema.ErrorResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.enums.ParameterIn
@@ -53,28 +53,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
     ],
 )
 @InvalidTokenErrorResponse
-@ApiResponse(
-    responseCode = "404",
-    description = "콘서트를 찾을 수 없음",
-    content = [
-        Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-            examples = [
-                ExampleObject(
-                    value = """
-                    {
-                        "error": {
-                            "code": "not_found_concert",
-                            "message": "요청한 콘서트를 찾을 수 없습니다."
-                        }
-                    }
-                    """,
-                ),
-            ],
-        ),
-    ],
-)
+@NotFoundConcertErrorResponse
 @NoAuthErrorResponse
 @InternalServerErrorResponse
 annotation class AvailableConcertEventsApiDoc

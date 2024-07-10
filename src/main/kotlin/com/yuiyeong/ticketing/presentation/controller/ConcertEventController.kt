@@ -1,5 +1,8 @@
 package com.yuiyeong.ticketing.presentation.controller
 
+import com.yuiyeong.ticketing.config.swagger.annotation.api.AvailableSeatsApiDoc
+import com.yuiyeong.ticketing.config.swagger.annotation.api.OccupySeatApiDoc
+import com.yuiyeong.ticketing.config.swagger.annotation.api.ReserveSeatApiDoc
 import com.yuiyeong.ticketing.domain.exception.InsufficientBalanceException
 import com.yuiyeong.ticketing.domain.exception.InvalidSeatStatusException
 import com.yuiyeong.ticketing.domain.exception.InvalidTokenException
@@ -12,6 +15,7 @@ import com.yuiyeong.ticketing.presentation.dto.request.ConcertEventOccupationReq
 import com.yuiyeong.ticketing.presentation.dto.request.ConcertEventReservationRequest
 import com.yuiyeong.ticketing.presentation.dto.response.TicketingListResponse
 import com.yuiyeong.ticketing.presentation.dto.response.TicketingResponse
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -22,14 +26,17 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/v1/concert-events")
+@Tag(name = "콘서트 이벤트", description = "콘서트 이벤트 관련 api")
 class ConcertEventController {
     @GetMapping("{concertEventId}/available-seats")
+    @AvailableSeatsApiDoc
     fun getAvailableSeats(
         @RequestHeader(name = "User-Token", required = false) userToken: String?,
         @PathVariable("concertEventId") concertEventId: Long,
     ): TicketingListResponse<SeatDto> = TicketingListResponse(listOf(SeatDto(1L, "12", 50000), SeatDto(2L, "15", 40000)))
 
     @PostMapping("{concertEventId}/occupy")
+    @OccupySeatApiDoc
     fun occupy(
         @RequestHeader(name = "User-Token", required = false) userToken: String?,
         @PathVariable("concertEventId") concertEventId: Long,
@@ -52,6 +59,7 @@ class ConcertEventController {
     }
 
     @PostMapping("{concertEventId}/reserve")
+    @ReserveSeatApiDoc
     fun reserve(
         @RequestHeader(name = "User-Token", required = false) userToken: String?,
         @PathVariable("concertEventId") concertEventId: Long,
