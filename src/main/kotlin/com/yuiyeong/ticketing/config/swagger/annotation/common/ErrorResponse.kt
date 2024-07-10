@@ -212,3 +212,29 @@ annotation class InsufficientBalanceErrorResponse
     ],
 )
 annotation class OccupationExpiredErrorResponse
+
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.ANNOTATION_CLASS)
+@Retention(AnnotationRetention.RUNTIME)
+@ApiResponse(
+    responseCode = "400",
+    description = "유효하지 않은 충전 금액",
+    content = [
+        Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+            examples = [
+                ExampleObject(
+                    value = """
+                    {
+                        "error": {
+                            "code": "invalid_amount",
+                            "message": "유효하지 않은 충전 금액입니다."
+                        }
+                    }
+                    """,
+                ),
+            ],
+        ),
+    ],
+)
+annotation class InvalidAmountErrorResponse
