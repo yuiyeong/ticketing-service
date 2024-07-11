@@ -34,9 +34,10 @@ class QueueService(
         return entryRepository.findOneByToken(token) ?: throw InvalidTokenException()
     }
 
-    fun verifyEntryOnProcessing(token: String?) {
+    fun verifyEntryOnProcessing(token: String?): WaitingEntry {
         val waitingEntry = getWaitingEntry(token)
         waitingEntry.verifyOnProcessing()
+        return waitingEntry
     }
 
     fun activateWaitingEntries(): List<WaitingEntry> {

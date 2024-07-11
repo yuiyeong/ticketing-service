@@ -1,19 +1,19 @@
 package com.yuiyeong.ticketing.domain.model
 
+import com.yuiyeong.ticketing.domain.exception.InvalidSeatStatusException
 import java.math.BigDecimal
 
 data class Seat(
     val id: Long,
     val seatNumber: String,
     val price: BigDecimal,
-    val status: SeatStatus,
+    var isAvailable: Boolean,
 ) {
-    val isAvailable: Boolean
-        get() = status == SeatStatus.AVAILABLE
-}
+    fun makeUnavailable() {
+        isAvailable = false
+    }
 
-enum class SeatStatus {
-    AVAILABLE,
-    OCCUPIED,
-    RESERVED,
+    fun checkAvailable() {
+        if (!isAvailable) throw InvalidSeatStatusException()
+    }
 }

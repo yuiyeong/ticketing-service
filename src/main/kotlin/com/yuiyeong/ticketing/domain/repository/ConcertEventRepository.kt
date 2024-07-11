@@ -4,6 +4,8 @@ import com.yuiyeong.ticketing.domain.model.ConcertEvent
 import java.time.ZonedDateTime
 
 interface ConcertEventRepository {
+    fun save(concertEvent: ConcertEvent): ConcertEvent
+
     fun findAllWithinPeriodBy(
         concertId: Long,
         moment: ZonedDateTime,
