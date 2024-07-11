@@ -10,6 +10,5 @@ data class ConcertEvent(
     val performanceSchedule: DateTimeRange,
     val seats: List<Seat>,
 ) {
-    val hasAvailableSeats: Boolean
-        get() = seats.any { it.isAvailable }
+    fun getAvailableSeats(): List<Seat> = seats.filter { it.isAvailable }
 }

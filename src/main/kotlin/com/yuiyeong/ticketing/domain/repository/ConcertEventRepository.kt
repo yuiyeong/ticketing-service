@@ -8,4 +8,6 @@ interface ConcertEventRepository {
         concertId: Long,
         moment: ZonedDateTime,
     ): List<ConcertEvent>
+
+    fun findOneById(id: Long): ConcertEvent?
 }
