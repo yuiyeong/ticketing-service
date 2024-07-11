@@ -1,0 +1,12 @@
+package com.yuiyeong.ticketing.domain.model
+class WaitingEntry(
+    id: Long,
+    userId: Long,
+    token: String,
+    position: Long,
+    status: WaitingEntryStatus,
+    expiresAt: ZonedDateTime,
+    enteredAt: ZonedDateTime,
+    processingStartedAt: ZonedDateTime?,
+    exitedAt: ZonedDateTime?,
+) {
