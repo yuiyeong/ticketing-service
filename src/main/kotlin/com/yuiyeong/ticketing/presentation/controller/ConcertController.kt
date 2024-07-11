@@ -27,7 +27,7 @@ class ConcertController {
     ): TicketingListResponse<ConcertAvailableDateDto> {
         val list =
             availableEventsUseCase
-                .getConcertEvents(concertId)
+                .getConcertEvents(userToken, concertId)
                 .map { ConcertAvailableDateDto.from(it) }
         return TicketingListResponse(list)
     }

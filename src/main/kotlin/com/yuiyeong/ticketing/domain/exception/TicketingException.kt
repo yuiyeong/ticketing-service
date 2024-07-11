@@ -9,6 +9,8 @@ sealed class TicketingException(
 
 class InvalidTokenException : TicketingException("유효하지 않은 token 입니다.")
 
+class InvalidTokenStatusException : TicketingException("이 token 은 작업할 수 없는 상태압니다.")
+
 class NotFoundTokenException : TicketingException("해당 토큰으로 대기 중인 정보를 찾을 수 없습니다.")
 
 class NotFoundConcertException : TicketingException("요청한 콘서트를 찾을 수 없습니다.")

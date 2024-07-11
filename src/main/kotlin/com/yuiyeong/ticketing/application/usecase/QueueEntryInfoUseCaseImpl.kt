@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component
 class QueueEntryInfoUseCaseImpl(
     private val queueService: QueueService,
 ) : QueueEntryInfoUseCase {
-    override fun getEntry(token: String): WaitingEntryDto {
+    override fun getEntry(token: String?): WaitingEntryDto {
         val positionOffset = queueService.getFirstWaitingPosition()
-        return WaitingEntryDto.from(queueService.getEntryInfo(token), positionOffset)
+        return WaitingEntryDto.from(queueService.getWaitingEntry(token), positionOffset)
     }
 }

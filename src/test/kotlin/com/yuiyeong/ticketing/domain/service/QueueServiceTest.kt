@@ -181,7 +181,7 @@ class QueueServiceTest {
             given(repository.findOneByToken(token)).willReturn(entry)
 
             // when
-            val enteredOne = queueService.getEntryInfo(token)
+            val enteredOne = queueService.getWaitingEntry(token)
 
             // then
             Assertions.assertThat(enteredOne.userId).isEqualTo(userId)
@@ -200,7 +200,7 @@ class QueueServiceTest {
 
             // when & then
             Assertions
-                .assertThatThrownBy { queueService.getEntryInfo(invalidToken) }
+                .assertThatThrownBy { queueService.getWaitingEntry(invalidToken) }
                 .isInstanceOf(InvalidTokenException::class.java)
 
             verify(repository).findOneByToken(invalidToken)
@@ -218,7 +218,7 @@ class QueueServiceTest {
             given(repository.findOneByToken(token)).willReturn(entry)
 
             // when
-            val foundOne = queueService.getEntryInfo(token)
+            val foundOne = queueService.getWaitingEntry(token)
 
             // then
             Assertions.assertThat(foundOne.userId).isEqualTo(userId)

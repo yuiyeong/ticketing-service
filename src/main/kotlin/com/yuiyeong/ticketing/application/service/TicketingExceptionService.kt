@@ -5,6 +5,7 @@ import com.yuiyeong.ticketing.domain.exception.InsufficientBalanceException
 import com.yuiyeong.ticketing.domain.exception.InvalidAmountException
 import com.yuiyeong.ticketing.domain.exception.InvalidSeatStatusException
 import com.yuiyeong.ticketing.domain.exception.InvalidTokenException
+import com.yuiyeong.ticketing.domain.exception.InvalidTokenStatusException
 import com.yuiyeong.ticketing.domain.exception.NotFoundConcertEventException
 import com.yuiyeong.ticketing.domain.exception.NotFoundConcertException
 import com.yuiyeong.ticketing.domain.exception.NotFoundSeatException
@@ -19,6 +20,9 @@ class TicketingExceptionService {
         when (ex) {
             is InvalidTokenException ->
                 TicketingErrorDto(TicketingErrorCode.INVALID_TOKEN, ex.notNullMessage)
+
+            is InvalidTokenStatusException ->
+                TicketingErrorDto(TicketingErrorCode.INVALID_TOKEN_STATUS, ex.notNullMessage)
 
             is InvalidAmountException ->
                 TicketingErrorDto(TicketingErrorCode.INVALID_AMOUNT, ex.notNullMessage)
@@ -53,6 +57,7 @@ class TicketingExceptionService {
 
 enum class TicketingErrorCode {
     INVALID_TOKEN,
+    INVALID_TOKEN_STATUS,
     INVALID_SEAT_STATUS,
     INSUFFICIENT_BALANCE,
     OCCUPATION_EXPIRED,

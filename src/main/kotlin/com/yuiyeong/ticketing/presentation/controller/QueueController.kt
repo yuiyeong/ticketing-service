@@ -4,7 +4,6 @@ import com.yuiyeong.ticketing.application.usecase.EnteringQueueUseCase
 import com.yuiyeong.ticketing.application.usecase.QueueEntryInfoUseCase
 import com.yuiyeong.ticketing.config.swagger.annotation.api.QueueStatusApiDoc
 import com.yuiyeong.ticketing.config.swagger.annotation.api.QueueTokenIssuanceApiDoc
-import com.yuiyeong.ticketing.domain.exception.InvalidTokenException
 import com.yuiyeong.ticketing.presentation.dto.WaitingInfoPositionDto
 import com.yuiyeong.ticketing.presentation.dto.WaitingInfoTokenDto
 import com.yuiyeong.ticketing.presentation.dto.request.GeneratingQueueTokenRequest
@@ -42,7 +41,6 @@ class QueueController {
     fun getStatus(
         @RequestHeader(name = "User-Token", required = false) userToken: String?,
     ): TicketingResponse<WaitingInfoPositionDto> {
-        if (userToken == null) throw InvalidTokenException()
         val data = WaitingInfoPositionDto.from(queueEntryInfoUseCase.getEntry(userToken))
         return TicketingResponse(data)
     }

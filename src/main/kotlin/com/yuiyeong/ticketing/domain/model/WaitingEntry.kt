@@ -1,6 +1,7 @@
 package com.yuiyeong.ticketing.domain.model
 
 import com.yuiyeong.ticketing.domain.exception.InvalidTokenException
+import com.yuiyeong.ticketing.domain.exception.InvalidTokenStatusException
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -80,6 +81,12 @@ class WaitingEntry(
 
     fun calculateEstimatedWaitingTime(waitingPositionOffset: Long): Long = (position - waitingPositionOffset) * WORKING_MINUTES
 
+    fun verifyOnProcessing() {
+        if (status != WaitingEntryStatus.PROCESSING) {
+            throw InvalidTokenStatusException()
+        }
+    }
+
     fun copy(
         id: Long = this.id,
         userId: Long = this.userId,
@@ -108,29 +115,10 @@ class WaitingEntry(
 
         other as WaitingEntry
 
-        return id == other.id &&
-            userId == other.userId &&
-            token == other.token &&
-            position == other.position &&
-            status == other.status &&
-            expiresAt == other.expiresAt &&
-            enteredAt == other.enteredAt &&
-            processingStartedAt == other.processingStartedAt &&
-            exitedAt == other.exitedAt
+        return id == other.id
     }
 
-    override fun hashCode(): Int =
-        Objects.hash(
-            id,
-            userId,
-            token,
-            position,
-            status,
-            expiresAt,
-            enteredAt,
-            processingStartedAt,
-            exitedAt,
-        )
+    override fun hashCode(): Int = Objects.hash(id)
 
     companion object {
         const val WORKING_MINUTES = 5L // 1명당 5분 동안 작업을 진행한다고 가정

@@ -39,7 +39,7 @@ class ConcertEventController {
         @RequestHeader(name = "User-Token", required = false) userToken: String?,
         @PathVariable("concertEventId") concertEventId: Long,
     ): TicketingListResponse<SeatDto> {
-        val list = availableSeatsUseCase.getSeats(concertEventId).map { SeatDto.from(it) }
+        val list = availableSeatsUseCase.getSeats(userToken, concertEventId).map { SeatDto.from(it) }
         return TicketingListResponse(list)
     }
 
