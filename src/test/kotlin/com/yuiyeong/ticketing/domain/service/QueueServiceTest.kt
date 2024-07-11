@@ -1,4 +1,4 @@
-package com.yuiyeong.ticketing.application.service
+package com.yuiyeong.ticketing.domain.service
 
 import com.yuiyeong.ticketing.domain.exception.InvalidTokenException
 import com.yuiyeong.ticketing.domain.model.WaitingEntry
@@ -18,7 +18,6 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.argThat
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.never
-import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import java.time.ZonedDateTime
 
@@ -41,7 +40,6 @@ class QueueServiceTest {
             // given
             val userId = 1L
             val expectedPosition = 0L
-            val expectedEstimatedWaitingTime = expectedPosition * WaitingEntry.WORKING_MINUTES
             val expectedStatus = WaitingEntryStatus.PROCESSING
 
             given(repository.findLastWaitingPosition()).willReturn(0)
@@ -52,13 +50,12 @@ class QueueServiceTest {
             }
 
             // when
-            val entryDto = queueService.enter(userId)
+            val enteredOne = queueService.enter(userId)
 
             // then
-            Assertions.assertThat(entryDto.userId).isEqualTo(userId)
-            Assertions.assertThat(entryDto.position).isEqualTo(expectedPosition)
-            Assertions.assertThat(entryDto.status).isEqualTo(expectedStatus)
-            Assertions.assertThat(entryDto.estimatedWaitingTime).isEqualTo(expectedEstimatedWaitingTime)
+            Assertions.assertThat(enteredOne.userId).isEqualTo(userId)
+            Assertions.assertThat(enteredOne.position).isEqualTo(expectedPosition)
+            Assertions.assertThat(enteredOne.status).isEqualTo(expectedStatus)
 
             verify(repository).save(
                 argThat { entry ->
@@ -75,10 +72,8 @@ class QueueServiceTest {
             // given
             val userId = 2L
             val expectedPosition = 11L
-            val expectedEstimatedWaitingTime = expectedPosition * WaitingEntry.WORKING_MINUTES
             val expectedStatus = WaitingEntryStatus.WAITING
 
-            given(repository.findFirstWaitingPosition()).willReturn(0)
             given(repository.findLastWaitingPosition()).willReturn(10)
             given(repository.findAllByStatus(WaitingEntryStatus.PROCESSING))
                 .willReturn(List(10) { mock() })
@@ -88,13 +83,12 @@ class QueueServiceTest {
             }
 
             // when
-            val entryDto = queueService.enter(userId)
+            val enteredOne = queueService.enter(userId)
 
             // then
-            Assertions.assertThat(entryDto.userId).isEqualTo(userId)
-            Assertions.assertThat(entryDto.position).isEqualTo(expectedPosition)
-            Assertions.assertThat(entryDto.status).isEqualTo(expectedStatus)
-            Assertions.assertThat(entryDto.estimatedWaitingTime).isEqualTo(expectedEstimatedWaitingTime)
+            Assertions.assertThat(enteredOne.userId).isEqualTo(userId)
+            Assertions.assertThat(enteredOne.position).isEqualTo(expectedPosition)
+            Assertions.assertThat(enteredOne.status).isEqualTo(expectedStatus)
 
             verify(repository).save(
                 argThat { entry ->
@@ -146,7 +140,7 @@ class QueueServiceTest {
             given(repository.findAllByStatus(WaitingEntryStatus.PROCESSING))
                 .willReturn(List(10) { mock() })
             given(repository.findOneByToken(existingEntry.token)).willReturn(existingEntry)
-            given(repository.findFirstWaitingPosition()).willReturn(0)
+
             given(repository.findLastWaitingPosition()).willReturn(10)
             given(repository.save(any())).willAnswer { invocation ->
                 val savedEntry = invocation.getArgument<WaitingEntry>(0)
@@ -160,7 +154,6 @@ class QueueServiceTest {
             Assertions.assertThat(reenteredOne.userId).isEqualTo(userId)
             Assertions.assertThat(reenteredOne.status).isEqualTo(newStatus)
             Assertions.assertThat(reenteredOne.position).isEqualTo(newPosition)
-            Assertions.assertThat(reenteredOne.estimatedWaitingTime).isEqualTo(newEstimatedWaitingTime)
             Assertions.assertThat(reenteredOne.token).isNotEqualTo(existingEntry.token)
 
             verify(repository).save(
@@ -177,26 +170,24 @@ class QueueServiceTest {
     @Nested
     inner class EntryInfo {
         @Test
-        fun `should return WaitingEntryDto when valid token is provided`() {
+        fun `should return WaitingEntry when valid token is provided`() {
             // given
             val userId = 1L
             val position = 5L
             val status = WaitingEntryStatus.WAITING
-            val estimatedWaitingTime = position * WaitingEntry.WORKING_MINUTES
             val entry = WaitingEntry.create(userId, position, status)
             val token = entry.token
 
             given(repository.findOneByToken(token)).willReturn(entry)
 
             // when
-            val entryDto = queueService.getEntryInfo(token)
+            val enteredOne = queueService.getEntryInfo(token)
 
             // then
-            Assertions.assertThat(entryDto.userId).isEqualTo(userId)
-            Assertions.assertThat(entryDto.token).isEqualTo(token)
-            Assertions.assertThat(entryDto.position).isEqualTo(position)
-            Assertions.assertThat(entryDto.status).isEqualTo(status)
-            Assertions.assertThat(entryDto.estimatedWaitingTime).isEqualTo(estimatedWaitingTime)
+            Assertions.assertThat(enteredOne.userId).isEqualTo(userId)
+            Assertions.assertThat(enteredOne.token).isEqualTo(token)
+            Assertions.assertThat(enteredOne.position).isEqualTo(position)
+            Assertions.assertThat(enteredOne.status).isEqualTo(status)
 
             verify(repository).findOneByToken(token)
         }
@@ -216,25 +207,6 @@ class QueueServiceTest {
         }
 
         @Test
-        fun `should return correct estimated waiting time for processing entry`() {
-            // given
-            val userId = 2L
-            val position = 0L
-            val status = WaitingEntryStatus.PROCESSING
-            val entry = WaitingEntry.create(userId, position, status)
-            val token = entry.token
-            given(repository.findOneByToken(token)).willReturn(entry)
-
-            // when
-            val entryDto = queueService.getEntryInfo(token)
-
-            // then
-            Assertions.assertThat(entryDto.estimatedWaitingTime).isEqualTo(0)
-
-            verify(repository).findOneByToken(token)
-        }
-
-        @Test
         fun `should return correct data for expired entry`() {
             // given
             val userId = 3L
@@ -246,11 +218,12 @@ class QueueServiceTest {
             given(repository.findOneByToken(token)).willReturn(entry)
 
             // when
-            val entryDto = queueService.getEntryInfo(token)
+            val foundOne = queueService.getEntryInfo(token)
 
             // then
-            Assertions.assertThat(entryDto.status).isEqualTo(WaitingEntryStatus.EXPIRED)
-            Assertions.assertThat(entryDto.estimatedWaitingTime).isEqualTo(0)
+            Assertions.assertThat(foundOne.userId).isEqualTo(userId)
+            Assertions.assertThat(foundOne.token).isEqualTo(token)
+            Assertions.assertThat(foundOne.status).isEqualTo(WaitingEntryStatus.EXPIRED)
 
             verify(repository).findOneByToken(token)
         }
@@ -270,6 +243,10 @@ class QueueServiceTest {
             given(
                 repository.findAllByStatusOrderByPosition(WaitingEntryStatus.WAITING, QueueService.MAX_ACTIVE_ENTRIES),
             ).willReturn(listOf(entry1, entry2, entry3))
+            given(repository.saveAll(any())).willAnswer { invocation ->
+                val savedEntries = invocation.getArgument<List<WaitingEntry>>(0)
+                savedEntries.mapIndexed { index, waitingEntry -> waitingEntry.copy(id = (2L + index)) }
+            }
 
             // when
             val activatedEntries = queueService.activateWaitingEntries()
@@ -282,7 +259,6 @@ class QueueServiceTest {
 
             activatedEntries.forEach {
                 Assertions.assertThat(it.status).isEqualTo(WaitingEntryStatus.PROCESSING)
-                Assertions.assertThat(it.estimatedWaitingTime).isEqualTo(0)
             }
 
             verify(repository).findAllByStatus(WaitingEntryStatus.PROCESSING)
@@ -290,6 +266,7 @@ class QueueServiceTest {
                 WaitingEntryStatus.WAITING,
                 QueueService.MAX_ACTIVE_ENTRIES,
             )
+            verify(repository).saveAll(any())
         }
 
         @Test
@@ -316,7 +293,10 @@ class QueueServiceTest {
             given(repository.findAllByStatusOrderByPosition(eq(WaitingEntryStatus.WAITING), any())).willReturn(
                 waitingEntryList,
             )
-            given(repository.save(any())).willAnswer { it.arguments[0] as WaitingEntry }
+            given(repository.saveAll(any())).willAnswer { invocation ->
+                val savedEntries = invocation.getArgument<List<WaitingEntry>>(0)
+                savedEntries.mapIndexed { index, waitingEntry -> waitingEntry.copy(id = (2L + index)) }
+            }
 
             // when
             val activatedEntries = queueService.activateWaitingEntries()
@@ -327,7 +307,6 @@ class QueueServiceTest {
 
             activatedEntries.forEachIndexed { index, entry ->
                 Assertions.assertThat(entry.status).isEqualTo(WaitingEntryStatus.PROCESSING)
-                Assertions.assertThat(entry.estimatedWaitingTime).isEqualTo(0)
                 Assertions.assertThat(entry.userId).isEqualTo((index + currentProcessingEntries + 1).toLong())
             }
 
@@ -336,7 +315,7 @@ class QueueServiceTest {
                 eq(WaitingEntryStatus.WAITING),
                 eq(expectedActivatedCount),
             )
-            verify(repository, times(expectedActivatedCount)).save(any())
+            verify(repository).saveAll(any())
         }
 
         @Test
@@ -388,7 +367,7 @@ class QueueServiceTest {
         }
 
         @Test
-        fun `should expire overdue entries and return them as DTOs`() {
+        fun `should expire overdue entries and return them`() {
             // given
             val overdueEntry1 = createOverdueEntry(1L, 1, WaitingEntryStatus.WAITING, 5)
             val overdueEntry2 = createOverdueEntry(2L, 2, WaitingEntryStatus.PROCESSING, 10)
@@ -398,7 +377,10 @@ class QueueServiceTest {
             given(
                 repository.findOverdueEntriesByStatus(WaitingEntryStatus.PROCESSING, WaitingEntryStatus.WAITING),
             ).willReturn(overdueEntries)
-            given(repository.save(any())).willAnswer { it.arguments[0] }
+            given(repository.saveAll(any())).willAnswer { invocation ->
+                val savedEntries = invocation.getArgument<List<WaitingEntry>>(0)
+                savedEntries.mapIndexed { index, waitingEntry -> waitingEntry.copy(id = (2L + index)) }
+            }
 
             // when
             val result = queueService.expireOverdueEntries()
@@ -413,13 +395,18 @@ class QueueServiceTest {
             Assertions.assertThat(result[1].position).isEqualTo(0)
 
             verify(repository).findOverdueEntriesByStatus(WaitingEntryStatus.PROCESSING, WaitingEntryStatus.WAITING)
-            verify(repository, times(2)).save(any())
+            verify(repository).saveAll(any())
         }
 
         @Test
         fun `should return empty list when no overdue entries`() {
             // given
-            given(repository.findOverdueEntriesByStatus(WaitingEntryStatus.PROCESSING, WaitingEntryStatus.WAITING)).willReturn(emptyList())
+            given(
+                repository.findOverdueEntriesByStatus(
+                    WaitingEntryStatus.PROCESSING,
+                    WaitingEntryStatus.WAITING,
+                ),
+            ).willReturn(emptyList())
 
             // when
             val result = queueService.expireOverdueEntries()

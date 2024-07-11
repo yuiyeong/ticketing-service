@@ -6,6 +6,8 @@ import com.yuiyeong.ticketing.domain.model.WaitingEntryStatus
 interface WaitingEntryRepository {
     fun save(entry: WaitingEntry): WaitingEntry
 
+    fun saveAll(entries: List<WaitingEntry>): List<WaitingEntry>
+
     fun findOneByToken(token: String): WaitingEntry?
 
     fun findOneById(id: Long): WaitingEntry?

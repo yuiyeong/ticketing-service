@@ -1,6 +1,7 @@
 package com.yuiyeong.ticketing.presentation.controller
 
-import com.yuiyeong.ticketing.application.service.QueueService
+import com.yuiyeong.ticketing.application.usecase.EnteringQueueUseCase
+import com.yuiyeong.ticketing.application.usecase.QueueEntryInfoUseCase
 import com.yuiyeong.ticketing.config.swagger.annotation.api.QueueStatusApiDoc
 import com.yuiyeong.ticketing.config.swagger.annotation.api.QueueTokenIssuanceApiDoc
 import com.yuiyeong.ticketing.domain.exception.InvalidTokenException
@@ -22,14 +23,17 @@ import org.springframework.web.bind.annotation.RestController
 @Tag(name = "대기열", description = "대기열 관련 API")
 class QueueController {
     @Autowired
-    private lateinit var queueService: QueueService
+    private lateinit var enteringQueueUseCase: EnteringQueueUseCase
+
+    @Autowired
+    private lateinit var queueEntryInfoUseCase: QueueEntryInfoUseCase
 
     @PostMapping("token")
     @QueueTokenIssuanceApiDoc
     fun generateToken(
         @RequestBody req: GeneratingQueueTokenRequest,
     ): TicketingResponse<WaitingInfoTokenDto> {
-        val data = WaitingInfoTokenDto.from(queueService.enter(req.userId))
+        val data = WaitingInfoTokenDto.from(enteringQueueUseCase.enter(req.userId))
         return TicketingResponse(data)
     }
 
@@ -39,7 +43,7 @@ class QueueController {
         @RequestHeader(name = "User-Token", required = false) userToken: String?,
     ): TicketingResponse<WaitingInfoPositionDto> {
         if (userToken == null) throw InvalidTokenException()
-        val data = WaitingInfoPositionDto.from(queueService.getEntryInfo(userToken))
+        val data = WaitingInfoPositionDto.from(queueEntryInfoUseCase.getEntry(userToken))
         return TicketingResponse(data)
     }
 }
