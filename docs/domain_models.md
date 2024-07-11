@@ -13,7 +13,7 @@
 7. Reservation: 좌석 예약 정보를 관리
 8. Occupation: 좌석 임시 점유 정보를 관리
 9. Payment: 결제 정보를 관리
-10. WaitingQueue: 대기열 정보를 관리
+10. WaitingQueueEntry: 대기열 정보를 관리
 
 ### 값 객체
 
@@ -23,7 +23,7 @@
 4. ReservationStatus: PENDING, CONFIRMED, CANCELLED
 5. OccupationStatus: ACTIVE, EXPIRED, RELEASED
 6. PaymentStatus: PENDING, COMPLETED, FAILED
-7. WaitingQueueStatus: READY, PROCESSING, EXITED, EXPIRED
+7. WaitingQueueEntryStatus: READY, PROCESSING, EXITED, EXPIRED
 
 ## 바운디드 컨텍스트 및 애그리거트
 
