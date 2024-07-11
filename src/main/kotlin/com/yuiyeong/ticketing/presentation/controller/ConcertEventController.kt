@@ -1,6 +1,7 @@
 package com.yuiyeong.ticketing.presentation.controller
 
 import com.yuiyeong.ticketing.application.usecase.AvailableSeatsUseCase
+import com.yuiyeong.ticketing.application.usecase.OccupationUseCase
 import com.yuiyeong.ticketing.config.swagger.annotation.api.AvailableSeatsApiDoc
 import com.yuiyeong.ticketing.config.swagger.annotation.api.OccupySeatApiDoc
 import com.yuiyeong.ticketing.config.swagger.annotation.api.ReserveSeatApiDoc
@@ -33,6 +34,9 @@ class ConcertEventController {
     @Autowired
     private lateinit var availableSeatsUseCase: AvailableSeatsUseCase
 
+    @Autowired
+    private lateinit var occupationUseCase: OccupationUseCase
+
     @GetMapping("{concertEventId}/available-seats")
     @AvailableSeatsApiDoc
     fun getAvailableSeats(
@@ -50,20 +54,8 @@ class ConcertEventController {
         @PathVariable("concertEventId") concertEventId: Long,
         @RequestBody req: ConcertEventOccupationRequest,
     ): TicketingResponse<OccupiedSeatDto> {
-        when (userToken) {
-            null -> throw InvalidTokenException()
-            "invalidQueueToken" -> throw InvalidTokenException()
-            "notInQueueToken" -> throw NotFoundTokenException()
-        }
-
-        return TicketingResponse(
-            OccupiedSeatDto(
-                id = 1L,
-                seatNumber = "12",
-                price = 50000,
-                expirationTime = "2024-07-01T12:05:00Z",
-            ),
-        )
+        val data = OccupiedSeatDto.from(occupationUseCase.occupySeat(userToken, concertEventId, req.seatId))
+        return TicketingResponse(data)
     }
 
     @PostMapping("{concertEventId}/reserve")
