@@ -1,9 +1,8 @@
-package com.yuiyeong.ticketing.application.service
+package com.yuiyeong.ticketing.domain.service
 
 import com.yuiyeong.ticketing.domain.exception.InvalidAmountException
 import com.yuiyeong.ticketing.domain.exception.NotFoundWalletException
 import com.yuiyeong.ticketing.domain.model.Wallet
-import com.yuiyeong.ticketing.domain.repository.TransactionRepository
 import com.yuiyeong.ticketing.domain.repository.WalletRepository
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
@@ -22,14 +21,11 @@ class WalletServiceTest {
     @Mock
     private lateinit var walletRepository: WalletRepository
 
-    @Mock
-    private lateinit var transactionRepository: TransactionRepository
-
     private lateinit var walletService: WalletService
 
     @BeforeEach
-    fun setup() {
-        walletService = WalletService(walletRepository, transactionRepository)
+    fun beforeEach() {
+        walletService = WalletService(walletRepository)
     }
 
     @Test
