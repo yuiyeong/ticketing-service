@@ -1,5 +1,6 @@
 package com.yuiyeong.ticketing.presentation.controller
 
+import com.yuiyeong.ticketing.application.usecase.AvailableSeatsUseCase
 import com.yuiyeong.ticketing.config.swagger.annotation.api.AvailableSeatsApiDoc
 import com.yuiyeong.ticketing.config.swagger.annotation.api.OccupySeatApiDoc
 import com.yuiyeong.ticketing.config.swagger.annotation.api.ReserveSeatApiDoc
@@ -16,6 +17,7 @@ import com.yuiyeong.ticketing.presentation.dto.request.ConcertEventReservationRe
 import com.yuiyeong.ticketing.presentation.dto.response.TicketingListResponse
 import com.yuiyeong.ticketing.presentation.dto.response.TicketingResponse
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -28,12 +30,18 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/v1/concert-events")
 @Tag(name = "콘서트 이벤트", description = "콘서트 이벤트 관련 api")
 class ConcertEventController {
+    @Autowired
+    private lateinit var availableSeatsUseCase: AvailableSeatsUseCase
+
     @GetMapping("{concertEventId}/available-seats")
     @AvailableSeatsApiDoc
     fun getAvailableSeats(
         @RequestHeader(name = "User-Token", required = false) userToken: String?,
         @PathVariable("concertEventId") concertEventId: Long,
-    ): TicketingListResponse<SeatDto> = TicketingListResponse(listOf(SeatDto(1L, "12", 50000), SeatDto(2L, "15", 40000)))
+    ): TicketingListResponse<SeatDto> {
+        val list = availableSeatsUseCase.getSeats(concertEventId).map { SeatDto.from(it) }
+        return TicketingListResponse(list)
+    }
 
     @PostMapping("{concertEventId}/occupy")
     @OccupySeatApiDoc
