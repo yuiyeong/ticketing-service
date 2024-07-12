@@ -32,4 +32,11 @@ class OccupationService(
         concertEventRepository.save(concertEvent)
         return occupationRepository.save(occupation)
     }
+
+    fun expireOverdueOccupations(): List<Occupation> {
+        val current = ZonedDateTime.now()
+        val occupations = occupationRepository.findAllByExpiresAtBefore(current)
+        occupations.forEach { it.expire(current) }
+        return occupationRepository.saveAll(occupations)
+    }
 }
