@@ -9,4 +9,9 @@ interface OccupationRepository {
     fun saveAll(occupations: List<Occupation>): List<Occupation>
 
     fun findAllByExpiresAtBefore(moment: ZonedDateTime): List<Occupation>
+
+    fun findOneByIdAndUserId(
+        occupiedSeatId: Long,
+        userId: Long,
+    ): Occupation?
 }

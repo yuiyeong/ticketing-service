@@ -39,4 +39,12 @@ class OccupationService(
         occupations.forEach { it.expire(current) }
         return occupationRepository.saveAll(occupations)
     }
+
+    fun getUserOccupation(
+        userId: Long,
+        occupiedSeatId: Long,
+    ): Occupation {
+        val occupation = occupationRepository.findOneByIdAndUserId(occupiedSeatId, userId) ?: throw NotFoundSeatException()
+        return occupation
+    }
 }

@@ -1,5 +1,6 @@
 package com.yuiyeong.ticketing.domain.service
 
+import com.yuiyeong.ticketing.domain.exception.NotFoundConcertEventException
 import com.yuiyeong.ticketing.domain.exception.NotFoundConcertException
 import com.yuiyeong.ticketing.domain.model.ConcertEvent
 import com.yuiyeong.ticketing.domain.model.Seat
@@ -17,5 +18,10 @@ class ConcertEventService(
     fun getAvailableSeats(concertEventId: Long): List<Seat> {
         val concertEvent = concertEventRepository.findOneById(concertEventId) ?: throw NotFoundConcertException()
         return concertEvent.getAvailableSeats()
+    }
+
+    fun getConcertEvent(concertEventId: Long): ConcertEvent {
+        val concertEvent = concertEventRepository.findOneById(concertEventId) ?: throw NotFoundConcertEventException()
+        return concertEvent
     }
 }

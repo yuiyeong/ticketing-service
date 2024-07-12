@@ -12,7 +12,7 @@ data class Occupation(
 ) {
     fun expire(current: ZonedDateTime) {
         if (status != OccupationStatus.ACTIVE) {
-            throw IllegalStateException("점유 상타에 대해서만 만료할 수 있습니다.")
+            throw IllegalStateException("점유 상태에 대해서만 만료할 수 있습니다.")
         }
 
         if (current.isBefore(expiresAt)) {
@@ -20,6 +20,24 @@ data class Occupation(
         }
 
         status = OccupationStatus.EXPIRED
+    }
+
+    fun checkAvailable() {
+        if (status == OccupationStatus.EXPIRED) {
+            throw IllegalStateException("점유 시간이 만료되었습니다.")
+        }
+
+        if (status == OccupationStatus.RELEASED) {
+            throw IllegalStateException("이미 예약된 좌석입니다.")
+        }
+    }
+
+    fun release() {
+        if (status == OccupationStatus.EXPIRED) {
+            throw IllegalStateException("점유 시간이 만료되었습니다.")
+        }
+
+        status = OccupationStatus.RELEASED
     }
 
     companion object {
