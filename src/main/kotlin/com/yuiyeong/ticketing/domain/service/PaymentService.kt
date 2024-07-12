@@ -40,4 +40,6 @@ class PaymentService(
         reservation.confirm()
         reservationRepository.save(reservation)
     }
+
+    fun getHistory(userId: Long): List<Payment> = paymentRepository.findAllByUserId(userId)
 }
