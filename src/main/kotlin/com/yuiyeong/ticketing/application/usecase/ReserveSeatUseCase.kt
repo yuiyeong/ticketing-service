@@ -2,8 +2,8 @@ package com.yuiyeong.ticketing.application.usecase
 
 import com.yuiyeong.ticketing.application.dto.ReservationResult
 
-interface ReservationUseCase {
-    fun reserve(
+interface ReserveSeatUseCase {
+    fun execute(
         userToken: String?,
         concertEventId: Long,
         occupiedSeatId: Long,

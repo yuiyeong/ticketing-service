@@ -2,6 +2,6 @@ package com.yuiyeong.ticketing.application.usecase
 
 import com.yuiyeong.ticketing.application.dto.WaitingEntryResult
 
-interface ActivationEntryUseCase {
-    fun activateEntries(): List<WaitingEntryResult>
+interface ExpireWaitingEntryUseCase {
+    fun execute(): List<WaitingEntryResult>
 }

@@ -1,8 +1,8 @@
 package com.yuiyeong.ticketing.presentation.controller
 
-import com.yuiyeong.ticketing.application.usecase.AvailableSeatsUseCase
-import com.yuiyeong.ticketing.application.usecase.OccupationUseCase
-import com.yuiyeong.ticketing.application.usecase.ReservationUseCase
+import com.yuiyeong.ticketing.application.usecase.GetAvailableSeatsUseCase
+import com.yuiyeong.ticketing.application.usecase.OccupySeatUseCase
+import com.yuiyeong.ticketing.application.usecase.ReserveSeatUseCase
 import com.yuiyeong.ticketing.config.swagger.annotation.api.AvailableSeatsApiDoc
 import com.yuiyeong.ticketing.config.swagger.annotation.api.OccupySeatApiDoc
 import com.yuiyeong.ticketing.config.swagger.annotation.api.ReserveSeatApiDoc
@@ -28,13 +28,13 @@ import org.springframework.web.bind.annotation.RestController
 @Tag(name = "콘서트 이벤트", description = "콘서트 이벤트 관련 api")
 class ConcertEventController {
     @Autowired
-    private lateinit var availableSeatsUseCase: AvailableSeatsUseCase
+    private lateinit var getAvailableSeatsUseCase: GetAvailableSeatsUseCase
 
     @Autowired
-    private lateinit var occupationUseCase: OccupationUseCase
+    private lateinit var occupySeatUseCase: OccupySeatUseCase
 
     @Autowired
-    private lateinit var reservationUseCase: ReservationUseCase
+    private lateinit var reserveSeatUseCase: ReserveSeatUseCase
 
     @GetMapping("{concertEventId}/available-seats")
     @AvailableSeatsApiDoc
@@ -42,7 +42,7 @@ class ConcertEventController {
         @RequestHeader(name = "User-Token", required = false) userToken: String?,
         @PathVariable("concertEventId") concertEventId: Long,
     ): TicketingListResponse<SeatResponseDto> {
-        val list = availableSeatsUseCase.getSeats(userToken, concertEventId).map { SeatResponseDto.from(it) }
+        val list = getAvailableSeatsUseCase.execute(userToken, concertEventId).map { SeatResponseDto.from(it) }
         return TicketingListResponse(list)
     }
 
@@ -53,7 +53,7 @@ class ConcertEventController {
         @PathVariable("concertEventId") concertEventId: Long,
         @RequestBody req: ConcertEventOccupationRequest,
     ): TicketingResponse<OccupationResponseDto> {
-        val data = OccupationResponseDto.from(occupationUseCase.occupySeat(userToken, concertEventId, req.seatId))
+        val data = OccupationResponseDto.from(occupySeatUseCase.execute(userToken, concertEventId, req.seatId))
         return TicketingResponse(data)
     }
 
@@ -64,7 +64,7 @@ class ConcertEventController {
         @PathVariable("concertEventId") concertEventId: Long,
         @RequestBody req: ConcertEventReservationRequest,
     ): TicketingResponse<ReservationResponseDto> {
-        val data = ReservationResponseDto.from(reservationUseCase.reserve(userToken, concertEventId, req.seatId))
+        val data = ReservationResponseDto.from(reserveSeatUseCase.execute(userToken, concertEventId, req.seatId))
         return TicketingResponse(data)
     }
 }

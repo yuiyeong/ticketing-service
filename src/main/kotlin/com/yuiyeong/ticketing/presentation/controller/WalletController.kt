@@ -1,7 +1,7 @@
 package com.yuiyeong.ticketing.presentation.controller
 
-import com.yuiyeong.ticketing.application.usecase.ChargingWalletUseCase
-import com.yuiyeong.ticketing.application.usecase.WalletBalanceUseCase
+import com.yuiyeong.ticketing.application.usecase.ChargeWalletUseCase
+import com.yuiyeong.ticketing.application.usecase.GetBalanceUseCase
 import com.yuiyeong.ticketing.config.swagger.annotation.api.ChargeWalletApiDoc
 import com.yuiyeong.ticketing.config.swagger.annotation.api.WalletBalanceApiDoc
 import com.yuiyeong.ticketing.presentation.dto.WalletResponseDto
@@ -21,17 +21,17 @@ import org.springframework.web.bind.annotation.RestController
 @Tag(name = "지갑", description = "지갑 관련 api")
 class WalletController {
     @Autowired
-    private lateinit var chargingWalletUseCase: ChargingWalletUseCase
+    private lateinit var chargeWalletUseCase: ChargeWalletUseCase
 
     @Autowired
-    private lateinit var walletBalanceUseCase: WalletBalanceUseCase
+    private lateinit var getBalanceUseCase: GetBalanceUseCase
 
     @GetMapping("{userId}/wallet")
     @WalletBalanceApiDoc
     fun getBalance(
         @PathVariable("userId") userId: Long,
     ): TicketingResponse<WalletResponseDto> {
-        val data = WalletResponseDto.from(walletBalanceUseCase.getBalance(userId))
+        val data = WalletResponseDto.from(getBalanceUseCase.execute(userId))
         return TicketingResponse(data)
     }
 
@@ -41,7 +41,7 @@ class WalletController {
         @PathVariable("userId") userId: Long,
         @RequestBody req: ChargingWalletRequest,
     ): TicketingResponse<WalletResponseDto> {
-        val data = WalletResponseDto.from(chargingWalletUseCase.charge(userId, req.amount))
+        val data = WalletResponseDto.from(chargeWalletUseCase.execute(userId, req.amount))
         return TicketingResponse(data)
     }
 }

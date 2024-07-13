@@ -5,9 +5,8 @@ import com.yuiyeong.ticketing.domain.service.OccupationService
 import org.springframework.stereotype.Component
 
 @Component
-class ExpirationOccupationUseCaseImpl(
+class ExpireOccupationUseCaseImpl(
     private val occupationService: OccupationService,
-) : ExpirationOccupationUseCase {
-    override fun expireOverdueOccupations(): List<OccupationResult> =
-        occupationService.expireOverdueOccupations().map { OccupationResult.from(it) }
+) : ExpireOccupationUseCase {
+    override fun execute(): List<OccupationResult> = occupationService.expireOverdueOccupations().map { OccupationResult.from(it) }
 }

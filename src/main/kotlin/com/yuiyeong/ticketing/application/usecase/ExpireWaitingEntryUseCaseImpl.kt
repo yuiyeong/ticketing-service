@@ -5,8 +5,8 @@ import com.yuiyeong.ticketing.domain.service.QueueService
 import org.springframework.stereotype.Component
 
 @Component
-class ActivationEntryUseCaseImpl(
+class ExpireWaitingEntryUseCaseImpl(
     private val queueService: QueueService,
-) : ActivationEntryUseCase {
-    override fun activateEntries(): List<WaitingEntryResult> = queueService.activateWaitingEntries().map { WaitingEntryResult.from(it) }
+) : ExpireWaitingEntryUseCase {
+    override fun execute(): List<WaitingEntryResult> = queueService.expireOverdueEntries().map { WaitingEntryResult.from(it) }
 }

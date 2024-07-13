@@ -6,11 +6,11 @@ import com.yuiyeong.ticketing.domain.service.QueueService
 import org.springframework.stereotype.Component
 
 @Component
-class AvailableEventsUseCaseImpl(
+class GetAvailableConcertEventsUseCaseImpl(
     private val queueService: QueueService,
     private val concertEventService: ConcertEventService,
-) : AvailableEventsUseCase {
-    override fun getConcertEvents(
+) : GetAvailableConcertEventsUseCase {
+    override fun execute(
         userToken: String?,
         concertId: Long,
     ): List<ConcertEventResult> {

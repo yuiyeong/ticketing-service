@@ -9,14 +9,14 @@ import com.yuiyeong.ticketing.domain.service.ReservationService
 import org.springframework.stereotype.Component
 
 @Component
-class ReservationUseCaseImpl(
+class ReserveSeatUseCaseImpl(
     private val queueService: QueueService,
     private val concertEventService: ConcertEventService,
     private val reservationService: ReservationService,
     private val occupationService: OccupationService,
     private val paymentService: PaymentService,
-) : ReservationUseCase {
-    override fun reserve(
+) : ReserveSeatUseCase {
+    override fun execute(
         userToken: String?,
         concertEventId: Long,
         occupiedSeatId: Long,

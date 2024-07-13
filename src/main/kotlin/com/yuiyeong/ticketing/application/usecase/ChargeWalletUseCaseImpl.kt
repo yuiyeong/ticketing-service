@@ -6,11 +6,11 @@ import com.yuiyeong.ticketing.domain.service.WalletService
 import org.springframework.stereotype.Component
 
 @Component
-class ChargingWalletUseCaseImpl(
+class ChargeWalletUseCaseImpl(
     private val walletService: WalletService,
     private val transactionService: TransactionService,
-) : ChargingWalletUseCase {
-    override fun charge(
+) : ChargeWalletUseCase {
+    override fun execute(
         userId: Long,
         amount: Long,
     ): WalletResult {

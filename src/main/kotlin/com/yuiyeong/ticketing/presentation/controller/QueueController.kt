@@ -1,7 +1,7 @@
 package com.yuiyeong.ticketing.presentation.controller
 
-import com.yuiyeong.ticketing.application.usecase.EnteringQueueUseCase
-import com.yuiyeong.ticketing.application.usecase.QueueEntryInfoUseCase
+import com.yuiyeong.ticketing.application.usecase.EnterWaitingQueueUseCase
+import com.yuiyeong.ticketing.application.usecase.GetWaitingEntryUseCase
 import com.yuiyeong.ticketing.config.swagger.annotation.api.QueueStatusApiDoc
 import com.yuiyeong.ticketing.config.swagger.annotation.api.QueueTokenIssuanceApiDoc
 import com.yuiyeong.ticketing.presentation.dto.WaitingPositionResponseDto
@@ -22,17 +22,17 @@ import org.springframework.web.bind.annotation.RestController
 @Tag(name = "대기열", description = "대기열 관련 API")
 class QueueController {
     @Autowired
-    private lateinit var enteringQueueUseCase: EnteringQueueUseCase
+    private lateinit var enterWaitingQueueUseCase: EnterWaitingQueueUseCase
 
     @Autowired
-    private lateinit var queueEntryInfoUseCase: QueueEntryInfoUseCase
+    private lateinit var getWaitingEntryUseCase: GetWaitingEntryUseCase
 
     @PostMapping("token")
     @QueueTokenIssuanceApiDoc
     fun generateToken(
         @RequestBody req: GeneratingQueueTokenRequest,
     ): TicketingResponse<WaitingTokenResponseDto> {
-        val data = WaitingTokenResponseDto.from(enteringQueueUseCase.enter(req.userId))
+        val data = WaitingTokenResponseDto.from(enterWaitingQueueUseCase.execute(req.userId))
         return TicketingResponse(data)
     }
 
@@ -41,7 +41,7 @@ class QueueController {
     fun getStatus(
         @RequestHeader(name = "User-Token", required = false) userToken: String?,
     ): TicketingResponse<WaitingPositionResponseDto> {
-        val data = WaitingPositionResponseDto.from(queueEntryInfoUseCase.getEntry(userToken))
+        val data = WaitingPositionResponseDto.from(getWaitingEntryUseCase.execute(userToken))
         return TicketingResponse(data)
     }
 }

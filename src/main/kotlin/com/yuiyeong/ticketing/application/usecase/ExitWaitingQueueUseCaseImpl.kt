@@ -5,8 +5,8 @@ import com.yuiyeong.ticketing.domain.service.QueueService
 import org.springframework.stereotype.Component
 
 @Component
-class ExitingQueueUseCaseImpl(
+class ExitWaitingQueueUseCaseImpl(
     private val queueService: QueueService,
-) : ExitingQueueUseCase {
-    override fun exit(token: String): WaitingEntryResult = WaitingEntryResult.from(queueService.exit(token))
+) : ExitWaitingQueueUseCase {
+    override fun execute(token: String): WaitingEntryResult = WaitingEntryResult.from(queueService.exit(token))
 }

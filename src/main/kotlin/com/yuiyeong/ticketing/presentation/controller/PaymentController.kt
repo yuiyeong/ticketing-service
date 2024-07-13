@@ -1,6 +1,6 @@
 package com.yuiyeong.ticketing.presentation.controller
 
-import com.yuiyeong.ticketing.application.usecase.PaymentListUseCase
+import com.yuiyeong.ticketing.application.usecase.GetPaymentListUseCase
 import com.yuiyeong.ticketing.config.swagger.annotation.api.PaymentHistoryApiDoc
 import com.yuiyeong.ticketing.presentation.dto.PaymentResponseDto
 import com.yuiyeong.ticketing.presentation.dto.response.TicketingListResponse
@@ -16,14 +16,14 @@ import org.springframework.web.bind.annotation.RestController
 @Tag(name = "결제", description = "결제 관련 api")
 class PaymentController {
     @Autowired
-    private lateinit var paymentListUseCase: PaymentListUseCase
+    private lateinit var getPaymentListUseCase: GetPaymentListUseCase
 
     @GetMapping("{userId}/payments")
     @PaymentHistoryApiDoc
     fun getPayments(
         @PathVariable("userId") userId: Long,
     ): TicketingListResponse<PaymentResponseDto> {
-        val list = paymentListUseCase.getHistory(userId).map { PaymentResponseDto.from(it) }
+        val list = getPaymentListUseCase.execute(userId).map { PaymentResponseDto.from(it) }
         return TicketingListResponse(list)
     }
 }

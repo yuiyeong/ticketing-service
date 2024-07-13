@@ -5,10 +5,10 @@ import com.yuiyeong.ticketing.domain.service.WalletService
 import org.springframework.stereotype.Component
 
 @Component
-class WalletBalanceUseCaseImpl(
+class GetBalanceUseCaseImpl(
     private val walletService: WalletService,
-) : WalletBalanceUseCase {
-    override fun getBalance(userId: Long): WalletResult {
+) : GetBalanceUseCase {
+    override fun execute(userId: Long): WalletResult {
         val wallet = walletService.getBalance(userId)
         return WalletResult.from(wallet)
     }

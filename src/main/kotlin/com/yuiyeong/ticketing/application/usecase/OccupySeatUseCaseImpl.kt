@@ -6,11 +6,11 @@ import com.yuiyeong.ticketing.domain.service.QueueService
 import org.springframework.stereotype.Component
 
 @Component
-class OccupationUseCaseImpl(
+class OccupySeatUseCaseImpl(
     private val queueService: QueueService,
     private val occupationService: OccupationService,
-) : OccupationUseCase {
-    override fun occupySeat(
+) : OccupySeatUseCase {
+    override fun execute(
         userToken: String?,
         concertEventId: Long,
         seatId: Long,

@@ -1,6 +1,6 @@
 package com.yuiyeong.ticketing.presentation.controller
 
-import com.yuiyeong.ticketing.application.usecase.AvailableEventsUseCase
+import com.yuiyeong.ticketing.application.usecase.GetAvailableConcertEventsUseCase
 import com.yuiyeong.ticketing.config.swagger.annotation.api.AvailableConcertEventsApiDoc
 import com.yuiyeong.ticketing.presentation.dto.ConcertEventResponseDto
 import com.yuiyeong.ticketing.presentation.dto.response.TicketingListResponse
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController
 @Tag(name = "콘서트", description = "콘서트 관련 api")
 class ConcertController {
     @Autowired
-    private lateinit var availableEventsUseCase: AvailableEventsUseCase
+    private lateinit var getAvailableConcertEventsUseCase: GetAvailableConcertEventsUseCase
 
     @GetMapping("{concertId}/available-events")
     @AvailableConcertEventsApiDoc
@@ -26,8 +26,8 @@ class ConcertController {
         @PathVariable("concertId") concertId: Long,
     ): TicketingListResponse<ConcertEventResponseDto> {
         val list =
-            availableEventsUseCase
-                .getConcertEvents(userToken, concertId)
+            getAvailableConcertEventsUseCase
+                .execute(userToken, concertId)
                 .map { ConcertEventResponseDto.from(it) }
         return TicketingListResponse(list)
     }

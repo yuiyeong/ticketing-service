@@ -5,10 +5,10 @@ import com.yuiyeong.ticketing.domain.service.QueueService
 import org.springframework.stereotype.Component
 
 @Component
-class EnteringQueueUseCaseImpl(
+class EnterWaitingQueueUseCaseImpl(
     private val queueService: QueueService,
-) : EnteringQueueUseCase {
-    override fun enter(userId: Long): WaitingEntryResult {
+) : EnterWaitingQueueUseCase {
+    override fun execute(userId: Long): WaitingEntryResult {
         val positionOffset = queueService.getFirstWaitingPosition()
         return WaitingEntryResult.from(queueService.enter(userId), positionOffset)
     }
