@@ -1,7 +1,7 @@
 package com.yuiyeong.ticketing.domain.model
 
 import com.yuiyeong.ticketing.domain.exception.InsufficientBalanceException
-import com.yuiyeong.ticketing.domain.exception.InvalidAmountException
+import com.yuiyeong.ticketing.domain.exception.InvalidChargeAmountException
 import java.math.BigDecimal
 import java.time.ZonedDateTime
 
@@ -14,14 +14,14 @@ data class Wallet(
 ) {
     fun charge(amount: Long) {
         if (amount <= 0) {
-            throw InvalidAmountException()
+            throw InvalidChargeAmountException()
         }
         balance += BigDecimal(amount)
     }
 
     fun pay(amount: BigDecimal) {
         if (amount <= BigDecimal(0)) {
-            throw InvalidAmountException()
+            throw InvalidChargeAmountException()
         }
 
         if (balance < amount) {

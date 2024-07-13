@@ -1,5 +1,7 @@
 package com.yuiyeong.ticketing.domain.model
 
+import com.yuiyeong.ticketing.domain.exception.ReservationAlreadyCanceledException
+import com.yuiyeong.ticketing.domain.exception.ReservationAlreadyConfirmedException
 import java.math.BigDecimal
 import java.time.ZonedDateTime
 
@@ -13,9 +15,14 @@ data class Reservation(
     val createdAt: ZonedDateTime,
 ) {
     fun confirm() {
-        if (status != ReservationStatus.PENDING) {
-            throw IllegalStateException("예약을 완료할 수 없는 상태입니다.")
+        if (status == ReservationStatus.CONFIRMED) {
+            throw ReservationAlreadyConfirmedException()
         }
+
+        if (status == ReservationStatus.CANCELLED) {
+            throw ReservationAlreadyCanceledException()
+        }
+
         status = ReservationStatus.CONFIRMED
     }
 

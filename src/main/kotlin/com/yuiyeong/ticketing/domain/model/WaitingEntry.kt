@@ -1,12 +1,15 @@
 package com.yuiyeong.ticketing.domain.model
 
 import com.yuiyeong.ticketing.domain.exception.InvalidTokenException
-import com.yuiyeong.ticketing.domain.exception.InvalidTokenStatusException
+import com.yuiyeong.ticketing.domain.exception.QueueEntryAlreadyExitedException
+import com.yuiyeong.ticketing.domain.exception.QueueEntryAlreadyProcessingException
+import com.yuiyeong.ticketing.domain.exception.QueueEntryExpiredException
+import com.yuiyeong.ticketing.domain.exception.QueueEntryNotOverdueException
+import com.yuiyeong.ticketing.domain.exception.TokenNotProcessableException
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.util.Base64
-import java.util.Objects
+import java.util.*
 
 class WaitingEntry(
     id: Long,
@@ -47,8 +50,16 @@ class WaitingEntry(
         private set
 
     fun process() {
-        if (status != WaitingEntryStatus.WAITING) {
-            throw IllegalStateException("대기 상태일 때만 작업 중으로 변경가능합니다.")
+        if (status == WaitingEntryStatus.EXPIRED) {
+            throw QueueEntryExpiredException()
+        }
+
+        if (status == WaitingEntryStatus.EXITED) {
+            throw QueueEntryAlreadyExitedException()
+        }
+
+        if (status == WaitingEntryStatus.PROCESSING) {
+            throw QueueEntryAlreadyProcessingException()
         }
 
         status = WaitingEntryStatus.PROCESSING
@@ -57,8 +68,12 @@ class WaitingEntry(
     }
 
     fun exit() {
-        if (status != WaitingEntryStatus.PROCESSING && status != WaitingEntryStatus.WAITING) {
-            throw IllegalStateException("작업 중이거나 대기 중일 때만 대기열에서 제거할 수 있습니다.")
+        if (status == WaitingEntryStatus.EXPIRED) {
+            throw QueueEntryExpiredException()
+        }
+
+        if (status == WaitingEntryStatus.EXITED) {
+            throw QueueEntryAlreadyExitedException()
         }
 
         status = WaitingEntryStatus.EXITED
@@ -67,12 +82,16 @@ class WaitingEntry(
     }
 
     fun expire(current: ZonedDateTime) {
-        if (status != WaitingEntryStatus.PROCESSING && status != WaitingEntryStatus.WAITING) {
-            throw IllegalStateException("작업 중이거나 대기 중일 때만 만료할 수 있습니다.")
+        if (status == WaitingEntryStatus.EXPIRED) {
+            throw QueueEntryExpiredException()
+        }
+
+        if (status == WaitingEntryStatus.EXITED) {
+            throw QueueEntryAlreadyExitedException()
         }
 
         if (current.isBefore(expiresAt)) {
-            throw IllegalStateException("현재 만료 일시가 지나지 않았습니다.")
+            throw QueueEntryNotOverdueException()
         }
 
         status = WaitingEntryStatus.EXPIRED
@@ -83,7 +102,7 @@ class WaitingEntry(
 
     fun verifyOnProcessing() {
         if (status != WaitingEntryStatus.PROCESSING) {
-            throw InvalidTokenStatusException()
+            throw TokenNotProcessableException()
         }
     }
 

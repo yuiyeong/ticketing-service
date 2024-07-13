@@ -1,7 +1,7 @@
 package com.yuiyeong.ticketing.domain.service
 
-import com.yuiyeong.ticketing.domain.exception.InvalidAmountException
-import com.yuiyeong.ticketing.domain.exception.NotFoundWalletException
+import com.yuiyeong.ticketing.domain.exception.InvalidChargeAmountException
+import com.yuiyeong.ticketing.domain.exception.WalletNotFoundException
 import com.yuiyeong.ticketing.domain.model.Wallet
 import com.yuiyeong.ticketing.domain.repository.WalletRepository
 import org.assertj.core.api.Assertions
@@ -61,7 +61,7 @@ class WalletServiceTest {
         // when & then
         Assertions
             .assertThatThrownBy { walletService.charge(userId, amount) }
-            .isInstanceOf(InvalidAmountException::class.java)
+            .isInstanceOf(InvalidChargeAmountException::class.java)
         verify(walletRepository).findOneByUserId(userId)
     }
 
@@ -89,6 +89,6 @@ class WalletServiceTest {
         // when & then
         Assertions
             .assertThatThrownBy { walletService.getBalance(unknownUserId) }
-            .isInstanceOf(NotFoundWalletException::class.java)
+            .isInstanceOf(WalletNotFoundException::class.java)
     }
 }

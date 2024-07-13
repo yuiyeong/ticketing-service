@@ -1,17 +1,17 @@
 package com.yuiyeong.ticketing.application.service
 
 import com.yuiyeong.ticketing.application.dto.TicketingErrorDto
+import com.yuiyeong.ticketing.domain.exception.ConcertEventNotFoundException
+import com.yuiyeong.ticketing.domain.exception.ConcertNotFoundException
 import com.yuiyeong.ticketing.domain.exception.InsufficientBalanceException
-import com.yuiyeong.ticketing.domain.exception.InvalidAmountException
-import com.yuiyeong.ticketing.domain.exception.InvalidSeatStatusException
+import com.yuiyeong.ticketing.domain.exception.InvalidChargeAmountException
 import com.yuiyeong.ticketing.domain.exception.InvalidTokenException
-import com.yuiyeong.ticketing.domain.exception.InvalidTokenStatusException
-import com.yuiyeong.ticketing.domain.exception.NotFoundConcertEventException
-import com.yuiyeong.ticketing.domain.exception.NotFoundConcertException
-import com.yuiyeong.ticketing.domain.exception.NotFoundSeatException
-import com.yuiyeong.ticketing.domain.exception.NotFoundTokenException
-import com.yuiyeong.ticketing.domain.exception.NotFoundWalletException
 import com.yuiyeong.ticketing.domain.exception.OccupationExpiredException
+import com.yuiyeong.ticketing.domain.exception.SeatNotFoundException
+import com.yuiyeong.ticketing.domain.exception.SeatUnavailableException
+import com.yuiyeong.ticketing.domain.exception.TokenNotFoundException
+import com.yuiyeong.ticketing.domain.exception.TokenNotProcessableException
+import com.yuiyeong.ticketing.domain.exception.WalletNotFoundException
 import org.springframework.stereotype.Service
 
 @Service
@@ -21,13 +21,13 @@ class TicketingExceptionService {
             is InvalidTokenException ->
                 TicketingErrorDto(TicketingErrorCode.INVALID_TOKEN, ex.notNullMessage)
 
-            is InvalidTokenStatusException ->
+            is TokenNotProcessableException ->
                 TicketingErrorDto(TicketingErrorCode.INVALID_TOKEN_STATUS, ex.notNullMessage)
 
-            is InvalidAmountException ->
+            is InvalidChargeAmountException ->
                 TicketingErrorDto(TicketingErrorCode.INVALID_AMOUNT, ex.notNullMessage)
 
-            is InvalidSeatStatusException ->
+            is SeatUnavailableException ->
                 TicketingErrorDto(TicketingErrorCode.INVALID_SEAT_STATUS, ex.notNullMessage)
 
             is InsufficientBalanceException ->
@@ -36,19 +36,19 @@ class TicketingExceptionService {
             is OccupationExpiredException ->
                 TicketingErrorDto(TicketingErrorCode.OCCUPATION_EXPIRED, ex.notNullMessage)
 
-            is NotFoundTokenException ->
+            is TokenNotFoundException ->
                 TicketingErrorDto(TicketingErrorCode.NOT_FOUND_IN_QUEUE, ex.notNullMessage)
 
-            is NotFoundConcertException ->
+            is ConcertNotFoundException ->
                 TicketingErrorDto(TicketingErrorCode.NOT_FOUND_CONCERT, ex.notNullMessage)
 
-            is NotFoundConcertEventException ->
+            is ConcertEventNotFoundException ->
                 TicketingErrorDto(TicketingErrorCode.NOT_FOUND_CONCERT_EVENT, ex.notNullMessage)
 
-            is NotFoundSeatException ->
+            is SeatNotFoundException ->
                 TicketingErrorDto(TicketingErrorCode.NOT_FOUND_SEAT, ex.notNullMessage)
 
-            is NotFoundWalletException ->
+            is WalletNotFoundException ->
                 TicketingErrorDto(TicketingErrorCode.NOT_FOUND_WALLET, ex.notNullMessage)
 
             else -> TicketingErrorDto(TicketingErrorCode.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다.")

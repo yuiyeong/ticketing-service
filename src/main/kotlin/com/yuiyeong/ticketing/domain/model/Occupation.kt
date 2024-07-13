@@ -1,5 +1,9 @@
 package com.yuiyeong.ticketing.domain.model
 
+import com.yuiyeong.ticketing.domain.exception.InvalidOccupationException
+import com.yuiyeong.ticketing.domain.exception.OccupationAlreadyReleaseException
+import com.yuiyeong.ticketing.domain.exception.OccupationExpiredException
+import com.yuiyeong.ticketing.domain.exception.OccupationNotOverdueException
 import java.time.ZonedDateTime
 
 data class Occupation(
@@ -11,12 +15,16 @@ data class Occupation(
     val expiresAt: ZonedDateTime,
 ) {
     fun expire(current: ZonedDateTime) {
-        if (status != OccupationStatus.ACTIVE) {
-            throw IllegalStateException("점유 상태에 대해서만 만료할 수 있습니다.")
+        if (status == OccupationStatus.EXPIRED) {
+            throw OccupationExpiredException()
+        }
+
+        if (status == OccupationStatus.RELEASED) {
+            throw InvalidOccupationException()
         }
 
         if (current.isBefore(expiresAt)) {
-            throw IllegalStateException("현재 만료 일시가 지나지 않았습니다.")
+            throw OccupationNotOverdueException()
         }
 
         status = OccupationStatus.EXPIRED
@@ -24,17 +32,21 @@ data class Occupation(
 
     fun checkAvailable() {
         if (status == OccupationStatus.EXPIRED) {
-            throw IllegalStateException("점유 시간이 만료되었습니다.")
+            throw OccupationExpiredException()
         }
 
         if (status == OccupationStatus.RELEASED) {
-            throw IllegalStateException("이미 예약된 좌석입니다.")
+            throw OccupationAlreadyReleaseException()
         }
     }
 
     fun release() {
         if (status == OccupationStatus.EXPIRED) {
-            throw IllegalStateException("점유 시간이 만료되었습니다.")
+            throw OccupationExpiredException()
+        }
+
+        if (status == OccupationStatus.RELEASED) {
+            throw OccupationAlreadyReleaseException()
         }
 
         status = OccupationStatus.RELEASED

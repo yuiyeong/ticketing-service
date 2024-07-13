@@ -1,7 +1,7 @@
 package com.yuiyeong.ticketing.domain.service
 
-import com.yuiyeong.ticketing.domain.exception.NotFoundWalletException
 import com.yuiyeong.ticketing.domain.exception.TicketingException
+import com.yuiyeong.ticketing.domain.exception.WalletNotFoundException
 import com.yuiyeong.ticketing.domain.model.Payment
 import com.yuiyeong.ticketing.domain.model.Reservation
 import com.yuiyeong.ticketing.domain.model.Transaction
@@ -20,7 +20,7 @@ class PaymentService(
         userId: Long,
         reservation: Reservation,
     ) {
-        val wallet = walletRepository.findOneByUserId(userId) ?: throw NotFoundWalletException()
+        val wallet = walletRepository.findOneByUserId(userId) ?: throw WalletNotFoundException()
         var transaction: Transaction? = null
         var failureReason: String? = null
 

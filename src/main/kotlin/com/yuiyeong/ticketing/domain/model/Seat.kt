@@ -1,6 +1,6 @@
 package com.yuiyeong.ticketing.domain.model
 
-import com.yuiyeong.ticketing.domain.exception.InvalidSeatStatusException
+import com.yuiyeong.ticketing.domain.exception.SeatUnavailableException
 import java.math.BigDecimal
 
 data class Seat(
@@ -14,6 +14,6 @@ data class Seat(
     }
 
     fun checkAvailable() {
-        if (!isAvailable) throw InvalidSeatStatusException()
+        if (!isAvailable) throw SeatUnavailableException()
     }
 }

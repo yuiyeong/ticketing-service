@@ -1,6 +1,6 @@
 package com.yuiyeong.ticketing.domain.model
 
-import com.yuiyeong.ticketing.domain.exception.OutOfPeriodException
+import com.yuiyeong.ticketing.domain.exception.ReservationClosedException
 import com.yuiyeong.ticketing.domain.vo.DateTimeRange
 import java.time.ZonedDateTime
 
@@ -18,7 +18,7 @@ data class ConcertEvent(
 
     fun checkReservationPeriod(moment: ZonedDateTime) {
         if (!reservationPeriod.contains(moment)) {
-            throw OutOfPeriodException()
+            throw ReservationClosedException()
         }
     }
 }

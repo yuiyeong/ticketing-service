@@ -1,7 +1,7 @@
 package com.yuiyeong.ticketing.domain.service
 
-import com.yuiyeong.ticketing.domain.exception.NotFoundConcertEventException
-import com.yuiyeong.ticketing.domain.exception.NotFoundSeatException
+import com.yuiyeong.ticketing.domain.exception.ConcertEventNotFoundException
+import com.yuiyeong.ticketing.domain.exception.SeatNotFoundException
 import com.yuiyeong.ticketing.domain.model.Occupation
 import com.yuiyeong.ticketing.domain.repository.ConcertEventRepository
 import com.yuiyeong.ticketing.domain.repository.OccupationRepository
@@ -20,10 +20,10 @@ class OccupationService(
     ): Occupation {
         val now = ZonedDateTime.now()
 
-        val concertEvent = concertEventRepository.findOneById(concertEventId) ?: throw NotFoundConcertEventException()
+        val concertEvent = concertEventRepository.findOneById(concertEventId) ?: throw ConcertEventNotFoundException()
         concertEvent.checkReservationPeriod(now)
 
-        val seat = concertEvent.findSeatBySeatId(seatId) ?: throw NotFoundSeatException()
+        val seat = concertEvent.findSeatBySeatId(seatId) ?: throw SeatNotFoundException()
         seat.checkAvailable()
 
         val occupation = Occupation.create(userId, seat)
@@ -44,7 +44,7 @@ class OccupationService(
         userId: Long,
         occupiedSeatId: Long,
     ): Occupation {
-        val occupation = occupationRepository.findOneByIdAndUserId(occupiedSeatId, userId) ?: throw NotFoundSeatException()
+        val occupation = occupationRepository.findOneByIdAndUserId(occupiedSeatId, userId) ?: throw SeatNotFoundException()
         return occupation
     }
 }
