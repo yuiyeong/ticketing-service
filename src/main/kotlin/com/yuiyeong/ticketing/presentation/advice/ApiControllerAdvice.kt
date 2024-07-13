@@ -33,6 +33,7 @@ class ApiControllerAdvice(
     private fun mapErrorCodeToHttpStatus(errorCode: TicketingErrorCode): HttpStatus =
         when (errorCode) {
             TicketingErrorCode.INVALID_TOKEN,
+            TicketingErrorCode.INVALID_TOKEN_STATUS,
             TicketingErrorCode.INVALID_SEAT_STATUS,
             TicketingErrorCode.INSUFFICIENT_BALANCE,
             TicketingErrorCode.OCCUPATION_EXPIRED,
