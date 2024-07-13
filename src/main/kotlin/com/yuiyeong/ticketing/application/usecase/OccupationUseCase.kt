@@ -1,11 +1,11 @@
 package com.yuiyeong.ticketing.application.usecase
 
-import com.yuiyeong.ticketing.application.dto.OccupationDto
+import com.yuiyeong.ticketing.application.dto.OccupationResult
 
 interface OccupationUseCase {
     fun occupySeat(
         userToken: String?,
         concertEventId: Long,
         seatId: Long,
-    ): OccupationDto
+    ): OccupationResult
 }

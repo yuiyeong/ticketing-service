@@ -4,8 +4,8 @@ import com.yuiyeong.ticketing.application.usecase.EnteringQueueUseCase
 import com.yuiyeong.ticketing.application.usecase.QueueEntryInfoUseCase
 import com.yuiyeong.ticketing.config.swagger.annotation.api.QueueStatusApiDoc
 import com.yuiyeong.ticketing.config.swagger.annotation.api.QueueTokenIssuanceApiDoc
-import com.yuiyeong.ticketing.presentation.dto.WaitingInfoPositionDto
-import com.yuiyeong.ticketing.presentation.dto.WaitingInfoTokenDto
+import com.yuiyeong.ticketing.presentation.dto.WaitingPositionResponseDto
+import com.yuiyeong.ticketing.presentation.dto.WaitingTokenResponseDto
 import com.yuiyeong.ticketing.presentation.dto.request.GeneratingQueueTokenRequest
 import com.yuiyeong.ticketing.presentation.dto.response.TicketingResponse
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -31,8 +31,8 @@ class QueueController {
     @QueueTokenIssuanceApiDoc
     fun generateToken(
         @RequestBody req: GeneratingQueueTokenRequest,
-    ): TicketingResponse<WaitingInfoTokenDto> {
-        val data = WaitingInfoTokenDto.from(enteringQueueUseCase.enter(req.userId))
+    ): TicketingResponse<WaitingTokenResponseDto> {
+        val data = WaitingTokenResponseDto.from(enteringQueueUseCase.enter(req.userId))
         return TicketingResponse(data)
     }
 
@@ -40,8 +40,8 @@ class QueueController {
     @QueueStatusApiDoc
     fun getStatus(
         @RequestHeader(name = "User-Token", required = false) userToken: String?,
-    ): TicketingResponse<WaitingInfoPositionDto> {
-        val data = WaitingInfoPositionDto.from(queueEntryInfoUseCase.getEntry(userToken))
+    ): TicketingResponse<WaitingPositionResponseDto> {
+        val data = WaitingPositionResponseDto.from(queueEntryInfoUseCase.getEntry(userToken))
         return TicketingResponse(data)
     }
 }

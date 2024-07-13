@@ -1,6 +1,6 @@
 package com.yuiyeong.ticketing.application.usecase
 
-import com.yuiyeong.ticketing.application.dto.ReservationDto
+import com.yuiyeong.ticketing.application.dto.ReservationResult
 import com.yuiyeong.ticketing.domain.service.ConcertEventService
 import com.yuiyeong.ticketing.domain.service.OccupationService
 import com.yuiyeong.ticketing.domain.service.PaymentService
@@ -20,13 +20,13 @@ class ReservationUseCaseImpl(
         userToken: String?,
         concertEventId: Long,
         occupiedSeatId: Long,
-    ): ReservationDto {
+    ): ReservationResult {
         val entry = queueService.verifyEntryOnProcessing(userToken)
         val concertEvent = concertEventService.getConcertEvent(concertEventId)
         val occupation = occupationService.getUserOccupation(entry.userId, occupiedSeatId)
 
         val reservation = reservationService.reserve(entry.userId, concertEvent, occupation)
         paymentService.pay(entry.userId, reservation)
-        return ReservationDto.from(concertEvent, reservation)
+        return ReservationResult.from(concertEvent, reservation)
     }
 }

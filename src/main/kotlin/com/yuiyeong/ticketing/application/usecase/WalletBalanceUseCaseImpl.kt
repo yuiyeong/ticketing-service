@@ -1,6 +1,6 @@
 package com.yuiyeong.ticketing.application.usecase
 
-import com.yuiyeong.ticketing.application.dto.UserWalletDto
+import com.yuiyeong.ticketing.application.dto.WalletResult
 import com.yuiyeong.ticketing.domain.service.WalletService
 import org.springframework.stereotype.Component
 
@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component
 class WalletBalanceUseCaseImpl(
     private val walletService: WalletService,
 ) : WalletBalanceUseCase {
-    override fun getBalance(userId: Long): UserWalletDto {
+    override fun getBalance(userId: Long): WalletResult {
         val wallet = walletService.getBalance(userId)
-        return UserWalletDto.from(wallet)
+        return WalletResult.from(wallet)
     }
 }

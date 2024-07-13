@@ -1,7 +1,7 @@
 package com.yuiyeong.ticketing.application.usecase
 
-import com.yuiyeong.ticketing.application.dto.OccupationDto
+import com.yuiyeong.ticketing.application.dto.OccupationResult
 
 interface ExpirationOccupationUseCase {
-    fun expireOverdueOccupations(): List<OccupationDto>
+    fun expireOverdueOccupations(): List<OccupationResult>
 }

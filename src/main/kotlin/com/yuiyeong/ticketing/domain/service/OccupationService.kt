@@ -44,7 +44,8 @@ class OccupationService(
         userId: Long,
         occupiedSeatId: Long,
     ): Occupation {
-        val occupation = occupationRepository.findOneByIdAndUserId(occupiedSeatId, userId) ?: throw SeatNotFoundException()
+        val occupation =
+            occupationRepository.findOneByIdAndUserId(occupiedSeatId, userId) ?: throw SeatNotFoundException()
         return occupation
     }
 }

@@ -1,6 +1,6 @@
 package com.yuiyeong.ticketing.application.usecase
 
-import com.yuiyeong.ticketing.application.dto.UserWalletDto
+import com.yuiyeong.ticketing.application.dto.WalletResult
 import com.yuiyeong.ticketing.domain.service.TransactionService
 import com.yuiyeong.ticketing.domain.service.WalletService
 import org.springframework.stereotype.Component
@@ -13,9 +13,9 @@ class ChargingWalletUseCaseImpl(
     override fun charge(
         userId: Long,
         amount: Long,
-    ): UserWalletDto {
+    ): WalletResult {
         val wallet = walletService.charge(userId, amount)
         transactionService.addChargedTransaction(wallet, amount)
-        return UserWalletDto.from(wallet)
+        return WalletResult.from(wallet)
     }
 }

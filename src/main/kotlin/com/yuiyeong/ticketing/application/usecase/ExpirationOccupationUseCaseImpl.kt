@@ -1,6 +1,6 @@
 package com.yuiyeong.ticketing.application.usecase
 
-import com.yuiyeong.ticketing.application.dto.OccupationDto
+import com.yuiyeong.ticketing.application.dto.OccupationResult
 import com.yuiyeong.ticketing.domain.service.OccupationService
 import org.springframework.stereotype.Component
 
@@ -8,6 +8,6 @@ import org.springframework.stereotype.Component
 class ExpirationOccupationUseCaseImpl(
     private val occupationService: OccupationService,
 ) : ExpirationOccupationUseCase {
-    override fun expireOverdueOccupations(): List<OccupationDto> =
-        occupationService.expireOverdueOccupations().map { OccupationDto.from(it) }
+    override fun expireOverdueOccupations(): List<OccupationResult> =
+        occupationService.expireOverdueOccupations().map { OccupationResult.from(it) }
 }

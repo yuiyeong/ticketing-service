@@ -5,7 +5,7 @@ import com.yuiyeong.ticketing.domain.model.PaymentStatus
 import java.math.BigDecimal
 import java.time.ZonedDateTime
 
-data class PaymentDto(
+data class PaymentResult(
     val id: Long,
     val reservationId: Long,
     val amount: BigDecimal,
@@ -14,8 +14,8 @@ data class PaymentDto(
     val createdAt: ZonedDateTime,
 ) {
     companion object {
-        fun from(payment: Payment): PaymentDto =
-            PaymentDto(
+        fun from(payment: Payment): PaymentResult =
+            PaymentResult(
                 payment.id,
                 payment.reservationId,
                 payment.amount,

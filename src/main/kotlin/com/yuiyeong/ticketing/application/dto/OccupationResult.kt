@@ -5,7 +5,7 @@ import com.yuiyeong.ticketing.domain.model.OccupationStatus
 import java.math.BigDecimal
 import java.time.ZonedDateTime
 
-data class OccupationDto(
+data class OccupationResult(
     val id: Long,
     val userId: Long,
     val seatId: Long,
@@ -15,8 +15,8 @@ data class OccupationDto(
     val expiresAt: ZonedDateTime,
 ) {
     companion object {
-        fun from(occupation: Occupation): OccupationDto =
-            OccupationDto(
+        fun from(occupation: Occupation): OccupationResult =
+            OccupationResult(
                 occupation.id,
                 occupation.userId,
                 occupation.seat.id,

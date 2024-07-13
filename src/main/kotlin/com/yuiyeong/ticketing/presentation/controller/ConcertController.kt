@@ -2,7 +2,7 @@ package com.yuiyeong.ticketing.presentation.controller
 
 import com.yuiyeong.ticketing.application.usecase.AvailableEventsUseCase
 import com.yuiyeong.ticketing.config.swagger.annotation.api.AvailableConcertEventsApiDoc
-import com.yuiyeong.ticketing.presentation.dto.ConcertAvailableDateDto
+import com.yuiyeong.ticketing.presentation.dto.ConcertEventResponseDto
 import com.yuiyeong.ticketing.presentation.dto.response.TicketingListResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,11 +24,11 @@ class ConcertController {
     fun getAvailableEvents(
         @RequestHeader(name = "User-Token", required = false) userToken: String?,
         @PathVariable("concertId") concertId: Long,
-    ): TicketingListResponse<ConcertAvailableDateDto> {
+    ): TicketingListResponse<ConcertEventResponseDto> {
         val list =
             availableEventsUseCase
                 .getConcertEvents(userToken, concertId)
-                .map { ConcertAvailableDateDto.from(it) }
+                .map { ConcertEventResponseDto.from(it) }
         return TicketingListResponse(list)
     }
 }

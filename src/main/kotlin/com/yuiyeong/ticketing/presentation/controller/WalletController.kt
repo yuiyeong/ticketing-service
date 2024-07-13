@@ -4,7 +4,7 @@ import com.yuiyeong.ticketing.application.usecase.ChargingWalletUseCase
 import com.yuiyeong.ticketing.application.usecase.WalletBalanceUseCase
 import com.yuiyeong.ticketing.config.swagger.annotation.api.ChargeWalletApiDoc
 import com.yuiyeong.ticketing.config.swagger.annotation.api.WalletBalanceApiDoc
-import com.yuiyeong.ticketing.presentation.dto.WalletDto
+import com.yuiyeong.ticketing.presentation.dto.WalletResponseDto
 import com.yuiyeong.ticketing.presentation.dto.request.ChargingWalletRequest
 import com.yuiyeong.ticketing.presentation.dto.response.TicketingResponse
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -30,8 +30,8 @@ class WalletController {
     @WalletBalanceApiDoc
     fun getBalance(
         @PathVariable("userId") userId: Long,
-    ): TicketingResponse<WalletDto> {
-        val data = WalletDto.from(walletBalanceUseCase.getBalance(userId))
+    ): TicketingResponse<WalletResponseDto> {
+        val data = WalletResponseDto.from(walletBalanceUseCase.getBalance(userId))
         return TicketingResponse(data)
     }
 
@@ -40,8 +40,8 @@ class WalletController {
     fun charge(
         @PathVariable("userId") userId: Long,
         @RequestBody req: ChargingWalletRequest,
-    ): TicketingResponse<WalletDto> {
-        val data = WalletDto.from(chargingWalletUseCase.charge(userId, req.amount))
+    ): TicketingResponse<WalletResponseDto> {
+        val data = WalletResponseDto.from(chargingWalletUseCase.charge(userId, req.amount))
         return TicketingResponse(data)
     }
 }

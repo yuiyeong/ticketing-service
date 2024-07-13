@@ -2,7 +2,7 @@ package com.yuiyeong.ticketing.presentation.controller
 
 import com.yuiyeong.ticketing.application.usecase.PaymentListUseCase
 import com.yuiyeong.ticketing.config.swagger.annotation.api.PaymentHistoryApiDoc
-import com.yuiyeong.ticketing.presentation.dto.SimplePaymentDto
+import com.yuiyeong.ticketing.presentation.dto.PaymentResponseDto
 import com.yuiyeong.ticketing.presentation.dto.response.TicketingListResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.beans.factory.annotation.Autowired
@@ -22,8 +22,8 @@ class PaymentController {
     @PaymentHistoryApiDoc
     fun getPayments(
         @PathVariable("userId") userId: Long,
-    ): TicketingListResponse<SimplePaymentDto> {
-        val list = paymentListUseCase.getHistory(userId).map { SimplePaymentDto.from(it) }
+    ): TicketingListResponse<PaymentResponseDto> {
+        val list = paymentListUseCase.getHistory(userId).map { PaymentResponseDto.from(it) }
         return TicketingListResponse(list)
     }
 }

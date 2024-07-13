@@ -1,6 +1,6 @@
 package com.yuiyeong.ticketing.application.usecase
 
-import com.yuiyeong.ticketing.application.dto.WaitingEntryDto
+import com.yuiyeong.ticketing.application.dto.WaitingEntryResult
 import com.yuiyeong.ticketing.domain.service.QueueService
 import org.springframework.stereotype.Component
 
@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component
 class QueueEntryInfoUseCaseImpl(
     private val queueService: QueueService,
 ) : QueueEntryInfoUseCase {
-    override fun getEntry(token: String?): WaitingEntryDto {
+    override fun getEntry(token: String?): WaitingEntryResult {
         val positionOffset = queueService.getFirstWaitingPosition()
-        return WaitingEntryDto.from(queueService.getWaitingEntry(token), positionOffset)
+        return WaitingEntryResult.from(queueService.getWaitingEntry(token), positionOffset)
     }
 }

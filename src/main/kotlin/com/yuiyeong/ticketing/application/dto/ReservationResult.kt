@@ -6,7 +6,7 @@ import com.yuiyeong.ticketing.domain.model.ReservationStatus
 import java.math.BigDecimal
 import java.time.ZonedDateTime
 
-data class ReservationDto(
+data class ReservationResult(
     val id: Long,
     val userId: Long,
     val concertVenue: String,
@@ -20,8 +20,8 @@ data class ReservationDto(
         fun from(
             concertEvent: ConcertEvent,
             reservation: Reservation,
-        ): ReservationDto =
-            ReservationDto(
+        ): ReservationResult =
+            ReservationResult(
                 reservation.id,
                 reservation.userId,
                 concertEvent.venue,

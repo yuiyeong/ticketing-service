@@ -1,6 +1,6 @@
 package com.yuiyeong.ticketing.application.usecase
 
-import com.yuiyeong.ticketing.application.dto.ConcertEventSeatDto
+import com.yuiyeong.ticketing.application.dto.SeatResult
 import com.yuiyeong.ticketing.domain.service.ConcertEventService
 import com.yuiyeong.ticketing.domain.service.QueueService
 import org.springframework.stereotype.Component
@@ -13,10 +13,10 @@ class AvailableSeatsUseCaseImpl(
     override fun getSeats(
         userToken: String?,
         concertEventId: Long,
-    ): List<ConcertEventSeatDto> {
+    ): List<SeatResult> {
         queueService.verifyEntryOnProcessing(userToken)
 
         val seats = concertEventService.getAvailableSeats(concertEventId)
-        return seats.map { ConcertEventSeatDto.from(it) }
+        return seats.map { SeatResult.from(it) }
     }
 }

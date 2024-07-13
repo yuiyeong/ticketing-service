@@ -1,6 +1,6 @@
 package com.yuiyeong.ticketing.application.usecase
 
-import com.yuiyeong.ticketing.application.dto.OccupationDto
+import com.yuiyeong.ticketing.application.dto.OccupationResult
 import com.yuiyeong.ticketing.domain.service.OccupationService
 import com.yuiyeong.ticketing.domain.service.QueueService
 import org.springframework.stereotype.Component
@@ -14,9 +14,9 @@ class OccupationUseCaseImpl(
         userToken: String?,
         concertEventId: Long,
         seatId: Long,
-    ): OccupationDto {
+    ): OccupationResult {
         val entry = queueService.verifyEntryOnProcessing(userToken)
         val occupation = occupationService.occupySeat(entry.userId, concertEventId, seatId)
-        return OccupationDto.from(occupation)
+        return OccupationResult.from(occupation)
     }
 }

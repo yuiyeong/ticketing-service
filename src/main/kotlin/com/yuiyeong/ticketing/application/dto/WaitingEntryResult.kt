@@ -3,7 +3,7 @@ package com.yuiyeong.ticketing.application.dto
 import com.yuiyeong.ticketing.domain.model.WaitingEntry
 import com.yuiyeong.ticketing.domain.model.WaitingEntryStatus
 
-data class WaitingEntryDto(
+data class WaitingEntryResult(
     val userId: Long,
     val token: String,
     val position: Long,
@@ -14,7 +14,7 @@ data class WaitingEntryDto(
         fun from(
             entry: WaitingEntry,
             waitingPositionOffset: Long = 0,
-        ) = WaitingEntryDto(
+        ) = WaitingEntryResult(
             entry.userId,
             entry.token,
             entry.position,

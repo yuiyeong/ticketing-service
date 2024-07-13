@@ -1,7 +1,7 @@
 package com.yuiyeong.ticketing.application.usecase
 
-import com.yuiyeong.ticketing.application.dto.UserWalletDto
+import com.yuiyeong.ticketing.application.dto.WalletResult
 
 interface WalletBalanceUseCase {
-    fun getBalance(userId: Long): UserWalletDto
+    fun getBalance(userId: Long): WalletResult
 }

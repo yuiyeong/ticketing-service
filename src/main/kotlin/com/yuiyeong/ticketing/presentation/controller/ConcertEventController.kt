@@ -6,9 +6,9 @@ import com.yuiyeong.ticketing.application.usecase.ReservationUseCase
 import com.yuiyeong.ticketing.config.swagger.annotation.api.AvailableSeatsApiDoc
 import com.yuiyeong.ticketing.config.swagger.annotation.api.OccupySeatApiDoc
 import com.yuiyeong.ticketing.config.swagger.annotation.api.ReserveSeatApiDoc
-import com.yuiyeong.ticketing.presentation.dto.OccupiedSeatDto
-import com.yuiyeong.ticketing.presentation.dto.SeatDto
-import com.yuiyeong.ticketing.presentation.dto.SimpleReservationDto
+import com.yuiyeong.ticketing.presentation.dto.OccupationResponseDto
+import com.yuiyeong.ticketing.presentation.dto.ReservationResponseDto
+import com.yuiyeong.ticketing.presentation.dto.SeatResponseDto
 import com.yuiyeong.ticketing.presentation.dto.request.ConcertEventOccupationRequest
 import com.yuiyeong.ticketing.presentation.dto.request.ConcertEventReservationRequest
 import com.yuiyeong.ticketing.presentation.dto.response.TicketingListResponse
@@ -41,8 +41,8 @@ class ConcertEventController {
     fun getAvailableSeats(
         @RequestHeader(name = "User-Token", required = false) userToken: String?,
         @PathVariable("concertEventId") concertEventId: Long,
-    ): TicketingListResponse<SeatDto> {
-        val list = availableSeatsUseCase.getSeats(userToken, concertEventId).map { SeatDto.from(it) }
+    ): TicketingListResponse<SeatResponseDto> {
+        val list = availableSeatsUseCase.getSeats(userToken, concertEventId).map { SeatResponseDto.from(it) }
         return TicketingListResponse(list)
     }
 
@@ -52,8 +52,8 @@ class ConcertEventController {
         @RequestHeader(name = "User-Token", required = false) userToken: String?,
         @PathVariable("concertEventId") concertEventId: Long,
         @RequestBody req: ConcertEventOccupationRequest,
-    ): TicketingResponse<OccupiedSeatDto> {
-        val data = OccupiedSeatDto.from(occupationUseCase.occupySeat(userToken, concertEventId, req.seatId))
+    ): TicketingResponse<OccupationResponseDto> {
+        val data = OccupationResponseDto.from(occupationUseCase.occupySeat(userToken, concertEventId, req.seatId))
         return TicketingResponse(data)
     }
 
@@ -63,8 +63,8 @@ class ConcertEventController {
         @RequestHeader(name = "User-Token", required = false) userToken: String?,
         @PathVariable("concertEventId") concertEventId: Long,
         @RequestBody req: ConcertEventReservationRequest,
-    ): TicketingResponse<SimpleReservationDto> {
-        val data = SimpleReservationDto.from(reservationUseCase.reserve(userToken, concertEventId, req.seatId))
+    ): TicketingResponse<ReservationResponseDto> {
+        val data = ReservationResponseDto.from(reservationUseCase.reserve(userToken, concertEventId, req.seatId))
         return TicketingResponse(data)
     }
 }

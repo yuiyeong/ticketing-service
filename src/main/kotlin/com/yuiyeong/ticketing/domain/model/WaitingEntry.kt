@@ -9,7 +9,8 @@ import com.yuiyeong.ticketing.domain.exception.TokenNotProcessableException
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.util.*
+import java.util.Base64
+import java.util.Objects
 
 class WaitingEntry(
     id: Long,
