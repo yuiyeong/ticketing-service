@@ -1,8 +1,8 @@
 package com.yuiyeong.ticketing.presentation.controller
 
-import com.yuiyeong.ticketing.application.usecase.GetAvailableSeatsUseCase
-import com.yuiyeong.ticketing.application.usecase.OccupySeatUseCase
-import com.yuiyeong.ticketing.application.usecase.ReserveSeatUseCase
+import com.yuiyeong.ticketing.application.usecase.concert.GetAvailableSeatsUseCase
+import com.yuiyeong.ticketing.application.usecase.reservation.OccupySeatUseCase
+import com.yuiyeong.ticketing.application.usecase.reservation.ReserveSeatUseCase
 import com.yuiyeong.ticketing.config.swagger.annotation.api.AvailableSeatsApiDoc
 import com.yuiyeong.ticketing.config.swagger.annotation.api.OccupySeatApiDoc
 import com.yuiyeong.ticketing.config.swagger.annotation.api.ReserveSeatApiDoc

@@ -1,6 +1,6 @@
 package com.yuiyeong.ticketing.presentation.controller
 
-import com.yuiyeong.ticketing.application.usecase.GetPaymentListUseCase
+import com.yuiyeong.ticketing.application.usecase.payment.GetPaymentListUseCase
 import com.yuiyeong.ticketing.config.swagger.annotation.api.PaymentHistoryApiDoc
 import com.yuiyeong.ticketing.presentation.dto.PaymentResponseDto
 import com.yuiyeong.ticketing.presentation.dto.response.TicketingListResponse

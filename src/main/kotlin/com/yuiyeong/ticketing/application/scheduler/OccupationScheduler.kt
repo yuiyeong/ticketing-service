@@ -1,6 +1,6 @@
 package com.yuiyeong.ticketing.application.scheduler
 
-import com.yuiyeong.ticketing.application.usecase.ExpireOccupationUseCase
+import com.yuiyeong.ticketing.application.usecase.reservation.ExpireOccupationUseCase
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.scheduling.annotation.Scheduled

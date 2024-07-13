@@ -1,6 +1,6 @@
 package com.yuiyeong.ticketing.presentation.controller
 
-import com.yuiyeong.ticketing.application.usecase.GetAvailableConcertEventsUseCase
+import com.yuiyeong.ticketing.application.usecase.concert.GetAvailableConcertEventsUseCase
 import com.yuiyeong.ticketing.config.swagger.annotation.api.AvailableConcertEventsApiDoc
 import com.yuiyeong.ticketing.presentation.dto.ConcertEventResponseDto
 import com.yuiyeong.ticketing.presentation.dto.response.TicketingListResponse

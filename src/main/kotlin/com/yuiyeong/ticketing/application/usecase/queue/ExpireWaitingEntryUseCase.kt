@@ -1,7 +1,7 @@
-package com.yuiyeong.ticketing.application.usecase
+package com.yuiyeong.ticketing.application.usecase.queue
 
 import com.yuiyeong.ticketing.application.dto.WaitingEntryResult
 
-interface ActivateWaitingEntriesUseCase {
+interface ExpireWaitingEntryUseCase {
     fun execute(): List<WaitingEntryResult>
 }

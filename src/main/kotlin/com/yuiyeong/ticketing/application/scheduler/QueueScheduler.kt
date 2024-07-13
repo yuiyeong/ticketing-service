@@ -1,7 +1,7 @@
 package com.yuiyeong.ticketing.application.scheduler
 
-import com.yuiyeong.ticketing.application.usecase.ActivateWaitingEntriesUseCase
-import com.yuiyeong.ticketing.application.usecase.ExpireWaitingEntryUseCase
+import com.yuiyeong.ticketing.application.usecase.queue.ActivateWaitingEntriesUseCase
+import com.yuiyeong.ticketing.application.usecase.queue.ExpireWaitingEntryUseCase
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.scheduling.annotation.Scheduled

@@ -1,7 +1,7 @@
 package com.yuiyeong.ticketing.presentation.controller
 
-import com.yuiyeong.ticketing.application.usecase.ChargeWalletUseCase
-import com.yuiyeong.ticketing.application.usecase.GetBalanceUseCase
+import com.yuiyeong.ticketing.application.usecase.wallet.ChargeWalletUseCase
+import com.yuiyeong.ticketing.application.usecase.wallet.GetBalanceUseCase
 import com.yuiyeong.ticketing.config.swagger.annotation.api.ChargeWalletApiDoc
 import com.yuiyeong.ticketing.config.swagger.annotation.api.WalletBalanceApiDoc
 import com.yuiyeong.ticketing.presentation.dto.WalletResponseDto

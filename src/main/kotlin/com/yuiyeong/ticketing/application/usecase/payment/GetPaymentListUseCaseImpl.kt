@@ -1,4 +1,4 @@
-package com.yuiyeong.ticketing.application.usecase
+package com.yuiyeong.ticketing.application.usecase.payment
 
 import com.yuiyeong.ticketing.application.dto.PaymentResult
 import com.yuiyeong.ticketing.domain.service.PaymentService

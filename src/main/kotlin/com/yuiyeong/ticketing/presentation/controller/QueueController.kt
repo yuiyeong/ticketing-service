@@ -1,7 +1,7 @@
 package com.yuiyeong.ticketing.presentation.controller
 
-import com.yuiyeong.ticketing.application.usecase.EnterWaitingQueueUseCase
-import com.yuiyeong.ticketing.application.usecase.GetWaitingEntryUseCase
+import com.yuiyeong.ticketing.application.usecase.queue.EnterWaitingQueueUseCase
+import com.yuiyeong.ticketing.application.usecase.queue.GetWaitingEntryUseCase
 import com.yuiyeong.ticketing.config.swagger.annotation.api.QueueStatusApiDoc
 import com.yuiyeong.ticketing.config.swagger.annotation.api.QueueTokenIssuanceApiDoc
 import com.yuiyeong.ticketing.presentation.dto.WaitingPositionResponseDto

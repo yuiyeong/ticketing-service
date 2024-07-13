@@ -1,15 +1,15 @@
-package com.yuiyeong.ticketing.application.usecase
+package com.yuiyeong.ticketing.application.usecase.queue
 
 import com.yuiyeong.ticketing.application.dto.WaitingEntryResult
 import com.yuiyeong.ticketing.domain.service.QueueService
 import org.springframework.stereotype.Component
 
 @Component
-class GetWaitingEntryUseCaseImpl(
+class EnterWaitingQueueUseCaseImpl(
     private val queueService: QueueService,
-) : GetWaitingEntryUseCase {
-    override fun execute(token: String?): WaitingEntryResult {
+) : EnterWaitingQueueUseCase {
+    override fun execute(userId: Long): WaitingEntryResult {
         val positionOffset = queueService.getFirstWaitingPosition()
-        return WaitingEntryResult.from(queueService.getWaitingEntry(token), positionOffset)
+        return WaitingEntryResult.from(queueService.enter(userId), positionOffset)
     }
 }

@@ -1,4 +1,4 @@
-package com.yuiyeong.ticketing.application.usecase
+package com.yuiyeong.ticketing.application.usecase.concert
 
 import com.yuiyeong.ticketing.application.dto.ConcertEventResult
 import com.yuiyeong.ticketing.domain.service.ConcertEventService

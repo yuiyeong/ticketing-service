@@ -1,4 +1,4 @@
-package com.yuiyeong.ticketing.application.usecase
+package com.yuiyeong.ticketing.application.usecase.wallet
 
 import com.yuiyeong.ticketing.application.dto.WalletResult
 
