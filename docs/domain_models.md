@@ -142,6 +142,7 @@ classDiagram
     Long concertEventId
     ReservationStatus status
     List<Seat> seats
+    ZonedDateTime createdAt
   }
 
   class Occupation {
