@@ -2,143 +2,106 @@ package com.yuiyeong.ticketing.domain.model
 
 import com.yuiyeong.ticketing.domain.exception.InvalidTokenException
 import com.yuiyeong.ticketing.domain.exception.QueueEntryAlreadyExitedException
+import com.yuiyeong.ticketing.domain.exception.QueueEntryAlreadyExpiredException
 import com.yuiyeong.ticketing.domain.exception.QueueEntryAlreadyProcessingException
-import com.yuiyeong.ticketing.domain.exception.QueueEntryExpiredException
-import com.yuiyeong.ticketing.domain.exception.QueueEntryNotOverdueException
+import com.yuiyeong.ticketing.domain.exception.QueueEntryOverdueException
 import com.yuiyeong.ticketing.domain.exception.TokenNotProcessableException
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.Base64
-import java.util.Objects
 
-class WaitingEntry(
-    id: Long,
-    userId: Long,
-    token: String,
-    position: Long,
-    status: WaitingEntryStatus,
-    expiresAt: ZonedDateTime,
-    enteredAt: ZonedDateTime,
-    processingStartedAt: ZonedDateTime?,
-    exitedAt: ZonedDateTime?,
+data class WaitingEntry(
+    val id: Long,
+    val userId: Long,
+    val token: String,
+    var position: Long,
+    var status: WaitingEntryStatus,
+    val expiresAt: ZonedDateTime,
+    val enteredAt: ZonedDateTime,
+    var processingStartedAt: ZonedDateTime?,
+    var exitedAt: ZonedDateTime?,
+    var expiredAt: ZonedDateTime?,
 ) {
-    var id: Long = id
-        private set
-
-    var userId: Long = userId
-        private set
-
-    var token: String = token
-        private set
-
-    var position: Long = position
-        private set
-
-    var status: WaitingEntryStatus = status
-        private set
-
-    var expiresAt: ZonedDateTime = expiresAt
-        private set
-
-    var enteredAt: ZonedDateTime = enteredAt
-        private set
-
-    var processingStartedAt: ZonedDateTime? = processingStartedAt
-        private set
-
-    var exitedAt: ZonedDateTime? = exitedAt
-        private set
-
-    fun process() {
-        if (status == WaitingEntryStatus.EXPIRED) {
-            throw QueueEntryExpiredException()
-        }
-
-        if (status == WaitingEntryStatus.EXITED) {
-            throw QueueEntryAlreadyExitedException()
-        }
-
-        if (status == WaitingEntryStatus.PROCESSING) {
-            throw QueueEntryAlreadyProcessingException()
-        }
-
-        status = WaitingEntryStatus.PROCESSING
-        position = 0
-        processingStartedAt = ZonedDateTime.now()
-    }
-
-    fun exit() {
-        if (status == WaitingEntryStatus.EXPIRED) {
-            throw QueueEntryExpiredException()
-        }
-
-        if (status == WaitingEntryStatus.EXITED) {
-            throw QueueEntryAlreadyExitedException()
-        }
-
-        status = WaitingEntryStatus.EXITED
-        position = 0
-        exitedAt = ZonedDateTime.now()
-    }
-
-    fun expire(current: ZonedDateTime) {
-        if (status == WaitingEntryStatus.EXPIRED) {
-            throw QueueEntryExpiredException()
-        }
-
-        if (status == WaitingEntryStatus.EXITED) {
-            throw QueueEntryAlreadyExitedException()
-        }
-
-        if (current.isBefore(expiresAt)) {
-            throw QueueEntryNotOverdueException()
-        }
-
-        status = WaitingEntryStatus.EXPIRED
-        position = 0
-    }
-
+    /**
+     * 예상 대기 시간을 계산하는 함수
+     */
     fun calculateEstimatedWaitingTime(waitingPositionOffset: Long): Long = (position - waitingPositionOffset) * WORKING_MINUTES
 
+    /**
+     * 이 WaitingEntry 가 작업 상태임을 검증하는 함수
+     */
     fun verifyOnProcessing() {
         if (status != WaitingEntryStatus.PROCESSING) {
             throw TokenNotProcessableException()
         }
     }
 
-    fun copy(
-        id: Long = this.id,
-        userId: Long = this.userId,
-        token: String = this.token,
-        position: Long = this.position,
-        status: WaitingEntryStatus = this.status,
-        expiresAt: ZonedDateTime = this.expiresAt,
-        enteredAt: ZonedDateTime = this.enteredAt,
-        processingStartedAt: ZonedDateTime? = this.processingStartedAt,
-        exitedAt: ZonedDateTime? = this.exitedAt,
-    ) = WaitingEntry(
-        id,
-        userId,
-        token,
-        position,
-        status,
-        expiresAt,
-        enteredAt,
-        processingStartedAt,
-        exitedAt,
-    )
+    /**
+     * 작업 상태로 변경하고 그 일시는 moment 로 설정하는 함수
+     */
+    fun process(moment: ZonedDateTime) {
+        verifyOnWaitingOrProcessing()
+        verifyNotOverExpiresAt(moment)
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+        if (status == WaitingEntryStatus.PROCESSING) {
+            throw QueueEntryAlreadyProcessingException()
+        }
 
-        other as WaitingEntry
-
-        return id == other.id
+        resetPosition()
+        status = WaitingEntryStatus.PROCESSING
+        processingStartedAt = moment
     }
 
-    override fun hashCode(): Int = Objects.hash(id)
+    /**
+     * 대기열에서 나감 상태로 변경하고 그 일시는 moment 로 설정하는 함수
+     */
+    fun exit(moment: ZonedDateTime) {
+        verifyOnWaitingOrProcessing()
+        verifyNotOverExpiresAt(moment)
+
+        resetPosition()
+        status = WaitingEntryStatus.EXITED
+        exitedAt = moment
+    }
+
+    /**
+     * 만료 상태로 변경하고 그 일시는 moment 로 설정하는 함수
+     */
+    fun expire(moment: ZonedDateTime) {
+        verifyOnWaitingOrProcessing()
+
+        resetPosition()
+        status = WaitingEntryStatus.EXPIRED
+        expiredAt = moment
+    }
+
+    /**
+     * 이 WaitingEntry 가 대기 혹은 작업 상태임을 검증하는 함수
+     */
+    private fun verifyOnWaitingOrProcessing() {
+        if (status == WaitingEntryStatus.EXPIRED) {
+            throw QueueEntryAlreadyExpiredException()
+        }
+
+        if (status == WaitingEntryStatus.EXITED) {
+            throw QueueEntryAlreadyExitedException()
+        }
+    }
+
+    /**
+     * moment 가 expiresAt 을 지나지 않았음을 검증하는 함수
+     */
+    private fun verifyNotOverExpiresAt(moment: ZonedDateTime) {
+        // status 가 변경되기 전에 시간이 지난 경우
+        if (!moment.isBefore(expiresAt)) {
+            throw QueueEntryOverdueException()
+        }
+    }
+
+    private fun resetPosition() {
+        position = 0
+    }
 
     companion object {
         const val WORKING_MINUTES = 5L // 1명당 5분 동안 작업을 진행한다고 가정
@@ -151,7 +114,7 @@ class WaitingEntry(
         ): WaitingEntry {
             val now = ZonedDateTime.now()
             val expiresAt = now.plusMinutes(EXPIRATION_MINUTES)
-            val enteredAt = if (status == WaitingEntryStatus.PROCESSING) now else null
+            val processingStartedAt = if (status == WaitingEntryStatus.PROCESSING) now else null
             return WaitingEntry(
                 id = 0L,
                 userId = userId,
@@ -160,8 +123,9 @@ class WaitingEntry(
                 status = status,
                 expiresAt = expiresAt,
                 enteredAt = now,
-                processingStartedAt = enteredAt,
+                processingStartedAt = processingStartedAt,
                 exitedAt = null,
+                expiredAt = null,
             )
         }
 

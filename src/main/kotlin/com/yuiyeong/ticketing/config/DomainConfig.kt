@@ -13,7 +13,7 @@ import com.yuiyeong.ticketing.domain.service.OccupationService
 import com.yuiyeong.ticketing.domain.service.PaymentService
 import com.yuiyeong.ticketing.domain.service.QueueService
 import com.yuiyeong.ticketing.domain.service.ReservationService
-import com.yuiyeong.ticketing.domain.service.TransactionService
+import com.yuiyeong.ticketing.domain.service.SeatService
 import com.yuiyeong.ticketing.domain.service.WalletService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -24,19 +24,17 @@ class DomainConfig {
     fun concertEventService(concertEventRepository: ConcertEventRepository) = ConcertEventService(concertEventRepository)
 
     @Bean
-    fun occupationService(
-        concertEventRepository: ConcertEventRepository,
-        seatRepository: SeatRepository,
-        occupationRepository: OccupationRepository,
-    ) = OccupationService(concertEventRepository, seatRepository, occupationRepository)
+    fun occupationService(occupationRepository: OccupationRepository) = OccupationService(occupationRepository)
+
+    @Bean
+    fun seatService(seatRepository: SeatRepository) = SeatService(seatRepository)
 
     @Bean
     fun paymentService(
-        walletRepository: WalletRepository,
         transactionRepository: TransactionRepository,
         paymentRepository: PaymentRepository,
         reservationRepository: ReservationRepository,
-    ) = PaymentService(walletRepository, transactionRepository, paymentRepository, reservationRepository)
+    ) = PaymentService(reservationRepository, transactionRepository, paymentRepository)
 
     @Bean
     fun queueService(entryRepository: WaitingEntryRepository) = QueueService(entryRepository)
@@ -44,12 +42,13 @@ class DomainConfig {
     @Bean
     fun reservationService(
         reservationRepository: ReservationRepository,
-        occupationRepository: OccupationRepository,
-    ) = ReservationService(reservationRepository, occupationRepository)
+        concertEventRepository: ConcertEventRepository,
+        seatRepository: SeatRepository,
+    ) = ReservationService(reservationRepository, concertEventRepository, seatRepository)
 
     @Bean
-    fun transactionService(transactionRepository: TransactionRepository) = TransactionService(transactionRepository)
-
-    @Bean
-    fun walletService(walletRepository: WalletRepository) = WalletService(walletRepository)
+    fun walletService(
+        walletRepository: WalletRepository,
+        transactionRepository: TransactionRepository,
+    ) = WalletService(walletRepository, transactionRepository)
 }

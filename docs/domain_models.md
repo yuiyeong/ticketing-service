@@ -78,12 +78,9 @@
 ```mermaid
 classDiagram
   User "1" -- "1" Wallet: has
-  Wallet "1" -- "*" Transaction: contains
-  Concert "1" -- "*" ConcertEvent: has
-  ConcertEvent "1" -- "*" Seat: contains
-  ConcertEvent "1" -- "1" WaitingQueue: has
-  Reservation "1" -- "*" Seat: reserves
-  Occupation "1" -- "*" Seat: occupies
+  Transaction "*" -- "1" Wallet: belongs to
+  ConcertEvent "*" --> Concert: belongs to
+  Seat "*" --> "1" ConcertEvent: belongs to
   User "1" -- "*" Reservation: makes
   User "1" -- "*" Occupation: creates
   User "1" -- "*" Payment: makes
@@ -99,7 +96,6 @@ classDiagram
     BigDecimal balance
     ZonedDateTime createdAt
     ZonedDateTime updatedAt
-    List<Transaction> transactions
   }
 
   class Transaction {
@@ -115,24 +111,33 @@ classDiagram
     String title
     String singer
     String description
-    List<ConcertEvent> concertEvents
   }
 
   class ConcertEvent {
     Long id
-    Long concertId
+    Concert concert
     String venue
     DateTimeRange reservationPeriod
     DateTimeRange performanceSchedule
-    List<Seat> seats
+    int maxSeatCount
+    int availableSeatCount
   }
 
   class Seat {
     Long id
     Long concertEventId
     String seatNumber
-    int price
-    SeatStatus status
+    BigDecimal price
+    boolean isAvailable
+  }
+
+  class Occupation {
+    Long id
+    Long userId
+    List<Long> seatIds
+    OccupationStatus status
+    ZonedDateTime createdAt
+    ZonedDateTime expiresAt
   }
 
   class Reservation {
@@ -141,17 +146,10 @@ classDiagram
     Long concertId
     Long concertEventId
     ReservationStatus status
-    List<Seat> seats
+    List<Long> seatIds
+    Int totalSeats
+    BigDecimal totalAmount
     ZonedDateTime createdAt
-  }
-
-  class Occupation {
-    Long id
-    Long userId
-    List<Seat> seats
-    OccupationStatus status
-    ZonedDateTime createdAt
-    ZonedDateTime expiresAt
   }
 
   class Payment {
@@ -159,12 +157,25 @@ classDiagram
     Long userId
     Long transactionId
     Long reservationId
-    Long amount
+    BigDecimal amount
     PaymentStatus status
     PaymentMethod paymentMethod
     String failureReason
     ZonedDateTime createdAt
     ZonedDateTime updatedAt
+  }
+
+  class WaitingQueueEntry {
+    Long id
+    Long userId
+    String token
+    Int position
+    WaitingQueueEntryStatus status
+    ZonedDateTime expiresAt
+    ZonedDateTime enteredAt
+    ZonedDateTime processingStartedAt
+    ZonedDateTime exitedAt
+    ZonedDateTime expiredAt
   }
 
   class DateTimeRange {
@@ -176,11 +187,6 @@ classDiagram
   class TransactionType {
     <<Enumeration>>
     CHARGE, PAYMENT
-  }
-
-  class SeatStatus {
-    <<Enumeration>>
-    AVAILABLE, OCCUPIED, RESERVED
   }
 
   class ReservationStatus {
@@ -202,18 +208,6 @@ classDiagram
     <<Enumeration>>
     Wallet
   }
-
-  class WaitingQueueEntry {
-    Long id
-    Long userId
-    String token
-    Int position
-    WaitingQueueEntryStatus status
-    ZonedDateTime enteredAt
-    ZonedDateTime processingStartedAt
-    ZonedDateTime exitedAt
-  }
-
   class WaitingQueueEntryStatus {
     <<Enumeration>>
     WAITING

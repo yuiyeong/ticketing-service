@@ -2,102 +2,90 @@ package com.yuiyeong.ticketing.domain.service
 
 import com.yuiyeong.ticketing.domain.exception.InvalidTokenException
 import com.yuiyeong.ticketing.domain.model.WaitingEntry
-import com.yuiyeong.ticketing.domain.model.WaitingEntry.Companion.generateToken
 import com.yuiyeong.ticketing.domain.model.WaitingEntryStatus
 import com.yuiyeong.ticketing.domain.repository.WaitingEntryRepository
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.BDDMockito.given
 import org.mockito.Mock
 import org.mockito.Mockito.mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argThat
 import org.mockito.kotlin.eq
+import org.mockito.kotlin.given
 import org.mockito.kotlin.never
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import java.time.ZonedDateTime
+import kotlin.test.Test
 
 @ExtendWith(MockitoExtension::class)
 class QueueServiceTest {
     @Mock
-    private lateinit var repository: WaitingEntryRepository
+    private lateinit var entryRepository: WaitingEntryRepository
 
     private lateinit var queueService: QueueService
 
     @BeforeEach
-    fun setup() {
-        queueService = QueueService(repository)
+    fun beforeEach() {
+        queueService = QueueService(entryRepository)
     }
 
     @Nested
-    inner class EnteringQueue {
+    inner class EnterTest {
         @Test
-        fun `should return processing WaitingEntry when entering the queue at first`() {
+        fun `should enter a queue as PROCESSING`() {
             // given
-            val userId = 1L
-            val expectedPosition = 0L
-            val expectedStatus = WaitingEntryStatus.PROCESSING
-
-            given(repository.findLastWaitingPosition()).willReturn(0)
-            given(repository.findAllByStatus(WaitingEntryStatus.PROCESSING)).willReturn(emptyList())
-            given(repository.save(any())).willAnswer { invocation ->
-                val savedEntry = invocation.getArgument<WaitingEntry>(0)
-                savedEntry.copy(id = 1L) // Simulate ID assignment
+            val userId = 321L
+            given(entryRepository.findLastWaitingPosition()).willReturn(0)
+            given(entryRepository.findAllByStatus(WaitingEntryStatus.PROCESSING)).willReturn(emptyList())
+            given(entryRepository.save(any())).willAnswer { invocation ->
+                val savedOne = invocation.getArgument<WaitingEntry>(0)
+                savedOne.copy(id = 1L)
             }
 
             // when
-            val enteredOne = queueService.enter(userId)
+            val entry = queueService.enter(userId)
 
             // then
-            Assertions.assertThat(enteredOne.userId).isEqualTo(userId)
-            Assertions.assertThat(enteredOne.position).isEqualTo(expectedPosition)
-            Assertions.assertThat(enteredOne.status).isEqualTo(expectedStatus)
+            Assertions.assertThat(entry.userId).isEqualTo(userId)
+            Assertions.assertThat(entry.status).isEqualTo(WaitingEntryStatus.PROCESSING)
+            Assertions.assertThat(entry.position).isEqualTo(0)
+            Assertions.assertThat(entry.processingStartedAt).isEqualTo(entry.enteredAt)
 
-            verify(repository).save(
-                argThat { entry ->
-                    entry.userId == userId &&
-                        entry.position == expectedPosition &&
-                        entry.status == expectedStatus &&
-                        entry.expiresAt.isAfter(ZonedDateTime.now())
-                },
-            )
+            verify(entryRepository).findLastWaitingPosition()
+            verify(entryRepository).findAllByStatus(WaitingEntryStatus.PROCESSING)
+            verify(entryRepository).save(argThat { it -> it.userId == userId })
         }
 
         @Test
-        fun `should return waiting WaitingEntry when max active entries reached`() {
+        fun `should enter a queue as WAITING`() {
             // given
-            val userId = 2L
-            val expectedPosition = 11L
-            val expectedStatus = WaitingEntryStatus.WAITING
-
-            given(repository.findLastWaitingPosition()).willReturn(10)
-            given(repository.findAllByStatus(WaitingEntryStatus.PROCESSING))
-                .willReturn(List(10) { mock() })
-            given(repository.save(any())).willAnswer { invocation ->
-                val savedEntry = invocation.getArgument<WaitingEntry>(0)
-                savedEntry.copy(id = 2L)
+            val userId = 32L
+            given(entryRepository.findLastWaitingPosition()).willReturn(0)
+            given(
+                entryRepository.findAllByStatus(WaitingEntryStatus.PROCESSING),
+            ).willReturn(List(QueueService.MAX_ACTIVE_ENTRIES) { mock() })
+            given(entryRepository.save(any())).willAnswer { invocation ->
+                val savedOne = invocation.getArgument<WaitingEntry>(0)
+                savedOne.copy(id = 1L)
             }
 
             // when
-            val enteredOne = queueService.enter(userId)
+            val entry = queueService.enter(userId)
 
             // then
-            Assertions.assertThat(enteredOne.userId).isEqualTo(userId)
-            Assertions.assertThat(enteredOne.position).isEqualTo(expectedPosition)
-            Assertions.assertThat(enteredOne.status).isEqualTo(expectedStatus)
+            Assertions.assertThat(entry.userId).isEqualTo(userId)
+            Assertions.assertThat(entry.status).isEqualTo(WaitingEntryStatus.WAITING)
+            Assertions.assertThat(entry.position).isEqualTo(1)
+            Assertions.assertThat(entry.enteredAt).isNotNull()
+            Assertions.assertThat(entry.processingStartedAt).isNull()
 
-            verify(repository).save(
-                argThat { entry ->
-                    entry.userId == userId &&
-                        entry.position == expectedPosition &&
-                        entry.status == expectedStatus &&
-                        entry.expiresAt.isAfter(ZonedDateTime.now())
-                },
-            )
+            verify(entryRepository).findLastWaitingPosition()
+            verify(entryRepository).findAllByStatus(WaitingEntryStatus.PROCESSING)
+            verify(entryRepository).save(argThat { it -> it.userId == userId })
         }
 
         @Test
@@ -106,9 +94,9 @@ class QueueServiceTest {
             val userId1 = 1L
             val userId2 = 2L
 
-            given(repository.findLastWaitingPosition()).willReturn(0).willReturn(1)
-            given(repository.findAllByStatus(WaitingEntryStatus.PROCESSING)).willReturn(emptyList())
-            given(repository.save(any())).willAnswer { invocation ->
+            given(entryRepository.findLastWaitingPosition()).willReturn(0).willReturn(1)
+            given(entryRepository.findAllByStatus(WaitingEntryStatus.PROCESSING)).willReturn(emptyList())
+            given(entryRepository.save(any())).willAnswer { invocation ->
                 val savedEntry = invocation.getArgument<WaitingEntry>(0)
                 savedEntry.copy(id = savedEntry.userId)
             }
@@ -119,56 +107,138 @@ class QueueServiceTest {
 
             // then
             Assertions.assertThat(entry1.token).isNotEqualTo(entry2.token)
+            verify(entryRepository, times(2)).findLastWaitingPosition()
+            verify(entryRepository, times(2)).findAllByStatus(WaitingEntryStatus.PROCESSING)
+            verify(entryRepository, times(2)).save(argThat { it -> it.userId in listOf(userId1, userId2) })
         }
 
         @Test
-        fun `should reissue token for user already in queue`() {
+        fun `should reenter a queue as WAITING when trying to enter again`() {
             // given
-            val userId = 1L
-            val existingEntry = WaitingEntry.create(userId, 5, WaitingEntryStatus.WAITING)
-            val newPosition = 11L
-            val newEstimatedWaitingTime = newPosition * WaitingEntry.WORKING_MINUTES
-            val newStatus = WaitingEntryStatus.WAITING
-
+            val userId = 18L
+            val lastPosition = 1L
+            given(entryRepository.findLastWaitingPosition()).willReturn(lastPosition)
+            val mockEntries = List<WaitingEntry>(QueueService.MAX_ACTIVE_ENTRIES) { mock() }
+            given(entryRepository.findAllByStatus(WaitingEntryStatus.PROCESSING)).willReturn(mockEntries)
+            val userEntry = createWaitingEntry(userId, 1)
             given(
-                repository.findAllByUserIdWithStatus(
+                entryRepository.findAllByUserIdWithStatus(
                     userId,
                     WaitingEntryStatus.PROCESSING,
                     WaitingEntryStatus.WAITING,
                 ),
-            ).willReturn(listOf(existingEntry))
-            given(repository.findAllByStatus(WaitingEntryStatus.PROCESSING))
-                .willReturn(List(10) { mock() })
-            given(repository.findOneByToken(existingEntry.token)).willReturn(existingEntry)
-
-            given(repository.findLastWaitingPosition()).willReturn(10)
-            given(repository.save(any())).willAnswer { invocation ->
-                val savedEntry = invocation.getArgument<WaitingEntry>(0)
-                savedEntry.copy(id = 2L)
+            ).willReturn(listOf(userEntry))
+            given(entryRepository.findOneByToken(userEntry.token)).willReturn(userEntry)
+            given(entryRepository.save(any())).willAnswer { invocation ->
+                val savedOne = invocation.getArgument<WaitingEntry>(0)
+                savedOne.copy(id = 1L)
             }
 
             // when
-            val reenteredOne = queueService.enter(userId)
+            val entry = queueService.enter(userId)
 
             // then
-            Assertions.assertThat(reenteredOne.userId).isEqualTo(userId)
-            Assertions.assertThat(reenteredOne.status).isEqualTo(newStatus)
-            Assertions.assertThat(reenteredOne.position).isEqualTo(newPosition)
-            Assertions.assertThat(reenteredOne.token).isNotEqualTo(existingEntry.token)
+            Assertions.assertThat(entry.userId).isEqualTo(userId)
+            Assertions.assertThat(entry.status).isEqualTo(WaitingEntryStatus.WAITING)
+            Assertions.assertThat(entry.token).isNotEqualTo(userEntry.token)
+            Assertions.assertThat(entry.position).isEqualTo(lastPosition + 1)
+            Assertions.assertThat(entry.enteredAt).isNotNull()
+            Assertions.assertThat(entry.processingStartedAt).isNull()
 
-            verify(repository).save(
-                argThat { entry ->
-                    entry.userId == userId &&
-                        entry.position == newPosition &&
-                        entry.status == newStatus &&
-                        entry.expiresAt.isAfter(ZonedDateTime.now())
-                },
+            verify(entryRepository).findLastWaitingPosition()
+            verify(entryRepository).findOneByToken(userEntry.token)
+            verify(entryRepository).findAllByStatus(WaitingEntryStatus.PROCESSING)
+            verify(entryRepository).findAllByUserIdWithStatus(
+                userId,
+                WaitingEntryStatus.PROCESSING,
+                WaitingEntryStatus.WAITING,
             )
+            verify(entryRepository, times(2)).save(argThat { it -> it.userId == userId })
+        }
+
+        @Test
+        fun `should reenter a queue as WAITING when trying to enter again even if entry is PROCESSING`() {
+            val userId = 18L
+            val lastPosition = 4L
+            given(entryRepository.findLastWaitingPosition()).willReturn(lastPosition)
+            val mockEntries = List<WaitingEntry>(QueueService.MAX_ACTIVE_ENTRIES) { mock() }
+            given(entryRepository.findAllByStatus(WaitingEntryStatus.PROCESSING)).willReturn(mockEntries)
+            val userEntry = createWaitingEntry(userId, 0, status = WaitingEntryStatus.PROCESSING)
+            given(
+                entryRepository.findAllByUserIdWithStatus(
+                    userId,
+                    WaitingEntryStatus.PROCESSING,
+                    WaitingEntryStatus.WAITING,
+                ),
+            ).willReturn(listOf(userEntry))
+            given(entryRepository.findOneByToken(userEntry.token)).willReturn(userEntry)
+            given(entryRepository.save(any())).willAnswer { invocation ->
+                val savedOne = invocation.getArgument<WaitingEntry>(0)
+                savedOne.copy(id = 1L)
+            }
+
+            // when
+            val entry = queueService.enter(userId)
+
+            // then
+            Assertions.assertThat(entry.userId).isEqualTo(userId)
+            Assertions.assertThat(entry.status).isEqualTo(WaitingEntryStatus.WAITING)
+            Assertions.assertThat(entry.token).isNotEqualTo(userEntry.token)
+            Assertions.assertThat(entry.position).isEqualTo(lastPosition + 1)
+            Assertions.assertThat(entry.enteredAt).isNotNull()
+            Assertions.assertThat(entry.processingStartedAt).isNull()
+
+            verify(entryRepository).findLastWaitingPosition()
+            verify(entryRepository).findOneByToken(userEntry.token)
+            verify(entryRepository).findAllByStatus(WaitingEntryStatus.PROCESSING)
+            verify(entryRepository).findAllByUserIdWithStatus(
+                userId,
+                WaitingEntryStatus.PROCESSING,
+                WaitingEntryStatus.WAITING,
+            )
+            verify(entryRepository, times(2)).save(argThat { it -> it.userId == userId })
         }
     }
 
     @Nested
-    inner class EntryInfo {
+    inner class ExitTest {
+        @Test
+        fun `should exit a queue by changing status to EXITED`() {
+            // given
+            val userId = 213L
+            val userEntry = createWaitingEntry(userId, 1)
+            val token = userEntry.token
+            given(entryRepository.findOneByToken(token)).willReturn(userEntry)
+            given(entryRepository.save(any())).willAnswer { it.getArgument<WaitingEntry>(0) }
+
+            // when
+            val exitedOne = queueService.exit(token)
+
+            // then
+            Assertions.assertThat(exitedOne.token).isEqualTo(token)
+            Assertions.assertThat(exitedOne.status).isEqualTo(WaitingEntryStatus.EXITED)
+            Assertions.assertThat(exitedOne.exitedAt).isNotNull()
+
+            verify(entryRepository).findOneByToken(token)
+        }
+
+        @Test
+        fun `should throw InvalidTokenException when trying to exit with unknown token`() {
+            // given
+            val unknownToken = "invalid_token"
+            given(entryRepository.findOneByToken(unknownToken)).willReturn(null)
+
+            // when & then
+            Assertions
+                .assertThatThrownBy { queueService.exit(unknownToken) }
+                .isInstanceOf(InvalidTokenException::class.java)
+
+            verify(entryRepository).findOneByToken(unknownToken)
+        }
+    }
+
+    @Nested
+    inner class EntryInfoTest {
         @Test
         fun `should return WaitingEntry when valid token is provided`() {
             // given
@@ -178,7 +248,7 @@ class QueueServiceTest {
             val entry = WaitingEntry.create(userId, position, status)
             val token = entry.token
 
-            given(repository.findOneByToken(token)).willReturn(entry)
+            given(entryRepository.findOneByToken(token)).willReturn(entry)
 
             // when
             val enteredOne = queueService.getWaitingEntry(token)
@@ -189,21 +259,21 @@ class QueueServiceTest {
             Assertions.assertThat(enteredOne.position).isEqualTo(position)
             Assertions.assertThat(enteredOne.status).isEqualTo(status)
 
-            verify(repository).findOneByToken(token)
+            verify(entryRepository).findOneByToken(token)
         }
 
         @Test
         fun `should throw InvalidTokenException when invalid token is provided`() {
             // given
             val invalidToken = "invalidToken"
-            given(repository.findOneByToken(invalidToken)).willReturn(null)
+            given(entryRepository.findOneByToken(invalidToken)).willReturn(null)
 
             // when & then
             Assertions
                 .assertThatThrownBy { queueService.getWaitingEntry(invalidToken) }
                 .isInstanceOf(InvalidTokenException::class.java)
 
-            verify(repository).findOneByToken(invalidToken)
+            verify(entryRepository).findOneByToken(invalidToken)
         }
 
         @Test
@@ -215,7 +285,7 @@ class QueueServiceTest {
             val entry = WaitingEntry.create(userId, position, status)
             val token = entry.token
 
-            given(repository.findOneByToken(token)).willReturn(entry)
+            given(entryRepository.findOneByToken(token)).willReturn(entry)
 
             // when
             val foundOne = queueService.getWaitingEntry(token)
@@ -223,27 +293,31 @@ class QueueServiceTest {
             // then
             Assertions.assertThat(foundOne.userId).isEqualTo(userId)
             Assertions.assertThat(foundOne.token).isEqualTo(token)
+            Assertions.assertThat(foundOne.position).isEqualTo(0)
             Assertions.assertThat(foundOne.status).isEqualTo(WaitingEntryStatus.EXPIRED)
 
-            verify(repository).findOneByToken(token)
+            verify(entryRepository).findOneByToken(token)
         }
     }
 
     @Nested
-    inner class ActivationEntries {
+    inner class ActivationEntriesTest {
         @Test
         fun `should return activated entries when activating waiting entries`() {
             // given
-            given(repository.findAllByStatus(WaitingEntryStatus.PROCESSING)).willReturn(emptyList())
+            given(entryRepository.findAllByStatus(WaitingEntryStatus.PROCESSING)).willReturn(emptyList())
 
             val entry1 = WaitingEntry.create(11L, 3, WaitingEntryStatus.WAITING)
             val entry2 = WaitingEntry.create(21L, 4, WaitingEntryStatus.WAITING)
             val entry3 = WaitingEntry.create(31L, 5, WaitingEntryStatus.WAITING)
 
             given(
-                repository.findAllByStatusOrderByPosition(WaitingEntryStatus.WAITING, QueueService.MAX_ACTIVE_ENTRIES),
+                entryRepository.findAllByStatusOrderByPosition(
+                    WaitingEntryStatus.WAITING,
+                    QueueService.MAX_ACTIVE_ENTRIES,
+                ),
             ).willReturn(listOf(entry1, entry2, entry3))
-            given(repository.saveAll(any())).willAnswer { invocation ->
+            given(entryRepository.saveAll(any())).willAnswer { invocation ->
                 val savedEntries = invocation.getArgument<List<WaitingEntry>>(0)
                 savedEntries.mapIndexed { index, waitingEntry -> waitingEntry.copy(id = (2L + index)) }
             }
@@ -261,12 +335,12 @@ class QueueServiceTest {
                 Assertions.assertThat(it.status).isEqualTo(WaitingEntryStatus.PROCESSING)
             }
 
-            verify(repository).findAllByStatus(WaitingEntryStatus.PROCESSING)
-            verify(repository).findAllByStatusOrderByPosition(
+            verify(entryRepository).findAllByStatus(WaitingEntryStatus.PROCESSING)
+            verify(entryRepository).findAllByStatusOrderByPosition(
                 WaitingEntryStatus.WAITING,
                 QueueService.MAX_ACTIVE_ENTRIES,
             )
-            verify(repository).saveAll(any())
+            verify(entryRepository).saveAll(any())
         }
 
         @Test
@@ -289,11 +363,11 @@ class QueueServiceTest {
                     )
                 }
 
-            given(repository.findAllByStatus(WaitingEntryStatus.PROCESSING)).willReturn(processingEntryList)
-            given(repository.findAllByStatusOrderByPosition(eq(WaitingEntryStatus.WAITING), any())).willReturn(
+            given(entryRepository.findAllByStatus(WaitingEntryStatus.PROCESSING)).willReturn(processingEntryList)
+            given(entryRepository.findAllByStatusOrderByPosition(eq(WaitingEntryStatus.WAITING), any())).willReturn(
                 waitingEntryList,
             )
-            given(repository.saveAll(any())).willAnswer { invocation ->
+            given(entryRepository.saveAll(any())).willAnswer { invocation ->
                 val savedEntries = invocation.getArgument<List<WaitingEntry>>(0)
                 savedEntries.mapIndexed { index, waitingEntry -> waitingEntry.copy(id = (2L + index)) }
             }
@@ -310,12 +384,12 @@ class QueueServiceTest {
                 Assertions.assertThat(entry.userId).isEqualTo((index + currentProcessingEntries + 1).toLong())
             }
 
-            verify(repository).findAllByStatus(WaitingEntryStatus.PROCESSING)
-            verify(repository).findAllByStatusOrderByPosition(
+            verify(entryRepository).findAllByStatus(WaitingEntryStatus.PROCESSING)
+            verify(entryRepository).findAllByStatusOrderByPosition(
                 eq(WaitingEntryStatus.WAITING),
                 eq(expectedActivatedCount),
             )
-            verify(repository).saveAll(any())
+            verify(entryRepository).saveAll(any())
         }
 
         @Test
@@ -328,7 +402,7 @@ class QueueServiceTest {
                     WaitingEntry.create(it.toLong(), 0, WaitingEntryStatus.PROCESSING)
                 }
 
-            given(repository.findAllByStatus(WaitingEntryStatus.PROCESSING)).willReturn(processingEntryList)
+            given(entryRepository.findAllByStatus(WaitingEntryStatus.PROCESSING)).willReturn(processingEntryList)
 
             // when
             val activatedEntries = queueService.activateWaitingEntries()
@@ -336,48 +410,29 @@ class QueueServiceTest {
             // then
             Assertions.assertThat(activatedEntries).isEmpty()
 
-            verify(repository).findAllByStatus(WaitingEntryStatus.PROCESSING)
-            verify(repository, never()).findAllByStatusOrderByPosition(any(), any())
-            verify(repository, never()).save(any())
+            verify(entryRepository).findAllByStatus(WaitingEntryStatus.PROCESSING)
+            verify(entryRepository, never()).findAllByStatusOrderByPosition(any(), any())
+            verify(entryRepository, never()).save(any())
         }
     }
 
     @Nested
     inner class ExpireOverdueEntries {
-        private fun createOverdueEntry(
-            userId: Long,
-            position: Long,
-            status: WaitingEntryStatus,
-            minusMinutes: Long,
-        ): WaitingEntry {
-            val now = ZonedDateTime.now().minusHours(1)
-            val expiresAt = now.minusMinutes(minusMinutes)
-            val enteredAt = if (status == WaitingEntryStatus.PROCESSING) now else null
-            return WaitingEntry(
-                id = 0L,
-                userId = userId,
-                token = generateToken(userId, position, expiresAt),
-                position = position,
-                status = status,
-                expiresAt = expiresAt,
-                enteredAt = now,
-                processingStartedAt = enteredAt,
-                exitedAt = null,
-            )
-        }
-
         @Test
         fun `should expire overdue entries and return them`() {
             // given
-            val overdueEntry1 = createOverdueEntry(1L, 1, WaitingEntryStatus.WAITING, 5)
-            val overdueEntry2 = createOverdueEntry(2L, 2, WaitingEntryStatus.PROCESSING, 10)
+            val overdueEntry1 = createWaitingEntry(1L, 1L, 5L, WaitingEntryStatus.WAITING)
+            val overdueEntry2 = createWaitingEntry(2L, 2L, 12L, WaitingEntryStatus.PROCESSING)
 
             val overdueEntries = listOf(overdueEntry1, overdueEntry2)
-
             given(
-                repository.findOverdueEntriesByStatus(WaitingEntryStatus.PROCESSING, WaitingEntryStatus.WAITING),
+                entryRepository.findAllByExpiresAtBeforeAndStatus(
+                    any(),
+                    eq(WaitingEntryStatus.PROCESSING),
+                    eq(WaitingEntryStatus.WAITING),
+                ),
             ).willReturn(overdueEntries)
-            given(repository.saveAll(any())).willAnswer { invocation ->
+            given(entryRepository.saveAll(any())).willAnswer { invocation ->
                 val savedEntries = invocation.getArgument<List<WaitingEntry>>(0)
                 savedEntries.mapIndexed { index, waitingEntry -> waitingEntry.copy(id = (2L + index)) }
             }
@@ -394,17 +449,24 @@ class QueueServiceTest {
             Assertions.assertThat(result[0].position).isEqualTo(0)
             Assertions.assertThat(result[1].position).isEqualTo(0)
 
-            verify(repository).findOverdueEntriesByStatus(WaitingEntryStatus.PROCESSING, WaitingEntryStatus.WAITING)
-            verify(repository).saveAll(any())
+            verify(
+                entryRepository,
+            ).findAllByExpiresAtBeforeAndStatus(
+                any(),
+                eq(WaitingEntryStatus.PROCESSING),
+                eq(WaitingEntryStatus.WAITING),
+            )
+            verify(entryRepository).saveAll(any())
         }
 
         @Test
         fun `should return empty list when no overdue entries`() {
             // given
             given(
-                repository.findOverdueEntriesByStatus(
-                    WaitingEntryStatus.PROCESSING,
-                    WaitingEntryStatus.WAITING,
+                entryRepository.findAllByExpiresAtBeforeAndStatus(
+                    any(),
+                    eq(WaitingEntryStatus.PROCESSING),
+                    eq(WaitingEntryStatus.WAITING),
                 ),
             ).willReturn(emptyList())
 
@@ -414,46 +476,33 @@ class QueueServiceTest {
             // then
             Assertions.assertThat(result).isEmpty()
 
-            verify(repository).findOverdueEntriesByStatus(WaitingEntryStatus.PROCESSING, WaitingEntryStatus.WAITING)
-            verify(repository, never()).save(any())
-        }
-
-        @Test
-        fun `should handle exception when trying to expire invalid entry`() {
-            // given
-            val invalidEntry = createOverdueEntry(1L, 1, WaitingEntryStatus.EXPIRED, 5)
-
-            given(
-                repository.findOverdueEntriesByStatus(WaitingEntryStatus.PROCESSING, WaitingEntryStatus.WAITING),
-            ).willReturn(listOf(invalidEntry))
-
-            // when & then
-            Assertions
-                .assertThatThrownBy { queueService.expireOverdueEntries() }
-                .isInstanceOf(IllegalStateException::class.java)
-                .hasMessageContaining("작업 중이거나 대기 중일 때만 만료할 수 있습니다.")
-
-            verify(repository).findOverdueEntriesByStatus(WaitingEntryStatus.PROCESSING, WaitingEntryStatus.WAITING)
-            verify(repository, never()).save(any())
-        }
-
-        @Test
-        fun `should not expire entries that are not yet overdue`() {
-            // given
-            val notOverdueEntry = WaitingEntry.create(1L, 1, WaitingEntryStatus.WAITING)
-
-            given(
-                repository.findOverdueEntriesByStatus(WaitingEntryStatus.PROCESSING, WaitingEntryStatus.WAITING),
-            ).willReturn(listOf(notOverdueEntry))
-
-            // when & then
-            Assertions
-                .assertThatThrownBy { queueService.expireOverdueEntries() }
-                .isInstanceOf(IllegalStateException::class.java)
-                .hasMessageContaining("현재 만료 일시가 지나지 않았습니다.")
-
-            verify(repository).findOverdueEntriesByStatus(WaitingEntryStatus.PROCESSING, WaitingEntryStatus.WAITING)
-            verify(repository, never()).save(any())
+            verify(
+                entryRepository,
+            ).findAllByExpiresAtBeforeAndStatus(
+                any(),
+                eq(WaitingEntryStatus.PROCESSING),
+                eq(WaitingEntryStatus.WAITING),
+            )
+            verify(entryRepository, never()).save(any())
         }
     }
+
+    private fun createWaitingEntry(
+        userId: Long,
+        position: Long,
+        id: Long = 53L,
+        status: WaitingEntryStatus = WaitingEntryStatus.WAITING,
+        createdAt: ZonedDateTime = ZonedDateTime.now(),
+    ) = WaitingEntry(
+        id = id,
+        userId = userId,
+        token = WaitingEntry.generateToken(userId, position, createdAt.plusMinutes(WaitingEntry.EXPIRATION_MINUTES)),
+        position = position,
+        status = status,
+        expiresAt = createdAt.plusMinutes(WaitingEntry.EXPIRATION_MINUTES),
+        enteredAt = createdAt,
+        processingStartedAt = null,
+        exitedAt = null,
+        expiredAt = null,
+    )
 }

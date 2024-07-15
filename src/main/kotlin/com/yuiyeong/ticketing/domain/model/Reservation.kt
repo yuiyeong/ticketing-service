@@ -6,15 +6,23 @@ import java.math.BigDecimal
 import java.time.ZonedDateTime
 
 data class Reservation(
-    val id: Long = 0L,
+    val id: Long,
     val userId: Long,
     val concertId: Long,
     val concertEventId: Long,
     var status: ReservationStatus,
-    val seats: List<Seat>,
+    val seatIds: List<Long>,
+    val totalSeats: Int,
+    val totalAmount: BigDecimal,
     val createdAt: ZonedDateTime,
 ) {
     fun confirm() {
+        verifyStatusIsPending()
+
+        status = ReservationStatus.CONFIRMED
+    }
+
+    private fun verifyStatusIsPending() {
         if (status == ReservationStatus.CONFIRMED) {
             throw ReservationAlreadyConfirmedException()
         }
@@ -22,28 +30,23 @@ data class Reservation(
         if (status == ReservationStatus.CANCELLED) {
             throw ReservationAlreadyCanceledException()
         }
-
-        status = ReservationStatus.CONFIRMED
     }
-
-    val totalSeats: Int
-        get() = seats.count()
-
-    val totalAmount: BigDecimal
-        get() = seats.sumOf { it.price }
 
     companion object {
         fun create(
             userId: Long,
             concertEvent: ConcertEvent,
-            occupation: Occupation,
+            occupiedSeats: List<Seat>,
         ): Reservation =
             Reservation(
+                id = 0L,
                 userId = userId,
-                concertId = concertEvent.concertId,
+                concertId = concertEvent.concert.id,
                 concertEventId = concertEvent.id,
                 status = ReservationStatus.PENDING,
-                seats = listOf(occupation.seat),
+                seatIds = occupiedSeats.map { it.id },
+                totalSeats = occupiedSeats.count(),
+                totalAmount = occupiedSeats.sumOf { it.price },
                 createdAt = ZonedDateTime.now(),
             )
     }

@@ -9,7 +9,7 @@ class GetBalanceUseCaseImpl(
     private val walletService: WalletService,
 ) : GetBalanceUseCase {
     override fun execute(userId: Long): WalletResult {
-        val wallet = walletService.getBalance(userId)
+        val wallet = walletService.getUserWallet(userId)
         return WalletResult.from(wallet)
     }
 }

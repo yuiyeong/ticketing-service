@@ -24,8 +24,9 @@ class QueueService(
     }
 
     fun exit(token: String): WaitingEntry {
+        val current = ZonedDateTime.now()
         val entry = entryRepository.findOneByToken(token) ?: throw InvalidTokenException()
-        entry.exit()
+        entry.exit(current)
         return entryRepository.save(entry)
     }
 
@@ -47,9 +48,10 @@ class QueueService(
             return emptyList() // there is no one to be activated.
         }
 
+        val current = ZonedDateTime.now()
         val waitingEntries =
             entryRepository.findAllByStatusOrderByPosition(WaitingEntryStatus.WAITING, newActivatingCount)
-        waitingEntries.forEach { it.process() }
+        waitingEntries.forEach { it.process(current) }
 
         return entryRepository.saveAll(waitingEntries)
     }
@@ -57,7 +59,11 @@ class QueueService(
     fun expireOverdueEntries(): List<WaitingEntry> {
         val current = ZonedDateTime.now()
         val entries =
-            entryRepository.findOverdueEntriesByStatus(WaitingEntryStatus.PROCESSING, WaitingEntryStatus.WAITING)
+            entryRepository.findAllByExpiresAtBeforeAndStatus(
+                current,
+                WaitingEntryStatus.PROCESSING,
+                WaitingEntryStatus.WAITING,
+            )
         entries.forEach { it.expire(current) }
         return entryRepository.saveAll(entries)
     }

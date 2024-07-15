@@ -1,24 +1,21 @@
 package com.yuiyeong.ticketing.domain.model
 
-import com.yuiyeong.ticketing.domain.exception.ReservationClosedException
+import com.yuiyeong.ticketing.domain.exception.ReservationNotOpenedException
 import com.yuiyeong.ticketing.domain.vo.DateTimeRange
 import java.time.ZonedDateTime
 
 data class ConcertEvent(
     val id: Long,
-    val concertId: Long,
+    val concert: Concert,
     val venue: String,
     val reservationPeriod: DateTimeRange,
     val performanceSchedule: DateTimeRange,
-    val seats: List<Seat>,
+    val maxSeatCount: Int,
+    val availableSeatCount: Int,
 ) {
-    fun getAvailableSeats(): List<Seat> = seats.filter { it.isAvailable }
-
-    fun findSeatBySeatId(seatId: Long): Seat? = seats.firstOrNull { it.id == seatId }
-
-    fun checkReservationPeriod(moment: ZonedDateTime) {
+    fun verifyWithinReservationPeriod(moment: ZonedDateTime) {
         if (!reservationPeriod.contains(moment)) {
-            throw ReservationClosedException()
+            throw ReservationNotOpenedException()
         }
     }
 }

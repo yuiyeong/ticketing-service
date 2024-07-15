@@ -4,9 +4,9 @@ import com.yuiyeong.ticketing.application.dto.TicketingError
 import com.yuiyeong.ticketing.domain.exception.ConcertEventNotFoundException
 import com.yuiyeong.ticketing.domain.exception.ConcertNotFoundException
 import com.yuiyeong.ticketing.domain.exception.InsufficientBalanceException
-import com.yuiyeong.ticketing.domain.exception.InvalidChargeAmountException
+import com.yuiyeong.ticketing.domain.exception.InvalidAmountException
 import com.yuiyeong.ticketing.domain.exception.InvalidTokenException
-import com.yuiyeong.ticketing.domain.exception.OccupationExpiredException
+import com.yuiyeong.ticketing.domain.exception.OccupationAlreadyExpiredException
 import com.yuiyeong.ticketing.domain.exception.SeatNotFoundException
 import com.yuiyeong.ticketing.domain.exception.SeatUnavailableException
 import com.yuiyeong.ticketing.domain.exception.TokenNotFoundException
@@ -24,7 +24,7 @@ class TicketingExceptionService {
             is TokenNotProcessableException ->
                 TicketingError(TicketingErrorCode.INVALID_TOKEN_STATUS, ex.notNullMessage)
 
-            is InvalidChargeAmountException ->
+            is InvalidAmountException ->
                 TicketingError(TicketingErrorCode.INVALID_AMOUNT, ex.notNullMessage)
 
             is SeatUnavailableException ->
@@ -33,7 +33,7 @@ class TicketingExceptionService {
             is InsufficientBalanceException ->
                 TicketingError(TicketingErrorCode.INSUFFICIENT_BALANCE, ex.notNullMessage)
 
-            is OccupationExpiredException ->
+            is OccupationAlreadyExpiredException ->
                 TicketingError(TicketingErrorCode.OCCUPATION_EXPIRED, ex.notNullMessage)
 
             is TokenNotFoundException ->

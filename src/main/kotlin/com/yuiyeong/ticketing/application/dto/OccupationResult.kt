@@ -2,15 +2,12 @@ package com.yuiyeong.ticketing.application.dto
 
 import com.yuiyeong.ticketing.domain.model.Occupation
 import com.yuiyeong.ticketing.domain.model.OccupationStatus
-import java.math.BigDecimal
 import java.time.ZonedDateTime
 
 data class OccupationResult(
     val id: Long,
     val userId: Long,
     val seatId: Long,
-    val seatNumber: String,
-    val price: BigDecimal,
     val status: OccupationStatus,
     val expiresAt: ZonedDateTime,
 ) {
@@ -19,9 +16,7 @@ data class OccupationResult(
             OccupationResult(
                 occupation.id,
                 occupation.userId,
-                occupation.seat.id,
-                occupation.seat.seatNumber,
-                occupation.seat.price,
+                occupation.seatIds[0],
                 occupation.status,
                 occupation.expiresAt,
             )

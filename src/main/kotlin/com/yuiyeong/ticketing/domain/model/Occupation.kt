@@ -1,74 +1,61 @@
 package com.yuiyeong.ticketing.domain.model
 
-import com.yuiyeong.ticketing.domain.exception.InvalidOccupationException
+import com.yuiyeong.ticketing.domain.exception.OccupationAlreadyExpiredException
 import com.yuiyeong.ticketing.domain.exception.OccupationAlreadyReleaseException
-import com.yuiyeong.ticketing.domain.exception.OccupationExpiredException
-import com.yuiyeong.ticketing.domain.exception.OccupationNotOverdueException
 import java.time.ZonedDateTime
 
 data class Occupation(
     val id: Long,
     val userId: Long,
-    val seat: Seat,
+    val seatIds: List<Long>,
     var status: OccupationStatus,
     val createdAt: ZonedDateTime,
     val expiresAt: ZonedDateTime,
+    var expiredAt: ZonedDateTime? = null,
 ) {
-    fun expire(current: ZonedDateTime) {
-        if (status == OccupationStatus.EXPIRED) {
-            throw OccupationExpiredException()
-        }
-
-        if (status == OccupationStatus.RELEASED) {
-            throw InvalidOccupationException()
-        }
-
-        if (current.isBefore(expiresAt)) {
-            throw OccupationNotOverdueException()
-        }
+    fun expire() {
+        verifyActiveStatus()
 
         status = OccupationStatus.EXPIRED
+        expiredAt = ZonedDateTime.now()
     }
 
-    fun checkAvailable() {
-        if (status == OccupationStatus.EXPIRED) {
-            throw OccupationExpiredException()
-        }
+    fun release(moment: ZonedDateTime) {
+        verifyActiveStatus()
 
-        if (status == OccupationStatus.RELEASED) {
-            throw OccupationAlreadyReleaseException()
-        }
-    }
-
-    fun release() {
-        if (status == OccupationStatus.EXPIRED) {
-            throw OccupationExpiredException()
-        }
-
-        if (status == OccupationStatus.RELEASED) {
-            throw OccupationAlreadyReleaseException()
+        // state 가 EXPIRED 로, 변경되기 전에 release 를 호출했을 경우
+        if (!moment.isBefore(expiresAt)) {
+            throw OccupationAlreadyExpiredException()
         }
 
         status = OccupationStatus.RELEASED
     }
 
+    private fun verifyActiveStatus() {
+        if (status == OccupationStatus.EXPIRED) {
+            throw OccupationAlreadyExpiredException()
+        }
+
+        if (status == OccupationStatus.RELEASED) {
+            throw OccupationAlreadyReleaseException()
+        }
+    }
+
     companion object {
-        private const val EXPIRATION_MINUTES = 5L // 5 분 뒤 만료
+        const val EXPIRATION_MINUTES = 5L // 5 분 뒤 만료
 
         fun create(
             userId: Long,
-            seat: Seat,
+            seatIds: List<Long>,
         ): Occupation {
-            seat.makeUnavailable()
-
             val now = ZonedDateTime.now()
             return Occupation(
-                0L,
-                userId,
-                seat,
-                OccupationStatus.ACTIVE,
-                now,
-                now.plusMinutes(EXPIRATION_MINUTES),
+                id = 0L,
+                userId = userId,
+                seatIds = seatIds,
+                status = OccupationStatus.ACTIVE,
+                createdAt = now,
+                expiresAt = now.plusMinutes(EXPIRATION_MINUTES),
             )
         }
     }

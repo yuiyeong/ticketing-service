@@ -2,6 +2,7 @@ package com.yuiyeong.ticketing.domain.repository
 
 import com.yuiyeong.ticketing.domain.model.WaitingEntry
 import com.yuiyeong.ticketing.domain.model.WaitingEntryStatus
+import java.time.ZonedDateTime
 
 interface WaitingEntryRepository {
     fun save(entry: WaitingEntry): WaitingEntry
@@ -29,7 +30,10 @@ interface WaitingEntryRepository {
         status: WaitingEntryStatus,
     ): WaitingEntry
 
-    fun findOverdueEntriesByStatus(vararg status: WaitingEntryStatus): List<WaitingEntry>
+    fun findAllByExpiresAtBeforeAndStatus(
+        moment: ZonedDateTime,
+        vararg status: WaitingEntryStatus,
+    ): List<WaitingEntry>
 
     fun findLastWaitingPosition(): Long?
 

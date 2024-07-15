@@ -28,7 +28,7 @@ data class Payment(
                 transactionId = transaction?.id,
                 reservationId = reservation.id,
                 amount = reservation.totalAmount,
-                status = if (failureReason != null) PaymentStatus.COMPLETED else PaymentStatus.FAILED,
+                status = if (failureReason != null) PaymentStatus.FAILED else PaymentStatus.COMPLETED,
                 paymentMethod = PaymentMethod.Wallet,
                 failureReason = failureReason,
                 createdAt = now,
