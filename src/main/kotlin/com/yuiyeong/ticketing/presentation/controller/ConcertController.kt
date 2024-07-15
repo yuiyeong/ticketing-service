@@ -1,8 +1,8 @@
 package com.yuiyeong.ticketing.presentation.controller
 
-import com.yuiyeong.ticketing.application.usecase.AvailableEventsUseCase
+import com.yuiyeong.ticketing.application.usecase.concert.GetAvailableConcertEventsUseCase
 import com.yuiyeong.ticketing.config.swagger.annotation.api.AvailableConcertEventsApiDoc
-import com.yuiyeong.ticketing.presentation.dto.ConcertAvailableDateDto
+import com.yuiyeong.ticketing.presentation.dto.ConcertEventResponseDto
 import com.yuiyeong.ticketing.presentation.dto.response.TicketingListResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,18 +17,18 @@ import org.springframework.web.bind.annotation.RestController
 @Tag(name = "콘서트", description = "콘서트 관련 api")
 class ConcertController {
     @Autowired
-    private lateinit var availableEventsUseCase: AvailableEventsUseCase
+    private lateinit var getAvailableConcertEventsUseCase: GetAvailableConcertEventsUseCase
 
     @GetMapping("{concertId}/available-events")
     @AvailableConcertEventsApiDoc
     fun getAvailableEvents(
         @RequestHeader(name = "User-Token", required = false) userToken: String?,
         @PathVariable("concertId") concertId: Long,
-    ): TicketingListResponse<ConcertAvailableDateDto> {
+    ): TicketingListResponse<ConcertEventResponseDto> {
         val list =
-            availableEventsUseCase
-                .getConcertEvents(userToken, concertId)
-                .map { ConcertAvailableDateDto.from(it) }
+            getAvailableConcertEventsUseCase
+                .execute(userToken, concertId)
+                .map { ConcertEventResponseDto.from(it) }
         return TicketingListResponse(list)
     }
 }

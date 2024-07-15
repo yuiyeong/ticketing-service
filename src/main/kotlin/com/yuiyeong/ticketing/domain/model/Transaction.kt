@@ -11,16 +11,6 @@ data class Transaction(
     val createdAt: ZonedDateTime,
 ) {
     companion object {
-        fun createAsCharge(
-            wallet: Wallet,
-            amount: BigDecimal,
-        ): Transaction = create(wallet, amount, TransactionType.CHARGE)
-
-        fun createAsPayment(
-            wallet: Wallet,
-            amount: BigDecimal,
-        ): Transaction = create(wallet, amount, TransactionType.PAYMENT)
-
         fun create(
             wallet: Wallet,
             amount: BigDecimal,

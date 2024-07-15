@@ -12,15 +12,15 @@ data class Wallet(
     val createdAt: ZonedDateTime,
     val updatedAt: ZonedDateTime,
 ) {
-    fun charge(amount: Long) {
-        if (amount <= 0) {
+    fun charge(amount: BigDecimal) {
+        if (amount <= BigDecimal.ZERO) {
             throw InvalidAmountException()
         }
-        balance += BigDecimal(amount)
+        balance += amount
     }
 
     fun pay(amount: BigDecimal) {
-        if (amount <= BigDecimal(0)) {
+        if (amount <= BigDecimal.ZERO) {
             throw InvalidAmountException()
         }
 

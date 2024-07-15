@@ -10,8 +10,8 @@ interface OccupationRepository {
 
     fun findAllByExpiresAtBefore(moment: ZonedDateTime): List<Occupation>
 
-    fun findOneByIdAndUserId(
-        occupiedSeatId: Long,
+    fun findOneByUserIdAndSeatIds(
         userId: Long,
+        occupiedSeatIds: List<Long>,
     ): Occupation?
 }

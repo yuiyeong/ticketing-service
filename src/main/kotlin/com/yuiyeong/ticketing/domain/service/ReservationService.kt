@@ -1,29 +1,41 @@
 package com.yuiyeong.ticketing.domain.service
 
-import com.yuiyeong.ticketing.domain.model.ConcertEvent
-import com.yuiyeong.ticketing.domain.model.Occupation
+import com.yuiyeong.ticketing.domain.exception.ConcertEventNotFoundException
+import com.yuiyeong.ticketing.domain.exception.ReservationNotFoundException
+import com.yuiyeong.ticketing.domain.exception.SeatNotFoundException
 import com.yuiyeong.ticketing.domain.model.Reservation
-import com.yuiyeong.ticketing.domain.repository.OccupationRepository
+import com.yuiyeong.ticketing.domain.repository.ConcertEventRepository
 import com.yuiyeong.ticketing.domain.repository.ReservationRepository
+import com.yuiyeong.ticketing.domain.repository.SeatRepository
 import java.time.ZonedDateTime
 
 class ReservationService(
     private val reservationRepository: ReservationRepository,
-    private val occupationRepository: OccupationRepository,
+    private val concertEventRepository: ConcertEventRepository,
+    private val seatRepository: SeatRepository,
 ) {
     fun reserve(
         userId: Long,
-        concertEvent: ConcertEvent,
-        occupation: Occupation,
+        concertEventId: Long,
+        occupiedSeatIds: List<Long>,
     ): Reservation {
-        val now = ZonedDateTime.now()
-        concertEvent.checkReservationPeriod(now)
-        occupation.checkAvailable()
-        val reservation = Reservation.create(userId, concertEvent, occupation)
+        val concertEvent = concertEventRepository.findOneById(concertEventId) ?: throw ConcertEventNotFoundException()
+        concertEvent.verifyWithinReservationPeriod(ZonedDateTime.now())
 
-        occupation.release()
-        occupationRepository.save(occupation)
+        val occupiedSeats = seatRepository.findAllByIds(occupiedSeatIds)
+        if (occupiedSeats.count() != occupiedSeatIds.count()) throw SeatNotFoundException()
 
+        val reservation = Reservation.create(userId, concertEvent, occupiedSeats)
+        return reservationRepository.save(reservation)
+    }
+
+    fun getReservation(reservationId: Long): Reservation {
+        val reservation = reservationRepository.findOneById(reservationId) ?: throw ReservationNotFoundException()
+        return reservation
+    }
+
+    fun confirm(reservationId: Long): Reservation {
+        val reservation = getReservation(reservationId).apply { confirm() }
         return reservationRepository.save(reservation)
     }
 }

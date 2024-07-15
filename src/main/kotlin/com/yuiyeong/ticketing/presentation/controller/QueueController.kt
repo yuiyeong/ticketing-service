@@ -1,11 +1,11 @@
 package com.yuiyeong.ticketing.presentation.controller
 
-import com.yuiyeong.ticketing.application.usecase.EnteringQueueUseCase
-import com.yuiyeong.ticketing.application.usecase.QueueEntryInfoUseCase
+import com.yuiyeong.ticketing.application.usecase.queue.EnterWaitingQueueUseCase
+import com.yuiyeong.ticketing.application.usecase.queue.GetWaitingEntryUseCase
 import com.yuiyeong.ticketing.config.swagger.annotation.api.QueueStatusApiDoc
 import com.yuiyeong.ticketing.config.swagger.annotation.api.QueueTokenIssuanceApiDoc
-import com.yuiyeong.ticketing.presentation.dto.WaitingInfoPositionDto
-import com.yuiyeong.ticketing.presentation.dto.WaitingInfoTokenDto
+import com.yuiyeong.ticketing.presentation.dto.WaitingPositionResponseDto
+import com.yuiyeong.ticketing.presentation.dto.WaitingTokenResponseDto
 import com.yuiyeong.ticketing.presentation.dto.request.GeneratingQueueTokenRequest
 import com.yuiyeong.ticketing.presentation.dto.response.TicketingResponse
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -22,17 +22,17 @@ import org.springframework.web.bind.annotation.RestController
 @Tag(name = "대기열", description = "대기열 관련 API")
 class QueueController {
     @Autowired
-    private lateinit var enteringQueueUseCase: EnteringQueueUseCase
+    private lateinit var enterWaitingQueueUseCase: EnterWaitingQueueUseCase
 
     @Autowired
-    private lateinit var queueEntryInfoUseCase: QueueEntryInfoUseCase
+    private lateinit var getWaitingEntryUseCase: GetWaitingEntryUseCase
 
     @PostMapping("token")
     @QueueTokenIssuanceApiDoc
     fun generateToken(
         @RequestBody req: GeneratingQueueTokenRequest,
-    ): TicketingResponse<WaitingInfoTokenDto> {
-        val data = WaitingInfoTokenDto.from(enteringQueueUseCase.enter(req.userId))
+    ): TicketingResponse<WaitingTokenResponseDto> {
+        val data = WaitingTokenResponseDto.from(enterWaitingQueueUseCase.execute(req.userId))
         return TicketingResponse(data)
     }
 
@@ -40,8 +40,8 @@ class QueueController {
     @QueueStatusApiDoc
     fun getStatus(
         @RequestHeader(name = "User-Token", required = false) userToken: String?,
-    ): TicketingResponse<WaitingInfoPositionDto> {
-        val data = WaitingInfoPositionDto.from(queueEntryInfoUseCase.getEntry(userToken))
+    ): TicketingResponse<WaitingPositionResponseDto> {
+        val data = WaitingPositionResponseDto.from(getWaitingEntryUseCase.execute(userToken))
         return TicketingResponse(data)
     }
 }

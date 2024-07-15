@@ -1,14 +1,14 @@
 package com.yuiyeong.ticketing.presentation.controller
 
-import com.yuiyeong.ticketing.application.usecase.AvailableSeatsUseCase
-import com.yuiyeong.ticketing.application.usecase.OccupationUseCase
-import com.yuiyeong.ticketing.application.usecase.ReservationUseCase
+import com.yuiyeong.ticketing.application.usecase.concert.GetAvailableSeatsUseCase
+import com.yuiyeong.ticketing.application.usecase.reservation.OccupySeatUseCase
+import com.yuiyeong.ticketing.application.usecase.reservation.ReserveSeatUseCase
 import com.yuiyeong.ticketing.config.swagger.annotation.api.AvailableSeatsApiDoc
 import com.yuiyeong.ticketing.config.swagger.annotation.api.OccupySeatApiDoc
 import com.yuiyeong.ticketing.config.swagger.annotation.api.ReserveSeatApiDoc
-import com.yuiyeong.ticketing.presentation.dto.OccupiedSeatDto
-import com.yuiyeong.ticketing.presentation.dto.SeatDto
-import com.yuiyeong.ticketing.presentation.dto.SimpleReservationDto
+import com.yuiyeong.ticketing.presentation.dto.OccupationResponseDto
+import com.yuiyeong.ticketing.presentation.dto.ReservationResponseDto
+import com.yuiyeong.ticketing.presentation.dto.SeatResponseDto
 import com.yuiyeong.ticketing.presentation.dto.request.ConcertEventOccupationRequest
 import com.yuiyeong.ticketing.presentation.dto.request.ConcertEventReservationRequest
 import com.yuiyeong.ticketing.presentation.dto.response.TicketingListResponse
@@ -28,21 +28,21 @@ import org.springframework.web.bind.annotation.RestController
 @Tag(name = "콘서트 이벤트", description = "콘서트 이벤트 관련 api")
 class ConcertEventController {
     @Autowired
-    private lateinit var availableSeatsUseCase: AvailableSeatsUseCase
+    private lateinit var getAvailableSeatsUseCase: GetAvailableSeatsUseCase
 
     @Autowired
-    private lateinit var occupationUseCase: OccupationUseCase
+    private lateinit var occupySeatUseCase: OccupySeatUseCase
 
     @Autowired
-    private lateinit var reservationUseCase: ReservationUseCase
+    private lateinit var reserveSeatUseCase: ReserveSeatUseCase
 
     @GetMapping("{concertEventId}/available-seats")
     @AvailableSeatsApiDoc
     fun getAvailableSeats(
         @RequestHeader(name = "User-Token", required = false) userToken: String?,
         @PathVariable("concertEventId") concertEventId: Long,
-    ): TicketingListResponse<SeatDto> {
-        val list = availableSeatsUseCase.getSeats(userToken, concertEventId).map { SeatDto.from(it) }
+    ): TicketingListResponse<SeatResponseDto> {
+        val list = getAvailableSeatsUseCase.execute(userToken, concertEventId).map { SeatResponseDto.from(it) }
         return TicketingListResponse(list)
     }
 
@@ -52,8 +52,8 @@ class ConcertEventController {
         @RequestHeader(name = "User-Token", required = false) userToken: String?,
         @PathVariable("concertEventId") concertEventId: Long,
         @RequestBody req: ConcertEventOccupationRequest,
-    ): TicketingResponse<OccupiedSeatDto> {
-        val data = OccupiedSeatDto.from(occupationUseCase.occupySeat(userToken, concertEventId, req.seatId))
+    ): TicketingResponse<OccupationResponseDto> {
+        val data = OccupationResponseDto.from(occupySeatUseCase.execute(userToken, concertEventId, req.seatId))
         return TicketingResponse(data)
     }
 
@@ -63,8 +63,8 @@ class ConcertEventController {
         @RequestHeader(name = "User-Token", required = false) userToken: String?,
         @PathVariable("concertEventId") concertEventId: Long,
         @RequestBody req: ConcertEventReservationRequest,
-    ): TicketingResponse<SimpleReservationDto> {
-        val data = SimpleReservationDto.from(reservationUseCase.reserve(userToken, concertEventId, req.seatId))
+    ): TicketingResponse<ReservationResponseDto> {
+        val data = ReservationResponseDto.from(reserveSeatUseCase.execute(userToken, concertEventId, req.seatId))
         return TicketingResponse(data)
     }
 }
