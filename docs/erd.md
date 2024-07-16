@@ -6,20 +6,24 @@ erDiagram
     USER ||--o{ WALLET_TRANSACTION: makes
     USER ||--o{ PAYMENT: makes
     USER ||--o{ RESERVATION: makes
-    USER ||--o{ WAITING_QUEUE: has
+    USER ||--o{ USER_QUEUE: has
     WALLET ||--o{ WALLET_TRANSACTION: has
     CONCERT ||--o{ CONCERT_EVENT: has
     CONCERT_EVENT ||--o{ SEAT: has
-    SEAT ||--o{ USER_SEAT: occupied_by
-    RESERVATION ||--|{ USER_SEAT: includes
+    SEAT ||--o{ SEAT_ALLOCATION : "is allocated in"
+    USER ||--o{ SEAT_ALLOCATION : "allocates"
+    OCCUPATION ||--|{ SEAT_ALLOCATION : contains
+    RESERVATION ||--|{ SEAT_ALLOCATION : contains
     RESERVATION ||--|{ PAYMENT: has
     PAYMENT ||--|| WALLET_TRANSACTION: associated_with
     CONCERT ||--o{ RESERVATION: has
     CONCERT_EVENT ||--o{ RESERVATION: has
+    
     USER {
         bigint id PK
         string name
     }
+    
     WALLET {
         bigint id PK
         bigint user_id FK
@@ -27,14 +31,15 @@ erDiagram
         datetime created_at
         datetime updated_at
     }
+    
     WALLET_TRANSACTION {
         bigint id PK
-        bigint user_id FK
         bigint wallet_id FK
         decimal amount
         string type "enum: charged, used"
         datetime created_at
     }
+    
     PAYMENT {
         bigint id PK
         bigint user_id FK
@@ -47,12 +52,14 @@ erDiagram
         datetime created_at
         datetime updated_at
     }
+    
     CONCERT {
         bigint id PK
         string title
         string singer
         string description
     }
+    
     CONCERT_EVENT {
         bigint id PK
         bigint concert_id FK
@@ -64,6 +71,7 @@ erDiagram
         int max_seat_count
         int available_seat_count
     }
+    
     SEAT {
         bigint id PK
         bigint concert_event_id FK
@@ -71,10 +79,12 @@ erDiagram
         decimal price
         boolean is_available
     }
-    USER_SEAT {
+
+    SEAT_ALLOCATION {
         bigint id PK
         bigint seat_id FK
         bigint user_id FK
+        bigint occupation_id FK
         bigint reservation_id FK
         decimal seat_price
         string seat_number
@@ -84,6 +94,16 @@ erDiagram
         datetime reserved_at
         datetime updated_at
     }
+
+    OCCUPATION {
+        bigint id PK
+        bigint userId PK
+        string status "enum: active, released, expired"
+        datetime createdAt
+        datetime expiresAt
+        datetime expiredAt
+    }
+
     RESERVATION {
         bigint id PK
         bigint user_id FK
@@ -95,14 +115,18 @@ erDiagram
         datetime created_at
         datetime updated_at
     }
-    WAITING_QUEUE {
+    
+    USER_QUEUE {
         bigint id PK
         bigint user_id FK
         string token
         string status "enum: ready, processing, exited, expired"
-        int queue_position
+        Long queue_position
         datetime created_at
         datetime updated_at
+        datetime expires_at
+        datetime processed_at
+        datetime exited_at
         datetime expired_at
     }
 ```
@@ -189,7 +213,7 @@ erDiagram
     - price: 가격
     - is_available: 선택 가능한가
 
-## USER_SEAT
+## SEAT_ALLOCATION
 
 - 사용자가 선택하거나 예약한 좌석 정보를 나타내는 Table 이다
 - 아래의 attributes 를 갖는다.
@@ -208,6 +232,20 @@ erDiagram
     - reserved_at: 예약 완료 일시
     - updated_at: 수정 일시
 
+## OCCUPATION
+
+- 사용자의 좌석 점유 정보를 나타내는 Table 이다.
+- 아래의 attributes 를 갖는다.
+    - id: PK
+    - userId: USER 를 가르키는 FK
+    - status: 점유 상태
+        - active: 점유
+        - released: 좌석이 예약되거나 취소되어, 점유가 풀린 상태
+        - expired: 점유 만료 상태
+    - createdAt: 생성 일시
+    - expiresAt: 만료 일시
+    - expiredAt: 만료로 상태가 변경된 일시
+
 ## RESERVATION
 
 - 사용자의 좌석 예약 정보를 나타내는 Table 이다.
@@ -225,10 +263,10 @@ erDiagram
     - created_at: 예약 생성 일시
     - updated_at: 수정 일시
 
-## WAITING_QUEUE
+## USER_QUEUE
 
-- 대기열을 나타내는 Table 이다.
-- 활성 상태('ready', 'processing')인 row 의 수가 대기열의 사이즈이다.
+- 예약 관련 작업을 하려는 사용자에 대한 Queue 를 나타내는 Table 이다.
+- 대기 상태('ready')인 row 의 수가 대기열의 사이즈이다.
 - 아래의 attributes 를 갖는다.
     - id: PK
     - user_id: USER 를 가르키는 FK
@@ -238,8 +276,11 @@ erDiagram
         - processing: 작업 가능 상태
         - exited: queue 에서 제거된 상태
         - expired: 만료된 상태
-    - queue_position: 대기열에서의 위치
+    - queue_position: queue 에서의 위치
     - created_at: 생성 시간
     - updated_at: 수정 일시
-    - expired_at: 만료 시간
+    - expires_at: 만료 일시
+    - processed_at: 작업을 시작한 일시
+    - exited_at: 대기열에서 나간 일시
+    - expired_at: 만료가 된 일시
 

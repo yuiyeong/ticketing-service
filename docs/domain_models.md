@@ -10,20 +10,22 @@
 4. Concert: 콘서트의 기본 정보를 관리
 5. ConcertEvent: 특정 날짜와 장소의 콘서트 이벤트를 관리
 6. Seat: 콘서트 이벤트의 좌석 정보를 관리
-7. Reservation: 좌석 예약 정보를 관리
-8. Occupation: 좌석 임시 점유 정보를 관리
-9. Payment: 결제 정보를 관리
-10. WaitingQueueEntry: 대기열 정보를 관리
+7. SeatAllocation: 예약과 점유에 사용된 좌석의 할당 정보를 관리
+8. Reservation: 좌석 예약 정보를 관리
+9. Occupation: 좌석 임시 점유 정보를 관리
+10. Payment: 결제 정보를 관리
+11. WaitingQueueEntry: 대기열 정보를 관리
 
 ### 값 객체
 
 1. DateTimeRange: start 부터 end 까지를 표현
 2. TransactionType: CHARGE, PAYMENT
 3. SeatStatus: AVAILABLE, OCCUPIED, RESERVED
-4. ReservationStatus: PENDING, CONFIRMED, CANCELLED
+4. ReservationStatus: PENDING, CONFIRMED, PAYMENT_FAILED
 5. OccupationStatus: ACTIVE, EXPIRED, RELEASED
 6. PaymentStatus: PENDING, COMPLETED, FAILED
 7. WaitingQueueEntryStatus: READY, PROCESSING, EXITED, EXPIRED
+8. AllocationStatus: OCCUPIED, EXPIRED, RESERVED
 
 ## 바운디드 컨텍스트 및 애그리거트
 
@@ -56,7 +58,7 @@
     - 값 객체: ReservationStatus
 - Occupation 애그리게이트
     - 루트: Occupation
-    - 포함 엔티티: (없음)
+    - 포함 엔티티: SeatAllocation
     - 값 객체: OccupationStatus
 
 ### e. 결제 컨텍스트
@@ -130,11 +132,23 @@ classDiagram
     BigDecimal price
     boolean isAvailable
   }
+  
+  class SeatAllocation {
+    Long id
+    Long userId
+    Long seatId
+    BigDecimal seatPrice
+    String seatNumber
+    AllocationStatus status
+    ZonedDateTime occupiedAt
+    ZonedDateTime expiredAt
+    ZonedDateTime reservedAt
+  }
 
   class Occupation {
     Long id
     Long userId
-    List<Long> seatIds
+    List<SeatAllocation> allocations
     OccupationStatus status
     ZonedDateTime createdAt
     ZonedDateTime expiresAt
@@ -146,7 +160,6 @@ classDiagram
     Long concertId
     Long concertEventId
     ReservationStatus status
-    List<Long> seatIds
     Int totalSeats
     BigDecimal totalAmount
     ZonedDateTime createdAt
@@ -191,7 +204,7 @@ classDiagram
 
   class ReservationStatus {
     <<Enumeration>>
-    PENDING, CONFIRMED, CANCELLED
+    PENDING, CONFIRMED, PAYMENT_FAILED
   }
 
   class OccupationStatus {
@@ -214,5 +227,11 @@ classDiagram
     PROCESSING
     EXITED
     EXPIRED
+  }
+  class AllocationStatus {
+    <<Enumeration>>
+    OCCUPIED,
+    EXPIRED,
+    RESERVED,
   }
 ```
