@@ -3,19 +3,15 @@ package com.yuiyeong.ticketing.application.scheduler
 import com.yuiyeong.ticketing.application.usecase.queue.ActivateWaitingEntriesUseCase
 import com.yuiyeong.ticketing.application.usecase.queue.ExpireWaitingEntryUseCase
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 
 @Component
-class QueueScheduler {
-    @Autowired
-    private lateinit var activateWaitingEntriesUseCase: ActivateWaitingEntriesUseCase
-
-    @Autowired
-    private lateinit var expireWaitingEntryUseCase: ExpireWaitingEntryUseCase
-
-    @Scheduled(fixedRate = 5000) // 5초 뒤부터, 5초 마다 실행
+class QueueScheduler(
+    private val activateWaitingEntriesUseCase: ActivateWaitingEntriesUseCase,
+    private val expireWaitingEntryUseCase: ExpireWaitingEntryUseCase,
+) {
+    @Scheduled(fixedRateString = "#{@schedulerProperties.queueFixedRate}")
     fun processQueue() {
         try {
             // token 만료
