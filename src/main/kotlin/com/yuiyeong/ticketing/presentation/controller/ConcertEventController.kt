@@ -1,5 +1,6 @@
 package com.yuiyeong.ticketing.presentation.controller
 
+import com.yuiyeong.ticketing.application.dto.QueueEntryResult
 import com.yuiyeong.ticketing.application.usecase.concert.GetAvailableSeatsUseCase
 import com.yuiyeong.ticketing.application.usecase.reservation.OccupySeatUseCase
 import com.yuiyeong.ticketing.application.usecase.reservation.ReserveSeatUseCase
@@ -14,7 +15,6 @@ import com.yuiyeong.ticketing.presentation.dto.request.ConcertEventReservationRe
 import com.yuiyeong.ticketing.presentation.dto.response.TicketingListResponse
 import com.yuiyeong.ticketing.presentation.dto.response.TicketingResponse
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -26,16 +26,11 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/v1/concert-events")
 @Tag(name = "콘서트 이벤트", description = "콘서트 이벤트 관련 api")
-class ConcertEventController {
-    @Autowired
-    private lateinit var getAvailableSeatsUseCase: GetAvailableSeatsUseCase
-
-    @Autowired
-    private lateinit var occupySeatUseCase: OccupySeatUseCase
-
-    @Autowired
-    private lateinit var reserveSeatUseCase: ReserveSeatUseCase
-
+class ConcertEventController(
+    private val getAvailableSeatsUseCase: GetAvailableSeatsUseCase,
+    private val occupySeatUseCase: OccupySeatUseCase,
+    private val reserveSeatUseCase: ReserveSeatUseCase,
+) {
     @GetMapping("{concertEventId}/available-seats")
     @AvailableSeatsApiDoc
     fun getAvailableSeats(

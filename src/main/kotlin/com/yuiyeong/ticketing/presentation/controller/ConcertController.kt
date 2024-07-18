@@ -5,7 +5,6 @@ import com.yuiyeong.ticketing.config.swagger.annotation.api.AvailableConcertEven
 import com.yuiyeong.ticketing.presentation.dto.ConcertEventResponseDto
 import com.yuiyeong.ticketing.presentation.dto.response.TicketingListResponse
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestHeader
@@ -15,10 +14,9 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/v1/concerts")
 @Tag(name = "콘서트", description = "콘서트 관련 api")
-class ConcertController {
-    @Autowired
-    private lateinit var getAvailableConcertEventsUseCase: GetAvailableConcertEventsUseCase
-
+class ConcertController(
+    private val getAvailableConcertEventsUseCase: GetAvailableConcertEventsUseCase,
+) {
     @GetMapping("{concertId}/available-events")
     @AvailableConcertEventsApiDoc
     fun getAvailableEvents(
