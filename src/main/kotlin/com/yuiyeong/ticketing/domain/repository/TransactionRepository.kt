@@ -6,4 +6,6 @@ interface TransactionRepository {
     fun save(transaction: Transaction): Transaction
 
     fun findOneById(id: Long): Transaction?
+
+    fun deleteAll()
 }

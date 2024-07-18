@@ -5,5 +5,7 @@ import com.yuiyeong.ticketing.domain.model.Wallet
 interface WalletRepository {
     fun save(wallet: Wallet): Wallet
 
-    fun findOneByUserId(userId: Long): Wallet?
+    fun findOneByUserIdWithLock(userId: Long): Wallet?
+
+    fun deleteAll()
 }

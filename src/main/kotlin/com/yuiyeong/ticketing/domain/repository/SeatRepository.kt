@@ -9,7 +9,11 @@ interface SeatRepository {
 
     fun findAllAvailableByIds(ids: List<Long>): List<Seat>
 
+    fun findAllAvailableByIdsWithLock(ids: List<Long>): List<Seat>
+
     fun findAllAvailableByConcertEventId(concertEventId: Long): List<Seat>
 
     fun saveAll(seats: List<Seat>): List<Seat>
+
+    fun deleteAll()
 }

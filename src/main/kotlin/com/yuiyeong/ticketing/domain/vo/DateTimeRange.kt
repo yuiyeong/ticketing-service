@@ -1,5 +1,6 @@
 package com.yuiyeong.ticketing.domain.vo
 
+import java.time.Duration
 import java.time.ZonedDateTime
 
 data class DateTimeRange(
@@ -29,4 +30,6 @@ data class DateTimeRange(
         } else {
             true
         }
+
+    fun getDurationAsMin(): Long = Duration.between(start, end).toMinutes()
 }
