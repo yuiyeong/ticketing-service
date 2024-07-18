@@ -5,24 +5,40 @@ spring:
     application:
         name: ticketing
     datasource:
-        url: jdbc:mysql://localhost:3306/ticketing?serverTimezone=UTC&CharacterEncoding=UTF-8
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://localhost:3306/ticketing?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC
         username: root
         password: very_difficult_root_password
         hikari:
             maximum-pool-size: 30
             connection-timeout: 5000
-        driver-class-name: com.mysql.cj.jdbc.Driver
     jpa:
         database-platform: org.hibernate.dialect.MySQLDialect
         hibernate:
             ddl-auto: update
         properties:
+            jakarta.persistence.lock.timeout: 10000  # 10초
             hibernate:
                 jdbc.time_zone: UTC
                 show_sql: true
+                lock.timeout: 10000  # 10초
     jackson:
         time-zone: UTC
+
 logging:
+    request-response:
+        enabled: true
+        preview-length: 200
+        max-content-length: 524288  # 500KB in bytes
     level:
         org.hibernate.SQL: debug
         org.hibernate.orm.jdbc.bind: debug
+
+jwt:
+    secret: very_difficult_and_secure_secret_key_that_is_at_least_256_bits
+
+config:
+    valid-occupied-duration: 5 # 5분
+    scheduler:
+        queue-fixed-rate: 60000 # 1분
+        occupation-fixed-rate: 60000 # 1분
