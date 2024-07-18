@@ -1,5 +1,6 @@
 package com.yuiyeong.ticketing.domain.model
 
+import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.exception.InsufficientBalanceException
 import com.yuiyeong.ticketing.domain.exception.InvalidAmountException
 import java.math.BigDecimal
@@ -29,5 +30,18 @@ data class Wallet(
         }
 
         balance -= amount
+    }
+
+    companion object {
+        fun create(userId: Long): Wallet {
+            val now = ZonedDateTime.now().asUtc
+            return Wallet(
+                id = 0L,
+                userId = userId,
+                balance = BigDecimal.ZERO,
+                createdAt = now,
+                updatedAt = now,
+            )
+        }
     }
 }

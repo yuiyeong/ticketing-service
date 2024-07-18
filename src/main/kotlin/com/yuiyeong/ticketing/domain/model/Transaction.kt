@@ -1,10 +1,11 @@
 package com.yuiyeong.ticketing.domain.model
 
+import com.yuiyeong.ticketing.common.asUtc
 import java.math.BigDecimal
 import java.time.ZonedDateTime
 
 data class Transaction(
-    val id: Long = 0L,
+    val id: Long,
     val walletId: Long,
     val amount: BigDecimal,
     val type: TransactionType,
@@ -17,10 +18,11 @@ data class Transaction(
             type: TransactionType,
         ): Transaction =
             Transaction(
+                id = 0L,
                 walletId = wallet.id,
                 amount = amount,
                 type = type,
-                createdAt = wallet.updatedAt,
+                createdAt = ZonedDateTime.now().asUtc,
             )
     }
 }

@@ -1,23 +1,32 @@
 package com.yuiyeong.ticketing.domain.model
 
+import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.exception.OccupationAlreadyExpiredException
 import com.yuiyeong.ticketing.domain.exception.OccupationAlreadyReleaseException
 import java.time.ZonedDateTime
 
-data class Occupation(
+class Occupation(
     val id: Long,
     val userId: Long,
-    val seatIds: List<Long>,
-    var status: OccupationStatus,
+    val concertEventId: Long,
+    val allocations: List<SeatAllocation>,
+    status: OccupationStatus,
     val createdAt: ZonedDateTime,
     val expiresAt: ZonedDateTime,
-    var expiredAt: ZonedDateTime? = null,
+    expiredAt: ZonedDateTime?,
 ) {
+    var status: OccupationStatus = status
+        private set
+
+    var expiredAt: ZonedDateTime? = expiredAt
+        private set
+
     fun expire() {
         verifyActiveStatus()
 
         status = OccupationStatus.EXPIRED
-        expiredAt = ZonedDateTime.now()
+        expiredAt = ZonedDateTime.now().asUtc
+        allocations.forEach { it.markAsExpired() }
     }
 
     fun release(moment: ZonedDateTime) {
@@ -29,6 +38,7 @@ data class Occupation(
         }
 
         status = OccupationStatus.RELEASED
+        allocations.forEach { it.markAsReserved() }
     }
 
     private fun verifyActiveStatus() {
@@ -41,21 +51,45 @@ data class Occupation(
         }
     }
 
-    companion object {
-        const val EXPIRATION_MINUTES = 5L // 5 분 뒤 만료
+    fun copy(
+        id: Long = this.id,
+        userId: Long = this.userId,
+        concertEventId: Long = this.concertEventId,
+        allocations: List<SeatAllocation> = this.allocations,
+        status: OccupationStatus = this.status,
+        createdAt: ZonedDateTime = this.createdAt,
+        expiresAt: ZonedDateTime = this.expiresAt,
+        expiredAt: ZonedDateTime? = this.expiredAt,
+    ): Occupation =
+        Occupation(
+            id = id,
+            userId = userId,
+            concertEventId = concertEventId,
+            allocations = allocations,
+            status = status,
+            createdAt = createdAt,
+            expiresAt = expiresAt,
+            expiredAt = expiredAt,
+        )
 
+    companion object {
         fun create(
             userId: Long,
-            seatIds: List<Long>,
+            concertEventId: Long,
+            seats: List<Seat>,
+            expirationMinutes: Long,
         ): Occupation {
-            val now = ZonedDateTime.now()
+            val createdAt = ZonedDateTime.now().asUtc
+            val allocations = seats.map { SeatAllocation.createOccupiedOne(userId, it, createdAt) }
             return Occupation(
                 id = 0L,
                 userId = userId,
-                seatIds = seatIds,
+                concertEventId = concertEventId,
+                allocations = allocations,
                 status = OccupationStatus.ACTIVE,
-                createdAt = now,
-                expiresAt = now.plusMinutes(EXPIRATION_MINUTES),
+                createdAt = createdAt,
+                expiresAt = createdAt.plusMinutes(expirationMinutes),
+                expiredAt = null,
             )
         }
     }
