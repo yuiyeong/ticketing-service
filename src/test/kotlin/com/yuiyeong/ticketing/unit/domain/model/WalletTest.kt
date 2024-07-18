@@ -1,7 +1,9 @@
-package com.yuiyeong.ticketing.domain.model
+package com.yuiyeong.ticketing.unit.domain.model
 
+import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.exception.InsufficientBalanceException
 import com.yuiyeong.ticketing.domain.exception.InvalidAmountException
+import com.yuiyeong.ticketing.domain.model.Wallet
 import org.assertj.core.api.Assertions
 import java.math.BigDecimal
 import java.time.ZonedDateTime
@@ -101,7 +103,7 @@ class WalletTest {
             id = 123L,
             userId = 883L,
             balance = BigDecimal(balance),
-            createdAt = ZonedDateTime.now(),
-            updatedAt = ZonedDateTime.now(),
+            createdAt = ZonedDateTime.now().asUtc,
+            updatedAt = ZonedDateTime.now().asUtc,
         )
 }

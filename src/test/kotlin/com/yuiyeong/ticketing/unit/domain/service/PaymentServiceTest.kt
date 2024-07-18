@@ -1,5 +1,6 @@
-package com.yuiyeong.ticketing.domain.service
+package com.yuiyeong.ticketing.unit.domain.service
 
+import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.model.Payment
 import com.yuiyeong.ticketing.domain.model.PaymentStatus
 import com.yuiyeong.ticketing.domain.model.Reservation
@@ -9,6 +10,7 @@ import com.yuiyeong.ticketing.domain.model.TransactionType
 import com.yuiyeong.ticketing.domain.repository.PaymentRepository
 import com.yuiyeong.ticketing.domain.repository.ReservationRepository
 import com.yuiyeong.ticketing.domain.repository.TransactionRepository
+import com.yuiyeong.ticketing.domain.service.PaymentService
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
@@ -119,10 +121,9 @@ class PaymentServiceTest {
             concertId = 2L,
             concertEventId = 3L,
             status = ReservationStatus.PENDING,
-            seatIds = listOf(11L),
             totalSeats = 1,
             totalAmount = BigDecimal(20000),
-            createdAt = ZonedDateTime.now(),
+            createdAt = ZonedDateTime.now().asUtc,
         )
 
     private fun createTransaction(amount: BigDecimal) =
@@ -131,6 +132,6 @@ class PaymentServiceTest {
             walletId = 2L,
             amount = amount,
             type = TransactionType.PAYMENT,
-            createdAt = ZonedDateTime.now(),
+            createdAt = ZonedDateTime.now().asUtc,
         )
 }

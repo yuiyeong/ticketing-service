@@ -1,7 +1,9 @@
-package com.yuiyeong.ticketing.domain.model
+package com.yuiyeong.ticketing.unit.domain.model
 
-import com.yuiyeong.ticketing.domain.exception.ReservationAlreadyCanceledException
+import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.exception.ReservationAlreadyConfirmedException
+import com.yuiyeong.ticketing.domain.model.Reservation
+import com.yuiyeong.ticketing.domain.model.ReservationStatus
 import org.assertj.core.api.Assertions
 import java.math.BigDecimal
 import java.time.ZonedDateTime
@@ -32,14 +34,14 @@ class ReservationTest {
     }
 
     @Test
-    fun `should throw ReservationAlreadyConfirmedException when trying to confirm canceled Reservation`() {
+    fun `should throw ReservationAlreadyConfirmedException when trying to mark as failed about confirmed Reservation`() {
         // given
-        val reservation = createReservation(ReservationStatus.CANCELLED)
+        val reservation = createReservation(ReservationStatus.CONFIRMED)
 
         // when & then
         Assertions
-            .assertThatThrownBy { reservation.confirm() }
-            .isInstanceOf(ReservationAlreadyCanceledException::class.java)
+            .assertThatThrownBy { reservation.markAsPaymentFailed() }
+            .isInstanceOf(ReservationAlreadyConfirmedException::class.java)
     }
 
     private fun createReservation(status: ReservationStatus): Reservation =
@@ -49,9 +51,8 @@ class ReservationTest {
             concertId = 2L,
             concertEventId = 3L,
             status = status,
-            seatIds = listOf(11L),
             totalSeats = 1,
             totalAmount = BigDecimal(20000),
-            createdAt = ZonedDateTime.now(),
+            createdAt = ZonedDateTime.now().asUtc,
         )
 }

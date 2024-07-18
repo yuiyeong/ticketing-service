@@ -1,5 +1,12 @@
-package com.yuiyeong.ticketing.domain.model
+package com.yuiyeong.ticketing.unit.domain.model
 
+import com.yuiyeong.ticketing.common.asUtc
+import com.yuiyeong.ticketing.domain.model.Payment
+import com.yuiyeong.ticketing.domain.model.PaymentStatus
+import com.yuiyeong.ticketing.domain.model.Reservation
+import com.yuiyeong.ticketing.domain.model.ReservationStatus
+import com.yuiyeong.ticketing.domain.model.Transaction
+import com.yuiyeong.ticketing.domain.model.TransactionType
 import org.assertj.core.api.Assertions
 import java.math.BigDecimal
 import java.time.ZonedDateTime
@@ -51,10 +58,9 @@ class PaymentTest {
             concertId = 2L,
             concertEventId = 3L,
             status = ReservationStatus.PENDING,
-            seatIds = listOf(11L),
             totalSeats = 1,
             totalAmount = BigDecimal(20000),
-            createdAt = ZonedDateTime.now(),
+            createdAt = ZonedDateTime.now().asUtc,
         )
 
     private fun createTransaction(amount: BigDecimal) =
@@ -63,6 +69,6 @@ class PaymentTest {
             walletId = 2L,
             amount = amount,
             type = TransactionType.PAYMENT,
-            createdAt = ZonedDateTime.now(),
+            createdAt = ZonedDateTime.now().asUtc,
         )
 }

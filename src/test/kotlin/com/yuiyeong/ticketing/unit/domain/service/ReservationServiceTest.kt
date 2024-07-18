@@ -1,16 +1,21 @@
-package com.yuiyeong.ticketing.domain.service
+package com.yuiyeong.ticketing.unit.domain.service
 
+import com.yuiyeong.ticketing.common.asUtc
+import com.yuiyeong.ticketing.domain.exception.OccupationNotFoundException
 import com.yuiyeong.ticketing.domain.exception.ReservationNotFoundException
 import com.yuiyeong.ticketing.domain.exception.ReservationNotOpenedException
-import com.yuiyeong.ticketing.domain.exception.SeatNotFoundException
+import com.yuiyeong.ticketing.domain.model.AllocationStatus
 import com.yuiyeong.ticketing.domain.model.Concert
 import com.yuiyeong.ticketing.domain.model.ConcertEvent
+import com.yuiyeong.ticketing.domain.model.Occupation
+import com.yuiyeong.ticketing.domain.model.OccupationStatus
 import com.yuiyeong.ticketing.domain.model.Reservation
 import com.yuiyeong.ticketing.domain.model.ReservationStatus
-import com.yuiyeong.ticketing.domain.model.Seat
+import com.yuiyeong.ticketing.domain.model.SeatAllocation
 import com.yuiyeong.ticketing.domain.repository.ConcertEventRepository
+import com.yuiyeong.ticketing.domain.repository.OccupationRepository
 import com.yuiyeong.ticketing.domain.repository.ReservationRepository
-import com.yuiyeong.ticketing.domain.repository.SeatRepository
+import com.yuiyeong.ticketing.domain.service.ReservationService
 import com.yuiyeong.ticketing.domain.vo.DateTimeRange
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
@@ -34,13 +39,13 @@ class ReservationServiceTest {
     private lateinit var concertEventRepository: ConcertEventRepository
 
     @Mock
-    private lateinit var seatRepository: SeatRepository
+    private lateinit var occupationRepository: OccupationRepository
 
     private lateinit var reservationService: ReservationService
 
     @BeforeEach
     fun beforeEach() {
-        reservationService = ReservationService(reservationRepository, concertEventRepository, seatRepository)
+        reservationService = ReservationService(reservationRepository, concertEventRepository, occupationRepository)
     }
 
     @Test
@@ -48,36 +53,30 @@ class ReservationServiceTest {
         // given
         val userId = 12L
         val concertEventId = 22L
-        val reservationPeriodStart = ZonedDateTime.now().minusDays(2)
+        val reservationPeriodStart = ZonedDateTime.now().asUtc.minusDays(2)
         val concertEvent = createConcertEvent(2L, concertEventId, reservationPeriodStart)
-        val occupiedSeats = listOf(createSeat(22L, concertEventId, false), createSeat(23L, concertEventId, false))
-        val occupiedSeatIds = occupiedSeats.map { it.id }
+        val occupation = createOccupation(userId, listOf(82L), 12L)
 
         given(concertEventRepository.findOneById(concertEventId)).willReturn(concertEvent)
-        given(seatRepository.findAllByIds(occupiedSeatIds)).willReturn(occupiedSeats)
+        given(occupationRepository.findOneById(occupation.id)).willReturn(occupation)
         given(reservationRepository.save(any())).willAnswer { invocation ->
             val savedOne = invocation.getArgument<Reservation>(0)
             savedOne.copy(id = 1L)
         }
 
         // when
-        val reservation = reservationService.reserve(userId, concertEventId, occupiedSeatIds)
+        val reservation = reservationService.reserve(userId, concertEventId, occupation.id)
 
         // then
         Assertions.assertThat(reservation.userId).isEqualTo(userId)
         Assertions.assertThat(reservation.concertEventId).isEqualTo(concertEventId)
-        Assertions.assertThat(reservation.seatIds).isEqualTo(occupiedSeatIds)
         Assertions.assertThat(reservation.status).isEqualTo(ReservationStatus.PENDING)
-        Assertions.assertThat(reservation.totalSeats).isEqualTo(occupiedSeatIds.count())
-        Assertions.assertThat(reservation.totalAmount).isEqualTo(occupiedSeats.sumOf { it.price })
+        Assertions.assertThat(reservation.totalSeats).isEqualTo(occupation.allocations.count())
+        Assertions.assertThat(reservation.totalAmount).isEqualTo(occupation.allocations.sumOf { it.seatPrice })
 
         verify(concertEventRepository).findOneById(concertEventId)
-        verify(seatRepository).findAllByIds(occupiedSeatIds)
-        verify(reservationRepository).save(
-            argThat { it ->
-                it.userId == userId && it.concertEventId == concertEventId && it.seatIds == occupiedSeatIds
-            },
-        )
+        verify(occupationRepository).findOneById(occupation.id)
+        verify(reservationRepository).save(argThat { it -> it.userId == userId && it.concertEventId == concertEventId })
     }
 
     @Test
@@ -85,14 +84,15 @@ class ReservationServiceTest {
         // given
         val userId = 12L
         val concertEventId = 42L
-        val reservationPeriodStart = ZonedDateTime.now().plusHours(1)
+        val reservationPeriodStart = ZonedDateTime.now().asUtc.plusHours(1)
         val concertEvent = createConcertEvent(1L, concertEventId, reservationPeriodStart)
+        val occupationId = 1L
 
         given(concertEventRepository.findOneById(concertEventId)).willReturn(concertEvent)
 
         // when & then
         Assertions
-            .assertThatThrownBy { reservationService.reserve(userId, concertEventId, listOf(1L)) }
+            .assertThatThrownBy { reservationService.reserve(userId, concertEventId, occupationId) }
             .isInstanceOf(ReservationNotOpenedException::class.java)
 
         verify(concertEventRepository).findOneById(concertEventId)
@@ -103,29 +103,29 @@ class ReservationServiceTest {
         // given
         val userId = 9L
         val concertEventId = 8L
-        val reservationPeriodStart = ZonedDateTime.now().minusDays(1)
+        val reservationPeriodStart = ZonedDateTime.now().asUtc.minusDays(1)
         val concertEvent = createConcertEvent(3L, concertEventId, reservationPeriodStart)
-        val occupiedSeat = createSeat(4L, concertEventId, false)
-        val occupiedSeatIds = listOf(occupiedSeat.id, 98L)
+        val unknownOccupationId = 123L
 
         given(concertEventRepository.findOneById(concertEventId)).willReturn(concertEvent)
-        given(seatRepository.findAllByIds(occupiedSeatIds)).willReturn(emptyList())
+        given(occupationRepository.findOneById(unknownOccupationId)).willReturn(null)
 
         // when
         Assertions
-            .assertThatThrownBy { reservationService.reserve(userId, concertEventId, occupiedSeatIds) }
-            .isInstanceOf(SeatNotFoundException::class.java)
+            .assertThatThrownBy { reservationService.reserve(userId, concertEventId, unknownOccupationId) }
+            .isInstanceOf(OccupationNotFoundException::class.java)
 
         // then
         verify(concertEventRepository).findOneById(concertEventId)
-        verify(seatRepository).findAllByIds(occupiedSeatIds)
+        verify(occupationRepository).findOneById(unknownOccupationId)
     }
 
     @Test
     fun `should confirm a reservation of which status is PENDING`() {
         // given
         val reservationId = 19L
-        val reservation = createReservation(reservationId, ReservationStatus.PENDING)
+        val occupation = createOccupation(5L, listOf(6L), 2L)
+        val reservation = createReservation(reservationId, ReservationStatus.PENDING, occupation)
         given(reservationRepository.findOneById(reservationId)).willReturn(reservation)
         given(reservationRepository.save(any())).willAnswer { invocation ->
             invocation.getArgument<Reservation>(0)
@@ -167,28 +167,51 @@ class ReservationServiceTest {
             concert = concert,
             venue = "test place",
             reservationPeriod = DateTimeRange(reservationPeriodStart, reservationPeriodStart.plusDays(5)),
-            performanceSchedule = DateTimeRange(ZonedDateTime.now(), ZonedDateTime.now().plusHours(1)),
+            performanceSchedule = DateTimeRange(ZonedDateTime.now().asUtc, ZonedDateTime.now().asUtc.plusHours(1)),
             maxSeatCount = 10,
             availableSeatCount = 4,
         )
     }
 
-    private fun createSeat(
-        id: Long,
-        concertEventId: Long,
-        isAvailable: Boolean,
-    ): Seat =
-        Seat(
+    private fun createOccupation(
+        userId: Long,
+        seatIds: List<Long>,
+        id: Long = 0L,
+        status: OccupationStatus = OccupationStatus.ACTIVE,
+        createdAt: ZonedDateTime = ZonedDateTime.now().asUtc,
+    ): Occupation {
+        val allocationStatus =
+            if (status == OccupationStatus.ACTIVE) AllocationStatus.OCCUPIED else AllocationStatus.valueOf(status.name)
+        val allocations =
+            seatIds.map {
+                SeatAllocation(
+                    id = it,
+                    userId = userId,
+                    seatId = it,
+                    seatNumber = "$it 번",
+                    seatPrice = BigDecimal(20000),
+                    status = allocationStatus,
+                    occupiedAt = createdAt,
+                    expiredAt = null,
+                    reservedAt = null,
+                )
+            }
+        return Occupation(
             id = id,
-            concertEventId = concertEventId,
-            seatNumber = "54번",
-            price = BigDecimal(43000),
-            isAvailable = isAvailable,
+            userId = userId,
+            concertEventId = 389L,
+            allocations = allocations,
+            status = status,
+            createdAt = createdAt,
+            expiresAt = createdAt.plusMinutes(5),
+            expiredAt = null,
         )
+    }
 
     private fun createReservation(
         reservationId: Long,
         status: ReservationStatus,
+        occupation: Occupation,
     ): Reservation =
         Reservation(
             id = reservationId,
@@ -196,9 +219,8 @@ class ReservationServiceTest {
             concertId = 2L,
             concertEventId = 3L,
             status = status,
-            seatIds = listOf(11L),
-            totalSeats = 1,
-            totalAmount = BigDecimal(20000),
-            createdAt = ZonedDateTime.now(),
+            totalSeats = occupation.allocations.count(),
+            totalAmount = occupation.allocations.sumOf { it.seatPrice },
+            createdAt = ZonedDateTime.now().asUtc,
         )
 }

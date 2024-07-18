@@ -1,5 +1,6 @@
-package com.yuiyeong.ticketing.domain.service
+package com.yuiyeong.ticketing.unit.domain.service
 
+import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.exception.InsufficientBalanceException
 import com.yuiyeong.ticketing.domain.exception.InvalidAmountException
 import com.yuiyeong.ticketing.domain.model.Transaction
@@ -7,6 +8,7 @@ import com.yuiyeong.ticketing.domain.model.TransactionType
 import com.yuiyeong.ticketing.domain.model.Wallet
 import com.yuiyeong.ticketing.domain.repository.TransactionRepository
 import com.yuiyeong.ticketing.domain.repository.WalletRepository
+import com.yuiyeong.ticketing.domain.service.WalletService
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
@@ -42,7 +44,7 @@ class WalletServiceTest {
         val balance = 20L
         val amount = BigDecimal(1000)
         val wallet = createWallet(3L, userId, balance)
-        given(walletRepository.findOneByUserId(userId)).willReturn(wallet)
+        given(walletRepository.findOneByUserIdWithLock(userId)).willReturn(wallet)
         given(transactionRepository.save(any())).willAnswer { invocation ->
             val savedOne = invocation.getArgument<Transaction>(0)
             savedOne.copy(id = 1L)
@@ -57,7 +59,7 @@ class WalletServiceTest {
         Assertions.assertThat(transaction.amount).isEqualTo(amount)
         Assertions.assertThat(wallet.balance).isEqualTo(BigDecimal(balance) + amount)
 
-        verify(walletRepository).findOneByUserId(userId)
+        verify(walletRepository).findOneByUserIdWithLock(userId)
         verify(transactionRepository).save(argThat { it -> it.walletId == wallet.id })
         verify(walletRepository).save(argThat { it -> it.userId == userId })
     }
@@ -68,13 +70,13 @@ class WalletServiceTest {
         val userId = 31L
         val amount = BigDecimal(-1000)
         val wallet = createWallet(2L, userId, 10000L)
-        given(walletRepository.findOneByUserId(userId)).willReturn(wallet)
+        given(walletRepository.findOneByUserIdWithLock(userId)).willReturn(wallet)
 
         // when & then
         Assertions
             .assertThatThrownBy { walletService.charge(userId, amount) }
             .isInstanceOf(InvalidAmountException::class.java)
-        verify(walletRepository).findOneByUserId(userId)
+        verify(walletRepository).findOneByUserIdWithLock(userId)
     }
 
     @Test
@@ -84,7 +86,7 @@ class WalletServiceTest {
         val balance = 200000L
         val amount = BigDecimal(10000)
         val wallet = createWallet(65L, userId, balance)
-        given(walletRepository.findOneByUserId(userId)).willReturn(wallet)
+        given(walletRepository.findOneByUserIdWithLock(userId)).willReturn(wallet)
         given(transactionRepository.save(any())).willAnswer { invocation ->
             val savedOne = invocation.getArgument<Transaction>(0)
             savedOne.copy(id = 2L)
@@ -99,7 +101,7 @@ class WalletServiceTest {
         Assertions.assertThat(transaction.amount).isEqualTo(amount)
         Assertions.assertThat(wallet.balance).isEqualTo(BigDecimal(balance) - amount)
 
-        verify(walletRepository).findOneByUserId(userId)
+        verify(walletRepository).findOneByUserIdWithLock(userId)
         verify(transactionRepository).save(argThat { it -> it.walletId == wallet.id })
         verify(walletRepository).save(argThat { it -> it.userId == userId })
     }
@@ -110,13 +112,13 @@ class WalletServiceTest {
         val userId = 313L
         val amount = BigDecimal(-1000)
         val wallet = createWallet(21L, userId, 10000L)
-        given(walletRepository.findOneByUserId(userId)).willReturn(wallet)
+        given(walletRepository.findOneByUserIdWithLock(userId)).willReturn(wallet)
 
         // when & then
         Assertions
             .assertThatThrownBy { walletService.pay(userId, amount) }
             .isInstanceOf(InvalidAmountException::class.java)
-        verify(walletRepository).findOneByUserId(userId)
+        verify(walletRepository).findOneByUserIdWithLock(userId)
     }
 
     @Test
@@ -125,13 +127,13 @@ class WalletServiceTest {
         val userId = 76L
         val amount = BigDecimal(10000)
         val wallet = createWallet(67L, userId, 1000L)
-        given(walletRepository.findOneByUserId(userId)).willReturn(wallet)
+        given(walletRepository.findOneByUserIdWithLock(userId)).willReturn(wallet)
 
         // when & then
         Assertions
             .assertThatThrownBy { walletService.pay(userId, amount) }
             .isInstanceOf(InsufficientBalanceException::class.java)
-        verify(walletRepository).findOneByUserId(userId)
+        verify(walletRepository).findOneByUserIdWithLock(userId)
     }
 
     private fun createWallet(
@@ -142,7 +144,7 @@ class WalletServiceTest {
         id = id,
         userId = userId,
         balance = BigDecimal(balance),
-        createdAt = ZonedDateTime.now(),
-        updatedAt = ZonedDateTime.now(),
+        createdAt = ZonedDateTime.now().asUtc,
+        updatedAt = ZonedDateTime.now().asUtc,
     )
 }
