@@ -1,35 +1,48 @@
 package com.yuiyeong.ticketing.domain.service
 
+import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.exception.OccupationNotFoundException
+import com.yuiyeong.ticketing.domain.exception.SeatUnavailableException
 import com.yuiyeong.ticketing.domain.model.Occupation
 import com.yuiyeong.ticketing.domain.repository.OccupationRepository
+import com.yuiyeong.ticketing.domain.repository.SeatRepository
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Service
 import java.time.ZonedDateTime
 
+@Service
 class OccupationService(
+    @Value("\${config.valid-occupied-duration}") private val validOccupiedDuration: Long,
     private val occupationRepository: OccupationRepository,
+    private val seatRepository: SeatRepository,
 ) {
     fun createOccupation(
         userId: Long,
+        concertEventId: Long,
         seatIds: List<Long>,
     ): Occupation {
-        val occupation = Occupation.create(userId, seatIds)
+        val seats = seatRepository.findAllAvailableByIds(seatIds)
+
+        if (seats.count() != seatIds.count()) throw SeatUnavailableException()
+
+        val occupation = Occupation.create(userId, concertEventId, seats, validOccupiedDuration)
         return occupationRepository.save(occupation)
     }
 
     fun release(
         userId: Long,
-        occupiedSeatIds: List<Long>,
+        occupationId: Long,
     ): Occupation {
         val occupation =
-            occupationRepository.findOneByUserIdAndSeatIds(userId, occupiedSeatIds) ?: throw OccupationNotFoundException()
-        val now = ZonedDateTime.now()
+            occupationRepository.findOneByIdWithLock(occupationId) ?: throw OccupationNotFoundException()
+        val now = ZonedDateTime.now().asUtc
         occupation.release(now)
         return occupationRepository.save(occupation)
     }
 
     fun expireOverdueOccupations(): List<Occupation> {
-        val current = ZonedDateTime.now()
-        val occupations = occupationRepository.findAllByExpiresAtBefore(current)
+        val current = ZonedDateTime.now().asUtc
+        val occupations = occupationRepository.findAllByExpiresAtBeforeWithLock(current)
         occupations.forEach { it.expire() }
         return occupationRepository.saveAll(occupations)
     }

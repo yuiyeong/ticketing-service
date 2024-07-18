@@ -1,80 +1,77 @@
 package com.yuiyeong.ticketing.domain.service
 
+import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.exception.InvalidTokenException
-import com.yuiyeong.ticketing.domain.model.WaitingEntry
-import com.yuiyeong.ticketing.domain.model.WaitingEntryStatus
-import com.yuiyeong.ticketing.domain.repository.WaitingEntryRepository
+import com.yuiyeong.ticketing.domain.model.QueueEntry
+import com.yuiyeong.ticketing.domain.model.QueueEntryStatus
+import com.yuiyeong.ticketing.domain.repository.QueueEntryRepository
+import org.springframework.stereotype.Service
 import java.time.ZonedDateTime
 
+@Service
 class QueueService(
-    private val entryRepository: WaitingEntryRepository,
+    private val entryRepository: QueueEntryRepository,
 ) {
     fun getFirstWaitingPosition(): Long = entryRepository.findFirstWaitingPosition() ?: 0
 
-    fun enter(userId: Long): WaitingEntry {
-        // 기존에 발급 받은 token 이 있다면, 대기열에 제거
-        dequeueExistingEntries(userId)
-
+    fun enter(
+        userId: Long,
+        token: String,
+        enteredAt: ZonedDateTime,
+        expiresAt: ZonedDateTime,
+    ): QueueEntry {
         val lastPosition = entryRepository.findLastWaitingPosition() ?: 0
-        val activeSize = entryRepository.findAllByStatus(WaitingEntryStatus.PROCESSING).size
-        val status = if (activeSize < MAX_ACTIVE_ENTRIES) WaitingEntryStatus.PROCESSING else WaitingEntryStatus.WAITING
-        val newPosition = if (status == WaitingEntryStatus.WAITING) lastPosition + 1 else 0
+        val activeSize = entryRepository.findAllByStatus(QueueEntryStatus.PROCESSING).size
+        val status = if (activeSize < MAX_ACTIVE_ENTRIES) QueueEntryStatus.PROCESSING else QueueEntryStatus.WAITING
+        val newPosition = if (status == QueueEntryStatus.WAITING) lastPosition + 1 else 0
 
-        return entryRepository.save(WaitingEntry.create(userId, newPosition, status))
+        val queueEntry = QueueEntry.create(userId, newPosition, token, status, enteredAt, expiresAt)
+        return entryRepository.save(queueEntry)
     }
 
-    fun exit(token: String): WaitingEntry {
-        val current = ZonedDateTime.now()
-        val entry = entryRepository.findOneByToken(token) ?: throw InvalidTokenException()
+    fun exit(entryId: Long): QueueEntry {
+        val entry = entryRepository.findOneByIdWithLock(entryId) ?: throw InvalidTokenException()
+        val current = ZonedDateTime.now().asUtc
         entry.exit(current)
         return entryRepository.save(entry)
     }
 
-    fun getWaitingEntry(token: String?): WaitingEntry {
+    fun getEntry(token: String?): QueueEntry {
         if (token == null) throw InvalidTokenException()
         return entryRepository.findOneByToken(token) ?: throw InvalidTokenException()
     }
 
-    fun verifyEntryOnProcessing(token: String?): WaitingEntry {
-        val waitingEntry = getWaitingEntry(token)
-        waitingEntry.verifyOnProcessing()
-        return waitingEntry
-    }
-
-    fun activateWaitingEntries(): List<WaitingEntry> {
-        val alreadyActivatedEntries = entryRepository.findAllByStatus(WaitingEntryStatus.PROCESSING)
+    fun activateWaitingEntries(): List<QueueEntry> {
+        val alreadyActivatedEntries = entryRepository.findAllByStatus(QueueEntryStatus.PROCESSING)
         val newActivatingCount = MAX_ACTIVE_ENTRIES - alreadyActivatedEntries.count()
         if (newActivatingCount <= 0) {
             return emptyList() // there is no one to be activated.
         }
 
-        val current = ZonedDateTime.now()
+        val current = ZonedDateTime.now().asUtc
         val waitingEntries =
-            entryRepository.findAllByStatusOrderByPosition(WaitingEntryStatus.WAITING, newActivatingCount)
+            entryRepository.findAllByStatusOrderByPositionWithLock(QueueEntryStatus.WAITING, newActivatingCount)
         waitingEntries.forEach { it.process(current) }
 
         return entryRepository.saveAll(waitingEntries)
     }
 
-    fun expireOverdueEntries(): List<WaitingEntry> {
-        val current = ZonedDateTime.now()
+    fun expireOverdueEntries(): List<QueueEntry> {
+        val current = ZonedDateTime.now().asUtc
         val entries =
-            entryRepository.findAllByExpiresAtBeforeAndStatus(
+            entryRepository.findAllByExpiresAtBeforeAndStatusWithLock(
                 current,
-                WaitingEntryStatus.PROCESSING,
-                WaitingEntryStatus.WAITING,
+                QueueEntryStatus.PROCESSING,
+                QueueEntryStatus.WAITING,
             )
         entries.forEach { it.expire(current) }
         return entryRepository.saveAll(entries)
     }
 
-    /**
-     * 대기열에 있는 userId 에 해당하는 entry 를 제거
-     */
-    private fun dequeueExistingEntries(userId: Long) {
+    fun dequeueExistingEntries(userId: Long) {
         entryRepository
-            .findAllByUserIdWithStatus(userId, WaitingEntryStatus.PROCESSING, WaitingEntryStatus.WAITING)
-            .forEach { exit(it.token) }
+            .findAllByUserIdWithStatus(userId, QueueEntryStatus.PROCESSING, QueueEntryStatus.WAITING)
+            .forEach { exit(it.id) }
     }
 
     companion object {

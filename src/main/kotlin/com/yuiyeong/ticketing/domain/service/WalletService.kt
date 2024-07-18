@@ -6,13 +6,15 @@ import com.yuiyeong.ticketing.domain.model.TransactionType
 import com.yuiyeong.ticketing.domain.model.Wallet
 import com.yuiyeong.ticketing.domain.repository.TransactionRepository
 import com.yuiyeong.ticketing.domain.repository.WalletRepository
+import org.springframework.stereotype.Service
 import java.math.BigDecimal
 
+@Service
 class WalletService(
     private val walletRepository: WalletRepository,
     private val transactionRepository: TransactionRepository,
 ) {
-    fun getUserWallet(userId: Long): Wallet = walletRepository.findOneByUserId(userId) ?: throw WalletNotFoundException()
+    fun getUserWallet(userId: Long): Wallet = walletRepository.findOneByUserIdWithLock(userId) ?: throw WalletNotFoundException()
 
     fun charge(
         userId: Long,
@@ -30,13 +32,13 @@ class WalletService(
         type: TransactionType,
     ): Transaction {
         val wallet = getUserWallet(userId)
-        val transaction = Transaction.create(wallet, amount, type)
+        val transaction = transactionRepository.save(Transaction.create(wallet, amount, type))
 
         when (type) {
             TransactionType.CHARGE -> wallet.charge(amount)
             TransactionType.PAYMENT -> wallet.pay(amount)
         }
         walletRepository.save(wallet)
-        return transactionRepository.save(transaction)
+        return transaction
     }
 }

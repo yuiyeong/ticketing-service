@@ -1,31 +1,33 @@
 package com.yuiyeong.ticketing.domain.service
 
+import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.exception.ConcertEventNotFoundException
+import com.yuiyeong.ticketing.domain.exception.OccupationNotFoundException
 import com.yuiyeong.ticketing.domain.exception.ReservationNotFoundException
-import com.yuiyeong.ticketing.domain.exception.SeatNotFoundException
 import com.yuiyeong.ticketing.domain.model.Reservation
 import com.yuiyeong.ticketing.domain.repository.ConcertEventRepository
+import com.yuiyeong.ticketing.domain.repository.OccupationRepository
 import com.yuiyeong.ticketing.domain.repository.ReservationRepository
-import com.yuiyeong.ticketing.domain.repository.SeatRepository
+import org.springframework.stereotype.Service
 import java.time.ZonedDateTime
 
+@Service
 class ReservationService(
     private val reservationRepository: ReservationRepository,
     private val concertEventRepository: ConcertEventRepository,
-    private val seatRepository: SeatRepository,
+    private val occupationRepository: OccupationRepository,
 ) {
     fun reserve(
         userId: Long,
         concertEventId: Long,
-        occupiedSeatIds: List<Long>,
+        occupationId: Long,
     ): Reservation {
         val concertEvent = concertEventRepository.findOneById(concertEventId) ?: throw ConcertEventNotFoundException()
-        concertEvent.verifyWithinReservationPeriod(ZonedDateTime.now())
+        concertEvent.verifyWithinReservationPeriod(ZonedDateTime.now().asUtc)
 
-        val occupiedSeats = seatRepository.findAllByIds(occupiedSeatIds)
-        if (occupiedSeats.count() != occupiedSeatIds.count()) throw SeatNotFoundException()
+        val occupation = occupationRepository.findOneById(occupationId) ?: throw OccupationNotFoundException()
 
-        val reservation = Reservation.create(userId, concertEvent, occupiedSeats)
+        val reservation = Reservation.create(userId, concertEvent, occupation.allocations)
         return reservationRepository.save(reservation)
     }
 
@@ -35,7 +37,8 @@ class ReservationService(
     }
 
     fun confirm(reservationId: Long): Reservation {
-        val reservation = getReservation(reservationId).apply { confirm() }
+        val reservation = reservationRepository.findOneByIdWithLock(reservationId) ?: throw ReservationNotFoundException()
+        reservation.confirm()
         return reservationRepository.save(reservation)
     }
 }

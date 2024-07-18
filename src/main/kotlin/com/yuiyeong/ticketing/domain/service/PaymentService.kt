@@ -6,7 +6,9 @@ import com.yuiyeong.ticketing.domain.model.Payment
 import com.yuiyeong.ticketing.domain.repository.PaymentRepository
 import com.yuiyeong.ticketing.domain.repository.ReservationRepository
 import com.yuiyeong.ticketing.domain.repository.TransactionRepository
+import org.springframework.stereotype.Service
 
+@Service
 class PaymentService(
     private val reservationRepository: ReservationRepository,
     private val transactionRepository: TransactionRepository,
