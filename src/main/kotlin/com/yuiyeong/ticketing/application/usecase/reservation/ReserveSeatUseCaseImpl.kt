@@ -3,27 +3,25 @@ package com.yuiyeong.ticketing.application.usecase.reservation
 import com.yuiyeong.ticketing.application.dto.ReservationResult
 import com.yuiyeong.ticketing.domain.service.ConcertEventService
 import com.yuiyeong.ticketing.domain.service.OccupationService
-import com.yuiyeong.ticketing.domain.service.QueueService
 import com.yuiyeong.ticketing.domain.service.ReservationService
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 
 @Component
 class ReserveSeatUseCaseImpl(
-    private val queueService: QueueService,
     private val concertEventService: ConcertEventService,
     private val reservationService: ReservationService,
     private val occupationService: OccupationService,
 ) : ReserveSeatUseCase {
+    @Transactional
     override fun execute(
-        userToken: String?,
+        userId: Long,
         concertEventId: Long,
-        occupiedSeatId: Long,
+        occupationId: Long,
     ): ReservationResult {
-        val entry = queueService.verifyEntryOnProcessing(userToken)
+        val reservation = reservationService.reserve(userId, concertEventId, occupationId)
 
-        val occupation = occupationService.release(entry.userId, listOf(occupiedSeatId))
-
-        val reservation = reservationService.reserve(entry.userId, concertEventId, occupation.seatIds)
+        occupationService.release(userId, occupationId)
 
         val concertEvent = concertEventService.getConcertEvent(concertEventId)
         return ReservationResult.from(concertEvent, reservation)

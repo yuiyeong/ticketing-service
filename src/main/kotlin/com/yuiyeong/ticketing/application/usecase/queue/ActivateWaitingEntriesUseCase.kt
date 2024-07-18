@@ -1,7 +1,7 @@
 package com.yuiyeong.ticketing.application.usecase.queue
 
-import com.yuiyeong.ticketing.application.dto.WaitingEntryResult
+import com.yuiyeong.ticketing.application.dto.QueueEntryResult
 
 interface ActivateWaitingEntriesUseCase {
-    fun execute(): List<WaitingEntryResult>
+    fun execute(): List<QueueEntryResult>
 }

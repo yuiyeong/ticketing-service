@@ -16,7 +16,7 @@ data class OccupationResult(
             OccupationResult(
                 occupation.id,
                 occupation.userId,
-                occupation.seatIds[0],
+                occupation.allocations[0].seatId,
                 occupation.status,
                 occupation.expiresAt,
             )

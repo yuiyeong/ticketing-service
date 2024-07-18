@@ -4,8 +4,8 @@ import com.yuiyeong.ticketing.application.dto.ReservationResult
 
 interface ReserveSeatUseCase {
     fun execute(
-        userToken: String?,
+        userId: Long,
         concertEventId: Long,
-        occupiedSeatId: Long,
+        occupationId: Long,
     ): ReservationResult
 }

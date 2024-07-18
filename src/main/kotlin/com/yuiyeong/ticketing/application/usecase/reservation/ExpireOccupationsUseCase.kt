@@ -2,6 +2,6 @@ package com.yuiyeong.ticketing.application.usecase.reservation
 
 import com.yuiyeong.ticketing.application.dto.OccupationResult
 
-interface ExpireOccupationUseCase {
+interface ExpireOccupationsUseCase {
     fun execute(): List<OccupationResult>
 }

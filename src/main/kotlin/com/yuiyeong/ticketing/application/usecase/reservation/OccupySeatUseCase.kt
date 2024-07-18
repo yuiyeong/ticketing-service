@@ -4,7 +4,7 @@ import com.yuiyeong.ticketing.application.dto.OccupationResult
 
 interface OccupySeatUseCase {
     fun execute(
-        userToken: String?,
+        userId: Long,
         concertEventId: Long,
         seatId: Long,
     ): OccupationResult
