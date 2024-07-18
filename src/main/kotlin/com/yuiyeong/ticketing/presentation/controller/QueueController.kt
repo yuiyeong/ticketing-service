@@ -1,5 +1,7 @@
 package com.yuiyeong.ticketing.presentation.controller
 
+import com.yuiyeong.ticketing.application.annotation.CurrentEntry
+import com.yuiyeong.ticketing.application.annotation.RequiresUserToken
 import com.yuiyeong.ticketing.application.dto.QueueEntryResult
 import com.yuiyeong.ticketing.application.usecase.queue.EnterQueueUseCase
 import com.yuiyeong.ticketing.config.swagger.annotation.api.QueueStatusApiDoc
@@ -13,7 +15,6 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -33,9 +34,17 @@ class QueueController(
     }
 
     @GetMapping("status")
+    @RequiresUserToken(
+        allowedStatus = [
+            QueueEntryStatus.WAITING,
+            QueueEntryStatus.PROCESSING,
+            QueueEntryStatus.EXITED,
+            QueueEntryStatus.EXPIRED,
+        ],
+    )
     @QueueStatusApiDoc
     fun getStatus(
-        @RequestHeader(name = "User-Token", required = false) userToken: String?,
+        @CurrentEntry entry: QueueEntryResult,
     ): TicketingResponse<QueuePositionResponseDto> {
         val data = QueuePositionResponseDto.from(entry)
         return TicketingResponse(data)

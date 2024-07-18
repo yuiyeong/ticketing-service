@@ -1,5 +1,7 @@
 package com.yuiyeong.ticketing.presentation.controller
 
+import com.yuiyeong.ticketing.application.annotation.CurrentEntry
+import com.yuiyeong.ticketing.application.annotation.RequiresUserToken
 import com.yuiyeong.ticketing.application.dto.QueueEntryResult
 import com.yuiyeong.ticketing.application.usecase.concert.GetAvailableSeatsUseCase
 import com.yuiyeong.ticketing.application.usecase.reservation.OccupySeatUseCase
@@ -19,7 +21,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -32,34 +33,36 @@ class ConcertEventController(
     private val reserveSeatUseCase: ReserveSeatUseCase,
 ) {
     @GetMapping("{concertEventId}/available-seats")
+    @RequiresUserToken
     @AvailableSeatsApiDoc
     fun getAvailableSeats(
-        @RequestHeader(name = "User-Token", required = false) userToken: String?,
         @PathVariable("concertEventId") concertEventId: Long,
     ): TicketingListResponse<SeatResponseDto> {
-        val list = getAvailableSeatsUseCase.execute(userToken, concertEventId).map { SeatResponseDto.from(it) }
+        val list = getAvailableSeatsUseCase.execute(concertEventId).map { SeatResponseDto.from(it) }
         return TicketingListResponse(list)
     }
 
     @PostMapping("{concertEventId}/occupy")
+    @RequiresUserToken
     @OccupySeatApiDoc
     fun occupy(
-        @RequestHeader(name = "User-Token", required = false) userToken: String?,
+        @CurrentEntry entry: QueueEntryResult,
         @PathVariable("concertEventId") concertEventId: Long,
         @RequestBody req: ConcertEventOccupationRequest,
     ): TicketingResponse<OccupationResponseDto> {
-        val data = OccupationResponseDto.from(occupySeatUseCase.execute(userToken, concertEventId, req.seatId))
+        val data = OccupationResponseDto.from(occupySeatUseCase.execute(entry.userId, concertEventId, req.seatId))
         return TicketingResponse(data)
     }
 
     @PostMapping("{concertEventId}/reserve")
+    @RequiresUserToken
     @ReserveSeatApiDoc
     fun reserve(
-        @RequestHeader(name = "User-Token", required = false) userToken: String?,
+        @CurrentEntry entry: QueueEntryResult,
         @PathVariable("concertEventId") concertEventId: Long,
         @RequestBody req: ConcertEventReservationRequest,
     ): TicketingResponse<ReservationResponseDto> {
-        val data = ReservationResponseDto.from(reserveSeatUseCase.execute(userToken, concertEventId, req.seatId))
+        val data = ReservationResponseDto.from(reserveSeatUseCase.execute(entry.userId, concertEventId, req.seatId))
         return TicketingResponse(data)
     }
 }
