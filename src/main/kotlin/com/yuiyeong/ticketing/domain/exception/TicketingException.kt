@@ -1,54 +1,57 @@
 package com.yuiyeong.ticketing.domain.exception
 
 sealed class TicketingException(
-    message: String,
-) : RuntimeException(message) {
-    val notNullMessage: String
-        get() = message!!
-}
+    val errorCode: ErrorCode,
+) : RuntimeException()
 
-class InvalidTokenException : TicketingException("유효하지 않은 token 입니다.")
+sealed class BadRequestException(
+    errorCode: ErrorCode,
+) : TicketingException(errorCode)
 
-class TokenNotProcessableException : TicketingException("이 token 은 작업할 수 없는 상태압니다.")
+sealed class NotFoundException(
+    errorCode: ErrorCode,
+) : TicketingException(errorCode)
 
-class TokenNotFoundException : TicketingException("해당 토큰으로 대기 중인 정보를 찾을 수 없습니다.")
+class InvalidTokenException : BadRequestException(ErrorCode.INVALID_TOKEN)
 
-class ConcertNotFoundException : TicketingException("요청한 콘서트를 찾을 수 없습니다.")
+class TokenNotProcessableException : BadRequestException(ErrorCode.TOKEN_NOT_PROCESSABLE)
 
-class ConcertEventNotFoundException : TicketingException("요청한 콘서트 이벤트를 찾을 수 없습니다.")
+class TokenNotFoundException : NotFoundException(ErrorCode.TOKEN_NOT_FOUND)
 
-class SeatNotFoundException : TicketingException("요청한 좌석을 찾을 수 없습니다.")
+class ConcertNotFoundException : NotFoundException(ErrorCode.CONCERT_NOT_FOUND)
 
-class WalletNotFoundException : TicketingException("요청한 사용자의 잔액을 찾을 수 없습니다.")
+class ConcertEventNotFoundException : NotFoundException(ErrorCode.CONCERT_EVENT_NOT_FOUND)
 
-class SeatUnavailableException : TicketingException("다른 사용자가 선택한 좌석이거나 이미 예약된 좌석입니다.")
+class SeatNotFoundException : NotFoundException(ErrorCode.SEAT_NOT_FOUND)
 
-class SeatAlreadyUnavailableException : TicketingException("이미 사용불가한 좌석입니다.")
+class WalletNotFoundException : NotFoundException(ErrorCode.WALLET_NOT_FOUND)
 
-class InvalidAmountException : TicketingException("유효하지 않은 충전 금액입니다.")
+class SeatUnavailableException : BadRequestException(ErrorCode.SEAT_UNAVAILABLE)
 
-class InsufficientBalanceException : TicketingException("잔액이 부족합니다.")
+class SeatAlreadyUnavailableException : BadRequestException(ErrorCode.SEAT_ALREADY_UNAVAILABLE)
 
-class OccupationNotFoundException : TicketingException("선택한 좌석을 찾을 수 없습니다.")
+class InvalidAmountException : BadRequestException(ErrorCode.INVALID_AMOUNT)
 
-class OccupationAlreadyExpiredException : TicketingException("좌석 선택이 만료되었습니다.")
+class InsufficientBalanceException : BadRequestException(ErrorCode.INSUFFICIENT_BALANCE)
 
-class OccupationAlreadyReleaseException : TicketingException("이미 예약된 좌석입니다.")
+class OccupationNotFoundException : NotFoundException(ErrorCode.OCCUPATION_NOT_FOUND)
 
-class ReservationNotFoundException : TicketingException("요청한 예약을 찾을 수 없습니다.")
+class OccupationAlreadyExpiredException : BadRequestException(ErrorCode.OCCUPATION_ALREADY_EXPIRED)
 
-class ReservationNotOpenedException : TicketingException("예약 기간이 아닙니다.")
+class OccupationAlreadyReleaseException : BadRequestException(ErrorCode.OCCUPATION_ALREADY_RELEASED)
 
-class ReservationAlreadyConfirmedException : TicketingException("이미 예약이 완료되었습니다.")
+class ReservationNotFoundException : NotFoundException(ErrorCode.RESERVATION_NOT_FOUND)
 
-class ReservationAlreadyCanceledException : TicketingException("이미 취소된 예약입니다.")
+class ReservationNotOpenedException : BadRequestException(ErrorCode.RESERVATION_NOT_OPENED)
 
-class QueueEntryAlreadyProcessingException : TicketingException("이미 작업 중인 상태입니다.")
+class ReservationAlreadyConfirmedException : BadRequestException(ErrorCode.RESERVATION_ALREADY_CONFIRMED)
 
-class QueueEntryAlreadyExitedException : TicketingException("이미 대기열에서 나간 상태입니다.")
+class QueueEntryAlreadyProcessingException : BadRequestException(ErrorCode.QUEUE_ENTRY_ALREADY_PROCESSING)
 
-class QueueEntryAlreadyExpiredException : TicketingException("이미 만료된 token 입니다.")
+class QueueEntryAlreadyExitedException : BadRequestException(ErrorCode.QUEUE_ENTRY_ALREADY_EXITED)
 
-class QueueEntryOverdueException : TicketingException("만료 시간이 지난 token 입니다.")
+class QueueEntryAlreadyExpiredException : BadRequestException(ErrorCode.QUEUE_ENTRY_ALREADY_EXPIRED)
 
-class TransactionNotFoundException : TicketingException("요청한 트랜잭션을 찾을 수 없습니다.")
+class QueueEntryOverdueException : BadRequestException(ErrorCode.QUEUE_ENTRY_OVERDUE)
+
+class TransactionNotFoundException : NotFoundException(ErrorCode.TRANSACTION_NOT_FOUND)

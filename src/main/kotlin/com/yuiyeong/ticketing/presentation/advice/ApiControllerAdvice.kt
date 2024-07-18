@@ -1,9 +1,10 @@
 package com.yuiyeong.ticketing.presentation.advice
 
-import com.yuiyeong.ticketing.application.service.TicketingErrorCode
+import com.yuiyeong.ticketing.application.dto.ErrorStatusCode
 import com.yuiyeong.ticketing.application.service.TicketingExceptionService
 import com.yuiyeong.ticketing.presentation.dto.response.TicketingErrorData
 import com.yuiyeong.ticketing.presentation.dto.response.TicketingErrorResponse
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -14,39 +15,31 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 class ApiControllerAdvice(
     private val exceptionService: TicketingExceptionService,
 ) : ResponseEntityExceptionHandler() {
+    private val adviceLogger = LoggerFactory.getLogger(ApiControllerAdvice::class.java)
+
     @ExceptionHandler(Exception::class)
     fun handleException(e: Exception): ResponseEntity<TicketingErrorResponse> {
-        val errorDto = exceptionService.handleException(e)
+        val error = exceptionService.handleException(e)
+        val status =
+            when (error.statusCode) {
+                ErrorStatusCode.BAD_REQUEST -> {
+                    adviceLogger.warn("${error.code};${error.message}")
+                    HttpStatus.BAD_REQUEST
+                }
 
-        if (errorDto.code == TicketingErrorCode.INTERNAL_SERVER_ERROR) {
-            logger.error(e)
-        } else {
-            logger.info("Error: ${errorDto.code} | ${errorDto.message}")
-        }
+                ErrorStatusCode.NOT_FOUND -> {
+                    adviceLogger.warn("${error.code};${error.message}")
+                    HttpStatus.NOT_FOUND
+                }
 
+                ErrorStatusCode.INTERNAL_ERROR -> {
+                    adviceLogger.error(error.code, e)
+                    HttpStatus.INTERNAL_SERVER_ERROR
+                }
+            }
         return ResponseEntity(
-            TicketingErrorResponse(TicketingErrorData(errorDto.code.toString(), errorDto.message)),
-            mapErrorCodeToHttpStatus(errorDto.code),
+            TicketingErrorResponse(TicketingErrorData(error.code, error.message)),
+            status,
         )
     }
-
-    private fun mapErrorCodeToHttpStatus(errorCode: TicketingErrorCode): HttpStatus =
-        when (errorCode) {
-            TicketingErrorCode.INVALID_TOKEN,
-            TicketingErrorCode.INVALID_TOKEN_STATUS,
-            TicketingErrorCode.INVALID_SEAT_STATUS,
-            TicketingErrorCode.INSUFFICIENT_BALANCE,
-            TicketingErrorCode.OCCUPATION_EXPIRED,
-            TicketingErrorCode.INVALID_AMOUNT,
-            -> HttpStatus.BAD_REQUEST
-
-            TicketingErrorCode.NOT_FOUND_IN_QUEUE,
-            TicketingErrorCode.NOT_FOUND_CONCERT,
-            TicketingErrorCode.NOT_FOUND_CONCERT_EVENT,
-            TicketingErrorCode.NOT_FOUND_SEAT,
-            TicketingErrorCode.NOT_FOUND_WALLET,
-            -> HttpStatus.NOT_FOUND
-
-            TicketingErrorCode.INTERNAL_SERVER_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR
-        }
 }
