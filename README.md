@@ -58,3 +58,7 @@
 ## ERD
 
 - [상세 erd](./docs/erd.md)
+
+## 회고
+
+- [프로젝트 중간 리뷰](./docs/half-review.md)
