@@ -16,4 +16,8 @@ class WebMvcConfig(
     override fun addInterceptors(registry: InterceptorRegistry) {
         registry.addInterceptor(UserTokenInterceptor(validateTokenUseCase))
     }
+
+    override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
+        resolvers.add(entryArgumentResolver)
+    }
 }
