@@ -6,7 +6,7 @@ spring:
         name: ticketing
     datasource:
         driver-class-name: com.mysql.cj.jdbc.Driver
-        url: jdbc:mysql://localhost:3306/ticketing_test?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC
+        url: jdbc:mysql://localhost:3306/ticketing?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC
         username: root
         password: very_difficult_root_password
         hikari:
@@ -15,7 +15,7 @@ spring:
     jpa:
         database-platform: org.hibernate.dialect.MySQLDialect
         hibernate:
-            ddl-auto: create
+            ddl-auto: update
         properties:
             jakarta.persistence.lock.timeout: 10000  # 10초
             hibernate:
@@ -35,12 +35,10 @@ logging:
         org.hibernate.orm.jdbc.bind: debug
 
 jwt:
-    secret: test_very_difficult_and_secure_secret_key_that_is_at_least_256_bits
+    secret: very_difficult_and_secure_secret_key_that_is_at_least_256_bits
 
 config:
     valid-occupied-duration: 5 # 5분
     scheduler:
-        queue:
-            fixed-rate: 5000
-        occupation:
-            fixed-rate: 60000
+        queue-fixed-rate: 60000 # 1분
+        occupation-fixed-rate: 60000 # 1분
