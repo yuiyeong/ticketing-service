@@ -14,7 +14,7 @@
 8. Reservation: 좌석 예약 정보를 관리
 9. Occupation: 좌석 임시 점유 정보를 관리
 10. Payment: 결제 정보를 관리
-11. WaitingQueueEntry: 대기열 정보를 관리
+11. QueueEntry: 대기열 정보를 관리
 
 ### 값 객체
 
@@ -24,7 +24,7 @@
 4. ReservationStatus: PENDING, CONFIRMED, PAYMENT_FAILED
 5. OccupationStatus: ACTIVE, EXPIRED, RELEASED
 6. PaymentStatus: PENDING, COMPLETED, FAILED
-7. WaitingQueueEntryStatus: READY, PROCESSING, EXITED, EXPIRED
+7. QueueEntryStatus: READY, PROCESSING, EXITED, EXPIRED
 8. AllocationStatus: OCCUPIED, EXPIRED, RESERVED
 
 ## 바운디드 컨텍스트 및 애그리거트
@@ -70,23 +70,15 @@
 
 ### f. 대기열 관리 컨텍스트
 
-- WaitingQueue 애그리게이트
-    - 루트: WaitingQueue
+- QueueEnty 애그리게이트
+    - 루트: QueueEntry
     - 포함 엔티티: (없음)
-    - 값 객체: WaitingQueueStatus
+    - 값 객체: QueueStatus
 
 ## 도메인 모델 다이어그램
 
 ```mermaid
 classDiagram
-  User "1" -- "1" Wallet: has
-  Transaction "*" -- "1" Wallet: belongs to
-  ConcertEvent "*" --> Concert: belongs to
-  Seat "*" --> "1" ConcertEvent: belongs to
-  User "1" -- "*" Reservation: makes
-  User "1" -- "*" Occupation: creates
-  User "1" -- "*" Payment: makes
-  Reservation "1" -- "1" Payment: has
   class User {
     Long id
     String name
@@ -178,12 +170,12 @@ classDiagram
     ZonedDateTime updatedAt
   }
 
-  class WaitingQueueEntry {
+  class QueueEntry {
     Long id
     Long userId
     String token
     Int position
-    WaitingQueueEntryStatus status
+    QueueEntryStatus status
     ZonedDateTime expiresAt
     ZonedDateTime enteredAt
     ZonedDateTime processingStartedAt
@@ -221,7 +213,7 @@ classDiagram
     <<Enumeration>>
     Wallet
   }
-  class WaitingQueueEntryStatus {
+  class QueueEntryStatus {
     <<Enumeration>>
     WAITING
     PROCESSING
