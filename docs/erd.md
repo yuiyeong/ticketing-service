@@ -3,284 +3,140 @@
 ```mermaid
 erDiagram
     USER ||--o{ WALLET: has
-    USER ||--o{ WALLET_TRANSACTION: makes
     USER ||--o{ PAYMENT: makes
     USER ||--o{ RESERVATION: makes
-    USER ||--o{ USER_QUEUE: has
+    USER ||--o{ USER_QUEUE: enters
+    USER ||--o{ OCCUPATION: creates
+    USER ||--o{ SEAT_ALLOCATION: allocates
     WALLET ||--o{ WALLET_TRANSACTION: has
+    PAYMENT }o--|| WALLET_TRANSACTION: references
+    PAYMENT }o--|| RESERVATION: for
     CONCERT ||--o{ CONCERT_EVENT: has
-    CONCERT_EVENT ||--o{ SEAT: has
-    SEAT ||--o{ SEAT_ALLOCATION : "is allocated in"
-    USER ||--o{ SEAT_ALLOCATION : "allocates"
-    OCCUPATION ||--|{ SEAT_ALLOCATION : contains
-    RESERVATION ||--|{ SEAT_ALLOCATION : contains
-    RESERVATION ||--|{ PAYMENT: has
-    PAYMENT ||--|| WALLET_TRANSACTION: associated_with
-    CONCERT ||--o{ RESERVATION: has
+    CONCERT_EVENT ||--o{ SEAT: contains
     CONCERT_EVENT ||--o{ RESERVATION: has
-    
+    CONCERT_EVENT ||--o{ OCCUPATION: has
+    SEAT ||--o{ SEAT_ALLOCATION: has
+    OCCUPATION ||--o{ SEAT_ALLOCATION: includes
+    RESERVATION ||--o{ SEAT_ALLOCATION: includes
+
     USER {
-        bigint id PK
-        string name
+        bigint id PK "사용자 식별자"
+        string name "사용자 이름"
     }
-    
+
     WALLET {
-        bigint id PK
-        bigint user_id FK
-        decimal balance
-        datetime created_at
-        datetime updated_at
+        bigint id PK "지갑 식별자"
+        bigint user_id FK "소유자 ID"
+        decimal balance "현재 잔액"
+        datetime created_at "생성 시간"
+        datetime updated_at "갱신 시간"
     }
-    
+
     WALLET_TRANSACTION {
-        bigint id PK
-        bigint wallet_id FK
-        decimal amount
+        bigint id PK "거래 식별자"
+        bigint wallet_id FK "지갑 ID"
+        decimal amount "거래 금액"
         string type "enum: charged, used"
-        datetime created_at
+        datetime created_at "생성 시간"
+        datetime updated_at "갱신 시간"
     }
-    
+
     PAYMENT {
-        bigint id PK
-        bigint user_id FK
-        bigint transaction_id FK
-        bigint reservation_id FK
-        decimal amount
+        bigint id PK "결제 식별자"
+        bigint user_id FK "사용자 ID"
+        bigint transaction_id FK "거래 ID"
+        bigint reservation_id FK "예약 ID"
+        decimal amount "결제 금액"
         string status "enum: pending, success, failed"
         string payment_method "enum: wallet"
-        string failure_reason
-        datetime created_at
-        datetime updated_at
+        string failure_reason "실패 사유"
+        datetime created_at "생성 시간"
+        datetime updated_at "갱신 시간"
     }
-    
+
     CONCERT {
-        bigint id PK
-        string title
-        string singer
-        string description
+        bigint id PK "콘서트 식별자"
+        string title "콘서트 제목"
+        string singer "공연자"
+        string description "설명"
+        datetime created_at "생성 시간"
+        datetime updated_at "갱신 시간"
     }
-    
+
     CONCERT_EVENT {
-        bigint id PK
-        bigint concert_id FK
-        string venue
-        datetime reservation_start_at
-        datetime reservation_end_at
-        datetime start_at
-        int duration
-        int max_seat_count
-        int available_seat_count
+        bigint id PK "이벤트 식별자"
+        bigint concert_id FK "콘서트 ID"
+        string venue "공연 장소"
+        datetime reservation_start_at "예약 시작"
+        datetime reservation_end_at "예약 종료"
+        datetime start_at "공연 시작"
+        int duration "공연 시간(분)"
+        int max_seat_count "최대 좌석 수"
+        int available_seat_count "가용 좌석 수"
+        datetime created_at "생성 시간"
+        datetime updated_at "갱신 시간"
     }
-    
+
     SEAT {
-        bigint id PK
-        bigint concert_event_id FK
-        string seat_number
-        decimal price
-        boolean is_available
+        bigint id PK "좌석 식별자"
+        bigint concert_event_id FK "이벤트 ID"
+        string seat_number "좌석 번호"
+        decimal price "가격"
+        boolean is_available "가용 여부"
+        datetime created_at "생성 시간"
+        datetime updated_at "갱신 시간"
     }
 
     SEAT_ALLOCATION {
-        bigint id PK
-        bigint seat_id FK
-        bigint user_id FK
-        bigint occupation_id FK
-        bigint reservation_id FK
-        decimal seat_price
-        string seat_number
+        bigint id PK "할당 식별자"
+        bigint seat_id FK "좌석 ID"
+        bigint user_id FK "사용자 ID"
+        bigint occupation_id FK "점유 ID"
+        bigint reservation_id FK "예약 ID"
+        decimal seat_price "좌석 가격"
+        string seat_number "좌석 번호"
         string status "enum: occupied, reserved, expired"
-        datetime occupied_at
-        datetime expired_at
-        datetime reserved_at
-        datetime updated_at
+        datetime occupied_at "점유 시간"
+        datetime expired_at "만료 시간"
+        datetime reserved_at "예약 시간"
+        datetime created_at "생성 시간"
+        datetime updated_at "갱신 시간"
     }
 
     OCCUPATION {
-        bigint id PK
-        bigint userId PK
+        bigint id PK "점유 식별자"
+        bigint userId PK "사용자 ID"
+        bigint concert_event_id FK "이벤트 ID"
         string status "enum: active, released, expired"
-        datetime createdAt
-        datetime expiresAt
-        datetime expiredAt
+        datetime expiresAt "만료 예정"
+        datetime expiredAt "실제 만료"
+        datetime created_at "생성 시간"
+        datetime updated_at "갱신 시간"
     }
 
     RESERVATION {
-        bigint id PK
-        bigint user_id FK
-        bigint concert_id FK
-        bigint concert_event_id FK
+        bigint id PK "예약 식별자"
+        bigint user_id FK "사용자 ID"
+        bigint concert_id FK "콘서트 ID"
+        bigint concert_event_id FK "이벤트 ID"
         string status "enum: pending, confirmed, payment_failed"
-        int total_seats
-        decimal total_amount
-        datetime created_at
-        datetime updated_at
+        int total_seats "총 좌석 수"
+        decimal total_amount "총 금액"
+        datetime created_at "생성 시간"
+        datetime updated_at "갱신 시간"
     }
-    
+
     USER_QUEUE {
-        bigint id PK
-        bigint user_id FK
-        string token
+        bigint id PK "대기열 식별자"
+        bigint user_id FK "사용자 ID"
+        string token "대기열 토큰"
         string status "enum: ready, processing, exited, expired"
-        Long queue_position
-        datetime created_at
-        datetime updated_at
-        datetime expires_at
-        datetime processed_at
-        datetime exited_at
-        datetime expired_at
+        Long queue_position "대기 위치"
+        datetime created_at "생성 시간"
+        datetime updated_at "갱신 시간"
+        datetime expires_at "만료 예정"
+        datetime processed_at "처리 시작"
+        datetime exited_at "퇴장 시간"
+        datetime expired_at "실제 만료"
     }
 ```
-
-## USER
-
-- 사용자를 나타내는 Table 이다.
-- 아래의 attributes 를 갖는다.
-    - id: PK
-    - name: 이름
-
-## WALLET
-
-- 사용자의 잔액을 나타내는 Table 이다.
-- 아래의 attributes 를 갖는다.
-    - id: PK
-    - user_id: USER 를 가르키는 FK
-    - balance: 잔액
-    - created_at: 생성일시
-    - updated_at: 수정일시
-
-## WALLET_TRANSACTION
-
-- 사용자의 잔액 변화 내역을 나타내는 Table 이다.
-- 아래의 attributes 를 갖는다.
-    - id: PK
-    - user_id: USER 를 가르키는 FK
-    - wallet_id: WALLET 을 가르키는 FK
-    - amount: 변화된 금액
-    - type: 내역의 종류
-        - charged: 충전
-        - used: 사용
-    - at: 변화 일시
-
-## PAYMENT
-
-- 사용자의 결제 내역을 나타내는 Table 이다.
-- 아래의 attributes 를 갖는다.
-    - id: PK
-    - user_id: USER 를 가르키는 FK
-    - transaction_id: WALLET_TRANSACTION 을 가르키는 FK
-    - reservation_id: RESERVATION 을 가르키는 FK
-    - status: 결제 상태
-        - pending: 결제 시도 중
-        - success: 결제 성공
-        - failed: 결제 실패
-    - amount: 결제 금액
-    - payment_method: 결제 수단
-        - wallet
-    - failure_reason: 실패 이유로, status 가 failed 때만 값이 있음
-    - created_at: 결제 일시
-    - updated_at: 수정 일시
-
-## CONCERT
-
-- 콘서트의 핵심 정보를 나타내는 Table 이다.
-- 아래의 attributes 를 갖는다.
-    - id: PK
-    - title: 콘서트 제목
-    - singer: 가수
-    - description: 설명
-
-## CONCERT_EVENT
-
-- 실제 열리는 콘서트의 정보를 나타내는 Table 이다
-- 아래의 attributes 를 갖는다.
-    - id: PK
-    - concert_id: CONCERT 를 가르키는 FK
-    - venue: 콘서트 장소
-    - reservation_start_at: 예약 시작 시간
-    - reservation_end_at: 예약 종료 시간
-    - start_at: 공연 시작 일시
-    - duration: 공연 시간(분 단위)
-    - max_seat_count: 최대 좌석 수
-    - available_seat_count: 사용 가능한 좌석 수
-
-## SEAT
-
-- 실제 열리는 콘서트의 좌석 정보를 나타내는 Table 이다.
-- 아래의 attributes 를 갖는다.
-    - id: PK
-    - concert_event_id: CONCERT_EVENT 를 가르키는 FK
-    - seat_number: 좌석 번호
-    - price: 가격
-    - is_available: 선택 가능한가
-
-## SEAT_ALLOCATION
-
-- 사용자가 선택하거나 예약한 좌석 정보를 나타내는 Table 이다
-- 아래의 attributes 를 갖는다.
-    - id: PK
-    - seat_id: SEAT 를 가르키는 FK
-    - user_id: USER 를 가르키는 FK
-    - reservation_id: RESERVATION 을 가르키는 FK
-    - seat_price: 좌석 가격
-    - seat_number: 좌석 번호
-    - status: 좌석에 대한 상태
-        - occupied: 좌석이 점유된 상태 (default)
-        - reserved: 좌석이 예약된 상태
-        - expired: 좌석에 대한 점유 시간이 만료된 상태
-    - occupied_at: 점유 일시
-    - expired_at: 점유 만료 일시
-    - reserved_at: 예약 완료 일시
-    - updated_at: 수정 일시
-
-## OCCUPATION
-
-- 사용자의 좌석 점유 정보를 나타내는 Table 이다.
-- 아래의 attributes 를 갖는다.
-    - id: PK
-    - userId: USER 를 가르키는 FK
-    - status: 점유 상태
-        - active: 점유
-        - released: 좌석이 예약되거나 취소되어, 점유가 풀린 상태
-        - expired: 점유 만료 상태
-    - createdAt: 생성 일시
-    - expiresAt: 만료 일시
-    - expiredAt: 만료로 상태가 변경된 일시
-
-## RESERVATION
-
-- 사용자의 좌석 예약 정보를 나타내는 Table 이다.
-- 아래의 attributes 를 갖는다.
-    - id: PK
-    - user_id: USER 를 가르키는 FK
-    - concert_id: CONCERT 를 가르키는 FK
-    - concert_event_id: CONCERT_EVENT 를 가르키는 FK
-    - status: 예약 상태
-        - pending: 결제 대기 중인 상태
-        - payment_failed: 결제 실패 상태
-        - confirmed: 결제가 완료되고 예약이 확정된 상태
-    - total_seats: 총 예약 좌석 수
-    - total_amount: 총 예약 금액
-    - created_at: 예약 생성 일시
-    - updated_at: 수정 일시
-
-## USER_QUEUE
-
-- 예약 관련 작업을 하려는 사용자에 대한 Queue 를 나타내는 Table 이다.
-- 대기 상태('ready')인 row 의 수가 대기열의 사이즈이다.
-- 아래의 attributes 를 갖는다.
-    - id: PK
-    - user_id: USER 를 가르키는 FK
-    - token: 대기표 토큰
-    - status: 상태
-        - ready: 작업 대기 상태
-        - processing: 작업 가능 상태
-        - exited: queue 에서 제거된 상태
-        - expired: 만료된 상태
-    - queue_position: queue 에서의 위치
-    - created_at: 생성 시간
-    - updated_at: 수정 일시
-    - expires_at: 만료 일시
-    - processed_at: 작업을 시작한 일시
-    - exited_at: 대기열에서 나간 일시
-    - expired_at: 만료가 된 일시
-
