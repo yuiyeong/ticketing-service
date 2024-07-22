@@ -10,7 +10,7 @@ import com.yuiyeong.ticketing.domain.model.concert.ConcertEvent
 import com.yuiyeong.ticketing.domain.repository.concert.ConcertEventRepository
 import com.yuiyeong.ticketing.domain.repository.concert.ConcertRepository
 import com.yuiyeong.ticketing.domain.repository.concert.SeatRepository
-import com.yuiyeong.ticketing.domain.service.concert.ConcertEventService
+import com.yuiyeong.ticketing.domain.service.concert.ConcertService
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -32,9 +32,9 @@ import kotlin.test.Test
 @Transactional
 @Testcontainers
 @Execution(ExecutionMode.CONCURRENT)
-class ConcertEventServiceTest {
+class ConcertServiceTest {
     @Autowired
-    private lateinit var concertEventService: ConcertEventService
+    private lateinit var concertService: ConcertService
 
     @Autowired
     private lateinit var concertRepository: ConcertRepository
@@ -76,7 +76,7 @@ class ConcertEventServiceTest {
             val currentEvent = events[1]
 
             // when
-            val availableEvents = concertEventService.getAvailableEvents(concert.id)
+            val availableEvents = concertService.getAvailableEvents(concert.id)
 
             // then
             Assertions.assertThat(availableEvents).hasSize(1)
@@ -92,7 +92,7 @@ class ConcertEventServiceTest {
             concertEventRepository.saveAll(listOf(pastEvent, futureEvent))
 
             // when
-            val availableEvents = concertEventService.getAvailableEvents(concert.id)
+            val availableEvents = concertService.getAvailableEvents(concert.id)
 
             // then
             Assertions.assertThat(availableEvents).isEmpty()
@@ -105,7 +105,7 @@ class ConcertEventServiceTest {
             val event = concertEventRepository.save(createConcertEvent(concert, now, now.plusHours(1)))
 
             // when
-            val availableEvents = concertEventService.getAvailableEvents(concert.id)
+            val availableEvents = concertService.getAvailableEvents(concert.id)
 
             // then
             Assertions.assertThat(availableEvents).hasSize(1)
@@ -126,7 +126,7 @@ class ConcertEventServiceTest {
             val futureEvent = events[1]
 
             // when
-            val availableEvents = concertEventService.getAvailableEvents(concert.id)
+            val availableEvents = concertService.getAvailableEvents(concert.id)
 
             // then
             Assertions.assertThat(availableEvents).hasSize(1)
@@ -144,7 +144,7 @@ class ConcertEventServiceTest {
             val savedEvent = concertEventRepository.save(concertEvent)
 
             // when
-            val result = concertEventService.getConcertEvent(savedEvent.id)
+            val result = concertService.getConcertEvent(savedEvent.id)
 
             // then
             Assertions.assertThat(result).isNotNull
@@ -158,7 +158,7 @@ class ConcertEventServiceTest {
 
             // when & then
             Assertions
-                .assertThatThrownBy { concertEventService.getConcertEvent(nonExistentId) }
+                .assertThatThrownBy { concertService.getConcertEvent(nonExistentId) }
                 .isInstanceOf(ConcertEventNotFoundException::class.java)
         }
     }
@@ -185,7 +185,7 @@ class ConcertEventServiceTest {
             seatRepository.saveAll(availableSeats)
 
             // when
-            concertEventService.refreshAvailableSeats(concertEvent.id)
+            concertService.refreshAvailableSeats(concertEvent.id)
 
             // then
             val updatedEvent = concertEventRepository.findOneById(concertEvent.id)
@@ -205,7 +205,7 @@ class ConcertEventServiceTest {
             seatRepository.saveAll(unavailableSeats)
 
             // when
-            concertEventService.refreshAvailableSeats(concertEvent.id)
+            concertService.refreshAvailableSeats(concertEvent.id)
 
             // then
             val updatedEvent = concertEventRepository.findOneById(concertEvent.id)
@@ -220,7 +220,7 @@ class ConcertEventServiceTest {
 
             // when & then
             Assertions
-                .assertThatThrownBy { concertEventService.refreshAvailableSeats(nonExistentId) }
+                .assertThatThrownBy { concertService.refreshAvailableSeats(nonExistentId) }
                 .isInstanceOf(ConcertEventNotFoundException::class.java)
         }
     }

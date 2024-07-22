@@ -7,8 +7,8 @@ import com.yuiyeong.ticketing.domain.exception.OccupationNotFoundException
 import com.yuiyeong.ticketing.domain.exception.SeatUnavailableException
 import com.yuiyeong.ticketing.domain.model.occupation.AllocationStatus
 import com.yuiyeong.ticketing.domain.model.occupation.OccupationStatus
-import com.yuiyeong.ticketing.domain.repository.occupation.OccupationRepository
 import com.yuiyeong.ticketing.domain.repository.concert.SeatRepository
+import com.yuiyeong.ticketing.domain.repository.occupation.OccupationRepository
 import com.yuiyeong.ticketing.domain.service.occupation.OccupationService
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.AfterEach
@@ -61,7 +61,7 @@ class OccupationServiceTest {
             val seatIds = savedSeats.map { it.id }
 
             // when
-            val result = occupationService.createOccupation(userId, 5L, seatIds)
+            val result = occupationService.occupy(userId, 5L, seatIds)
 
             // then
             Assertions.assertThat(result.userId).isEqualTo(userId)
@@ -84,7 +84,7 @@ class OccupationServiceTest {
 
             // when & then
             Assertions
-                .assertThatThrownBy { occupationService.createOccupation(userId, 12L, seatIds) }
+                .assertThatThrownBy { occupationService.occupy(userId, 12L, seatIds) }
                 .isInstanceOf(SeatUnavailableException::class.java)
         }
     }
@@ -97,7 +97,7 @@ class OccupationServiceTest {
             val userId = 1L
             val seats = listOf(createSeat(isAvailable = true))
             val savedSeats = seatRepository.saveAll(seats)
-            val occupation = occupationService.createOccupation(userId, 2L, savedSeats.map { it.id })
+            val occupation = occupationService.occupy(userId, 2L, savedSeats.map { it.id })
 
             // when
             val result = occupationService.release(userId, occupation.id)
@@ -113,7 +113,7 @@ class OccupationServiceTest {
             val userId = 1L
             val seats = listOf(createSeat(isAvailable = true))
             val savedSeats = seatRepository.saveAll(seats)
-            val occupation = occupationService.createOccupation(userId, 12L, savedSeats.map { it.id })
+            val occupation = occupationService.occupy(userId, 12L, savedSeats.map { it.id })
 
             // Manually expire the occupation
             val expiredOccupation =
@@ -150,7 +150,7 @@ class OccupationServiceTest {
             val userId = 1L
             val seats = listOf(createSeat(isAvailable = true))
             val savedSeats = seatRepository.saveAll(seats)
-            val occupation = occupationService.createOccupation(userId, 9L, savedSeats.map { it.id })
+            val occupation = occupationService.occupy(userId, 9L, savedSeats.map { it.id })
 
             // Manually set occupation to be expired
             val expiredOccupation =
@@ -175,7 +175,7 @@ class OccupationServiceTest {
             val userId = 1L
             val seats = listOf(createSeat(isAvailable = true))
             val savedSeats = seatRepository.saveAll(seats)
-            occupationService.createOccupation(userId, 32L, savedSeats.map { it.id })
+            occupationService.occupy(userId, 32L, savedSeats.map { it.id })
 
             // when
             val result = occupationService.expireOverdueOccupations()

@@ -4,8 +4,8 @@ import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.exception.OccupationNotFoundException
 import com.yuiyeong.ticketing.domain.exception.SeatUnavailableException
 import com.yuiyeong.ticketing.domain.model.occupation.Occupation
-import com.yuiyeong.ticketing.domain.repository.occupation.OccupationRepository
 import com.yuiyeong.ticketing.domain.repository.concert.SeatRepository
+import com.yuiyeong.ticketing.domain.repository.occupation.OccupationRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.time.ZonedDateTime
@@ -16,16 +16,20 @@ class OccupationService(
     private val occupationRepository: OccupationRepository,
     private val seatRepository: SeatRepository,
 ) {
-    fun createOccupation(
+    fun occupy(
         userId: Long,
         concertEventId: Long,
         seatIds: List<Long>,
     ): Occupation {
-        val seats = seatRepository.findAllAvailableByIds(seatIds)
+        if (seatIds.isEmpty()) throw SeatUnavailableException()
+
+        val seats = seatRepository.findAllAvailableByIdsWithLock(seatIds)
 
         if (seats.count() != seatIds.count()) throw SeatUnavailableException()
 
-        val occupation = Occupation.create(userId, concertEventId, seats, validOccupiedDuration)
+        seats.forEach { it.makeUnavailable() }
+
+        val occupation = Occupation.create(userId, concertEventId, seatRepository.saveAll(seats), validOccupiedDuration)
         return occupationRepository.save(occupation)
     }
 

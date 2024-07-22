@@ -1,7 +1,7 @@
 package com.yuiyeong.ticketing.application.usecase.reservation
 
 import com.yuiyeong.ticketing.application.dto.reservation.ReservationResult
-import com.yuiyeong.ticketing.domain.service.concert.ConcertEventService
+import com.yuiyeong.ticketing.domain.service.concert.ConcertService
 import com.yuiyeong.ticketing.domain.service.occupation.OccupationService
 import com.yuiyeong.ticketing.domain.service.reservation.ReservationService
 import org.springframework.stereotype.Component
@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional
 
 @Component
 class ReserveSeatUseCaseImpl(
-    private val concertEventService: ConcertEventService,
+    private val concertService: ConcertService,
     private val reservationService: ReservationService,
     private val occupationService: OccupationService,
 ) : ReserveSeatUseCase {
@@ -23,7 +23,7 @@ class ReserveSeatUseCaseImpl(
 
         occupationService.release(userId, occupationId)
 
-        val concertEvent = concertEventService.getConcertEvent(concertEventId)
+        val concertEvent = concertService.getConcertEvent(concertEventId)
         return ReservationResult.from(concertEvent, reservation)
     }
 }

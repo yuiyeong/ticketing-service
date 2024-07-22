@@ -4,14 +4,14 @@ import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.exception.OccupationNotFoundException
 import com.yuiyeong.ticketing.domain.exception.ReservationNotFoundException
 import com.yuiyeong.ticketing.domain.exception.ReservationNotOpenedException
+import com.yuiyeong.ticketing.domain.model.concert.Concert
+import com.yuiyeong.ticketing.domain.model.concert.ConcertEvent
 import com.yuiyeong.ticketing.domain.model.occupation.AllocationStatus
 import com.yuiyeong.ticketing.domain.model.occupation.Occupation
 import com.yuiyeong.ticketing.domain.model.occupation.OccupationStatus
+import com.yuiyeong.ticketing.domain.model.occupation.SeatAllocation
 import com.yuiyeong.ticketing.domain.model.reservation.Reservation
 import com.yuiyeong.ticketing.domain.model.reservation.ReservationStatus
-import com.yuiyeong.ticketing.domain.model.occupation.SeatAllocation
-import com.yuiyeong.ticketing.domain.model.concert.Concert
-import com.yuiyeong.ticketing.domain.model.concert.ConcertEvent
 import com.yuiyeong.ticketing.domain.repository.concert.ConcertEventRepository
 import com.yuiyeong.ticketing.domain.repository.occupation.OccupationRepository
 import com.yuiyeong.ticketing.domain.repository.reservation.ReservationRepository
@@ -126,7 +126,7 @@ class ReservationServiceTest {
         val reservationId = 19L
         val occupation = createOccupation(5L, listOf(6L), 2L)
         val reservation = createReservation(reservationId, ReservationStatus.PENDING, occupation)
-        given(reservationRepository.findOneById(reservationId)).willReturn(reservation)
+        given(reservationRepository.findOneByIdWithLock(reservationId)).willReturn(reservation)
         given(reservationRepository.save(any())).willAnswer { invocation ->
             invocation.getArgument<Reservation>(0)
         }
@@ -138,7 +138,7 @@ class ReservationServiceTest {
         Assertions.assertThat(confirmedOne.id).isEqualTo(reservationId)
         Assertions.assertThat(confirmedOne.status).isEqualTo(ReservationStatus.CONFIRMED)
 
-        verify(reservationRepository).findOneById(reservationId)
+        verify(reservationRepository).findOneByIdWithLock(reservationId)
         verify(reservationRepository).save(argThat { it -> it.id == reservationId })
     }
 
@@ -146,14 +146,14 @@ class ReservationServiceTest {
     fun `should throw ReservationNotFoundException when trying to confirm for unknown reservation`() {
         // given
         val unknownReservationId = 19L
-        given(reservationRepository.findOneById(unknownReservationId)).willReturn(null)
+        given(reservationRepository.findOneByIdWithLock(unknownReservationId)).willReturn(null)
 
         // when & then
         Assertions
             .assertThatThrownBy { reservationService.confirm(unknownReservationId) }
             .isInstanceOf(ReservationNotFoundException::class.java)
 
-        verify(reservationRepository).findOneById(unknownReservationId)
+        verify(reservationRepository).findOneByIdWithLock(unknownReservationId)
     }
 
     private fun createConcertEvent(

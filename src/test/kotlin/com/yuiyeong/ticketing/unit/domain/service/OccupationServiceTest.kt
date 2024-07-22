@@ -7,8 +7,8 @@ import com.yuiyeong.ticketing.domain.model.occupation.AllocationStatus
 import com.yuiyeong.ticketing.domain.model.occupation.Occupation
 import com.yuiyeong.ticketing.domain.model.occupation.OccupationStatus
 import com.yuiyeong.ticketing.domain.model.occupation.SeatAllocation
-import com.yuiyeong.ticketing.domain.repository.occupation.OccupationRepository
 import com.yuiyeong.ticketing.domain.repository.concert.SeatRepository
+import com.yuiyeong.ticketing.domain.repository.occupation.OccupationRepository
 import com.yuiyeong.ticketing.domain.service.occupation.OccupationService
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
@@ -44,20 +44,20 @@ class OccupationServiceTest {
         val userId = 123L
         val seatIds = listOf(82L)
         val seats = listOf(createSeat())
-        given(seatRepository.findAllAvailableByIds(seatIds)).willReturn(seats)
+        given(seatRepository.findAllAvailableByIdsWithLock(seatIds)).willReturn(seats)
         given(occupationRepository.save(any())).willAnswer { invocation ->
             val savedOne = invocation.getArgument<Occupation>(0)
             savedOne.copy(id = 1L) // Simulate ID assignment
         }
         // when
-        val occupation = occupationService.createOccupation(userId, 4L, seatIds)
+        val occupation = occupationService.occupy(userId, 4L, seatIds)
 
         // then
         Assertions.assertThat(occupation.userId).isEqualTo(userId)
         Assertions.assertThat(occupation.status).isEqualTo(OccupationStatus.ACTIVE)
         Assertions.assertThat(occupation.expiresAt).isAfter(occupation.createdAt)
 
-        verify(seatRepository).findAllAvailableByIds(seatIds)
+        verify(seatRepository).findAllAvailableByIdsWithLock(seatIds)
         verify(occupationRepository).save(
             argThat { it -> it.userId == userId && it.status == OccupationStatus.ACTIVE },
         )
@@ -70,7 +70,7 @@ class OccupationServiceTest {
         val occupationId = 98L
         val seatIds = listOf(42L, 45L)
         val occupation = createOccupation(userId, seatIds, id = occupationId)
-        given(occupationRepository.findOneById(occupationId)).willReturn(occupation)
+        given(occupationRepository.findOneByIdWithLock(occupationId)).willReturn(occupation)
         given(occupationRepository.save(any())).willAnswer { invocation -> invocation.getArgument<Occupation>(0) }
 
         // when
@@ -84,7 +84,7 @@ class OccupationServiceTest {
         }
         Assertions.assertThat(releasedOne.status).isEqualTo(OccupationStatus.RELEASED)
 
-        verify(occupationRepository).findOneById(occupationId)
+        verify(occupationRepository).findOneByIdWithLock(occupationId)
         verify(occupationRepository).save(
             argThat { it -> it.id == occupationId && it.userId == userId },
         )
@@ -101,7 +101,7 @@ class OccupationServiceTest {
             .assertThatThrownBy { occupationService.release(unknownUserId, unknownOccupationId) }
             .isInstanceOf(OccupationNotFoundException::class.java)
 
-        verify(occupationRepository).findOneById(unknownOccupationId)
+        verify(occupationRepository).findOneByIdWithLock(unknownOccupationId)
     }
 
     @Test

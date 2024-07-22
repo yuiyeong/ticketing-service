@@ -6,7 +6,7 @@ import com.yuiyeong.ticketing.domain.model.concert.Concert
 import com.yuiyeong.ticketing.domain.model.concert.ConcertEvent
 import com.yuiyeong.ticketing.domain.repository.concert.ConcertEventRepository
 import com.yuiyeong.ticketing.domain.repository.concert.SeatRepository
-import com.yuiyeong.ticketing.domain.service.concert.ConcertEventService
+import com.yuiyeong.ticketing.domain.service.concert.ConcertService
 import com.yuiyeong.ticketing.domain.vo.DateTimeRange
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
@@ -22,18 +22,18 @@ import kotlin.random.Random
 import kotlin.test.Test
 
 @ExtendWith(MockitoExtension::class)
-class ConcertEventServiceTest {
+class ConcertServiceTest {
     @Mock
     private lateinit var concertEventRepository: ConcertEventRepository
 
     @Mock
     private lateinit var seatRepository: SeatRepository
 
-    private lateinit var concertEventService: ConcertEventService
+    private lateinit var concertService: ConcertService
 
     @BeforeEach
     fun beforeEach() {
-        concertEventService = ConcertEventService(concertEventRepository, seatRepository)
+        concertService = ConcertService(concertEventRepository, seatRepository)
     }
 
     @Test
@@ -44,7 +44,7 @@ class ConcertEventServiceTest {
 
         // when & then
         Assertions
-            .assertThatThrownBy { concertEventService.getConcertEvent(unknownId) }
+            .assertThatThrownBy { concertService.getConcertEvent(unknownId) }
             .isInstanceOf(ConcertEventNotFoundException::class.java)
 
         verify(concertEventRepository).findOneById(unknownId)
@@ -61,7 +61,7 @@ class ConcertEventServiceTest {
         given(concertEventRepository.save(any())).willAnswer { invocation -> invocation.getArgument<ConcertEvent>(0) }
 
         // when
-        concertEventService.refreshAvailableSeats(concertEvent.id)
+        concertService.refreshAvailableSeats(concertEvent.id)
 
         // then
         Assertions.assertThat(concertEvent.availableSeatCount).isNotEqualTo(originalAvailableSeatCount)
