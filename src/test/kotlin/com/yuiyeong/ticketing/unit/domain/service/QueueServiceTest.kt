@@ -2,10 +2,10 @@ package com.yuiyeong.ticketing.unit.domain.service
 
 import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.exception.InvalidTokenException
-import com.yuiyeong.ticketing.domain.model.QueueEntry
-import com.yuiyeong.ticketing.domain.model.QueueEntryStatus
-import com.yuiyeong.ticketing.domain.repository.QueueEntryRepository
-import com.yuiyeong.ticketing.domain.service.QueueService
+import com.yuiyeong.ticketing.domain.model.queue.QueueEntry
+import com.yuiyeong.ticketing.domain.model.queue.QueueEntryStatus
+import com.yuiyeong.ticketing.domain.repository.queue.QueueEntryRepository
+import com.yuiyeong.ticketing.domain.service.queue.QueueService
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested

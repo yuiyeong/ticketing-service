@@ -2,8 +2,8 @@ package com.yuiyeong.ticketing.integration.domain.service
 
 import com.yuiyeong.ticketing.TestDataFactory
 import com.yuiyeong.ticketing.domain.exception.SeatUnavailableException
-import com.yuiyeong.ticketing.domain.repository.SeatRepository
-import com.yuiyeong.ticketing.domain.service.SeatService
+import com.yuiyeong.ticketing.domain.repository.concert.SeatRepository
+import com.yuiyeong.ticketing.domain.service.concert.SeatService
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested

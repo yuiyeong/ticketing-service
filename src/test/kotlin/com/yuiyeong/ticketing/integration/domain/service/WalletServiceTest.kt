@@ -3,10 +3,10 @@ import com.yuiyeong.ticketing.TestDataFactory.createWallet
 import com.yuiyeong.ticketing.domain.exception.InsufficientBalanceException
 import com.yuiyeong.ticketing.domain.exception.InvalidAmountException
 import com.yuiyeong.ticketing.domain.exception.WalletNotFoundException
-import com.yuiyeong.ticketing.domain.model.TransactionType
-import com.yuiyeong.ticketing.domain.repository.TransactionRepository
-import com.yuiyeong.ticketing.domain.repository.WalletRepository
-import com.yuiyeong.ticketing.domain.service.WalletService
+import com.yuiyeong.ticketing.domain.model.wallet.TransactionType
+import com.yuiyeong.ticketing.domain.repository.wallet.TransactionRepository
+import com.yuiyeong.ticketing.domain.repository.wallet.WalletRepository
+import com.yuiyeong.ticketing.domain.service.wallet.WalletService
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested

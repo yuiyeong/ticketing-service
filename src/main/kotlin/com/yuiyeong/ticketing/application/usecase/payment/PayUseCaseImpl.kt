@@ -1,11 +1,11 @@
 package com.yuiyeong.ticketing.application.usecase.payment
 
-import com.yuiyeong.ticketing.application.dto.PaymentResult
-import com.yuiyeong.ticketing.domain.model.Transaction
-import com.yuiyeong.ticketing.domain.service.PaymentService
-import com.yuiyeong.ticketing.domain.service.QueueService
-import com.yuiyeong.ticketing.domain.service.ReservationService
-import com.yuiyeong.ticketing.domain.service.WalletService
+import com.yuiyeong.ticketing.application.dto.payment.PaymentResult
+import com.yuiyeong.ticketing.domain.model.wallet.Transaction
+import com.yuiyeong.ticketing.domain.service.payment.PaymentService
+import com.yuiyeong.ticketing.domain.service.queue.QueueService
+import com.yuiyeong.ticketing.domain.service.reservation.ReservationService
+import com.yuiyeong.ticketing.domain.service.wallet.WalletService
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 

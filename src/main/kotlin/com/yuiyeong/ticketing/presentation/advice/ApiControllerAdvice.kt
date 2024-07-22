@@ -2,8 +2,8 @@ package com.yuiyeong.ticketing.presentation.advice
 
 import com.yuiyeong.ticketing.application.dto.ErrorStatusCode
 import com.yuiyeong.ticketing.application.service.TicketingExceptionService
-import com.yuiyeong.ticketing.presentation.dto.response.TicketingErrorData
-import com.yuiyeong.ticketing.presentation.dto.response.TicketingErrorResponse
+import com.yuiyeong.ticketing.presentation.dto.TicketingErrorData
+import com.yuiyeong.ticketing.presentation.dto.TicketingErrorResponse
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

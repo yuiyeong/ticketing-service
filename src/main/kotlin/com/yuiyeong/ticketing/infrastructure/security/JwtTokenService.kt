@@ -1,9 +1,9 @@
 package com.yuiyeong.ticketing.infrastructure.security
 
 import com.yuiyeong.ticketing.domain.exception.InvalidTokenException
-import com.yuiyeong.ticketing.domain.model.QueueEntry
-import com.yuiyeong.ticketing.domain.repository.QueueEntryRepository
-import com.yuiyeong.ticketing.domain.service.TokenService
+import com.yuiyeong.ticketing.domain.model.queue.QueueEntry
+import com.yuiyeong.ticketing.domain.repository.queue.QueueEntryRepository
+import com.yuiyeong.ticketing.domain.service.queue.TokenService
 import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys

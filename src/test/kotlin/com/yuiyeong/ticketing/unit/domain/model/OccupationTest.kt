@@ -3,10 +3,10 @@ package com.yuiyeong.ticketing.unit.domain.model
 import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.exception.OccupationAlreadyExpiredException
 import com.yuiyeong.ticketing.domain.exception.OccupationAlreadyReleaseException
-import com.yuiyeong.ticketing.domain.model.AllocationStatus
-import com.yuiyeong.ticketing.domain.model.Occupation
-import com.yuiyeong.ticketing.domain.model.OccupationStatus
-import com.yuiyeong.ticketing.domain.model.SeatAllocation
+import com.yuiyeong.ticketing.domain.model.occupation.AllocationStatus
+import com.yuiyeong.ticketing.domain.model.occupation.Occupation
+import com.yuiyeong.ticketing.domain.model.occupation.OccupationStatus
+import com.yuiyeong.ticketing.domain.model.occupation.SeatAllocation
 import org.assertj.core.api.Assertions
 import java.math.BigDecimal
 import java.time.ZonedDateTime

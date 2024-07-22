@@ -2,8 +2,8 @@ package com.yuiyeong.ticketing.unit.domain.model
 
 import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.exception.ReservationAlreadyConfirmedException
-import com.yuiyeong.ticketing.domain.model.Reservation
-import com.yuiyeong.ticketing.domain.model.ReservationStatus
+import com.yuiyeong.ticketing.domain.model.reservation.Reservation
+import com.yuiyeong.ticketing.domain.model.reservation.ReservationStatus
 import org.assertj.core.api.Assertions
 import java.math.BigDecimal
 import java.time.ZonedDateTime

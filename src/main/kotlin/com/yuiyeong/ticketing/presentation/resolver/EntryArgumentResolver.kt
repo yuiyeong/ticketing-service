@@ -1,7 +1,7 @@
 package com.yuiyeong.ticketing.presentation.resolver
 
 import com.yuiyeong.ticketing.application.annotation.CurrentEntry
-import com.yuiyeong.ticketing.application.dto.QueueEntryResult
+import com.yuiyeong.ticketing.application.dto.queue.QueueEntryResult
 import com.yuiyeong.ticketing.domain.exception.InvalidTokenException
 import com.yuiyeong.ticketing.presentation.interceptor.UserTokenInterceptor
 import jakarta.servlet.http.HttpServletRequest

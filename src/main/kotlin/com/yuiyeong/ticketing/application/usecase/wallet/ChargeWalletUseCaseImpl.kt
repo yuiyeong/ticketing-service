@@ -1,7 +1,7 @@
 package com.yuiyeong.ticketing.application.usecase.wallet
 
-import com.yuiyeong.ticketing.application.dto.WalletResult
-import com.yuiyeong.ticketing.domain.service.WalletService
+import com.yuiyeong.ticketing.application.dto.wallet.WalletResult
+import com.yuiyeong.ticketing.domain.service.wallet.WalletService
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal

@@ -1,11 +1,11 @@
 package com.yuiyeong.ticketing.integration.infrastructure.repository
 
 import com.yuiyeong.ticketing.common.asUtc
-import com.yuiyeong.ticketing.domain.model.AllocationStatus
-import com.yuiyeong.ticketing.domain.model.Occupation
-import com.yuiyeong.ticketing.domain.model.OccupationStatus
-import com.yuiyeong.ticketing.domain.model.SeatAllocation
-import com.yuiyeong.ticketing.domain.repository.OccupationRepository
+import com.yuiyeong.ticketing.domain.model.occupation.AllocationStatus
+import com.yuiyeong.ticketing.domain.model.occupation.Occupation
+import com.yuiyeong.ticketing.domain.model.occupation.OccupationStatus
+import com.yuiyeong.ticketing.domain.model.occupation.SeatAllocation
+import com.yuiyeong.ticketing.domain.repository.occupation.OccupationRepository
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested

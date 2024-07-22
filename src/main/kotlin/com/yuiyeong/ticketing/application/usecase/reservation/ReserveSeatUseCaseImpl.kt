@@ -1,9 +1,9 @@
 package com.yuiyeong.ticketing.application.usecase.reservation
 
-import com.yuiyeong.ticketing.application.dto.ReservationResult
-import com.yuiyeong.ticketing.domain.service.ConcertEventService
-import com.yuiyeong.ticketing.domain.service.OccupationService
-import com.yuiyeong.ticketing.domain.service.ReservationService
+import com.yuiyeong.ticketing.application.dto.reservation.ReservationResult
+import com.yuiyeong.ticketing.domain.service.concert.ConcertEventService
+import com.yuiyeong.ticketing.domain.service.occupation.OccupationService
+import com.yuiyeong.ticketing.domain.service.reservation.ReservationService
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 

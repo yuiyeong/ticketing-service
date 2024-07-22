@@ -1,8 +1,8 @@
 package com.yuiyeong.ticketing.integration.infrastructure.repository
 
 import com.yuiyeong.ticketing.common.asUtc
-import com.yuiyeong.ticketing.domain.model.Wallet
-import com.yuiyeong.ticketing.domain.repository.WalletRepository
+import com.yuiyeong.ticketing.domain.model.wallet.Wallet
+import com.yuiyeong.ticketing.domain.repository.wallet.WalletRepository
 import org.assertj.core.api.Assertions
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest

@@ -1,10 +1,10 @@
 package com.yuiyeong.ticketing.integration.infrastructure.repository
 
 import com.yuiyeong.ticketing.common.asUtc
-import com.yuiyeong.ticketing.domain.model.Concert
-import com.yuiyeong.ticketing.domain.model.ConcertEvent
-import com.yuiyeong.ticketing.domain.repository.ConcertEventRepository
-import com.yuiyeong.ticketing.domain.repository.ConcertRepository
+import com.yuiyeong.ticketing.domain.model.concert.Concert
+import com.yuiyeong.ticketing.domain.model.concert.ConcertEvent
+import com.yuiyeong.ticketing.domain.repository.concert.ConcertEventRepository
+import com.yuiyeong.ticketing.domain.repository.concert.ConcertRepository
 import com.yuiyeong.ticketing.domain.vo.DateTimeRange
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach

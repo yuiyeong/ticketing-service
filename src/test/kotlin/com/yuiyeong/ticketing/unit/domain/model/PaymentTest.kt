@@ -1,12 +1,12 @@
 package com.yuiyeong.ticketing.unit.domain.model
 
 import com.yuiyeong.ticketing.common.asUtc
-import com.yuiyeong.ticketing.domain.model.Payment
-import com.yuiyeong.ticketing.domain.model.PaymentStatus
-import com.yuiyeong.ticketing.domain.model.Reservation
-import com.yuiyeong.ticketing.domain.model.ReservationStatus
-import com.yuiyeong.ticketing.domain.model.Transaction
-import com.yuiyeong.ticketing.domain.model.TransactionType
+import com.yuiyeong.ticketing.domain.model.payment.Payment
+import com.yuiyeong.ticketing.domain.model.payment.PaymentStatus
+import com.yuiyeong.ticketing.domain.model.reservation.Reservation
+import com.yuiyeong.ticketing.domain.model.reservation.ReservationStatus
+import com.yuiyeong.ticketing.domain.model.wallet.Transaction
+import com.yuiyeong.ticketing.domain.model.wallet.TransactionType
 import org.assertj.core.api.Assertions
 import java.math.BigDecimal
 import java.time.ZonedDateTime

@@ -1,7 +1,7 @@
 package com.yuiyeong.ticketing.unit.domain.model
 
 import com.yuiyeong.ticketing.domain.exception.SeatAlreadyUnavailableException
-import com.yuiyeong.ticketing.domain.model.Seat
+import com.yuiyeong.ticketing.domain.model.concert.Seat
 import org.assertj.core.api.Assertions
 import java.math.BigDecimal
 import kotlin.test.Test

@@ -5,8 +5,8 @@ import com.yuiyeong.ticketing.domain.exception.QueueEntryAlreadyExitedException
 import com.yuiyeong.ticketing.domain.exception.QueueEntryAlreadyExpiredException
 import com.yuiyeong.ticketing.domain.exception.QueueEntryAlreadyProcessingException
 import com.yuiyeong.ticketing.domain.exception.QueueEntryOverdueException
-import com.yuiyeong.ticketing.domain.model.QueueEntry
-import com.yuiyeong.ticketing.domain.model.QueueEntryStatus
+import com.yuiyeong.ticketing.domain.model.queue.QueueEntry
+import com.yuiyeong.ticketing.domain.model.queue.QueueEntryStatus
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Nested
 import java.time.ZonedDateTime

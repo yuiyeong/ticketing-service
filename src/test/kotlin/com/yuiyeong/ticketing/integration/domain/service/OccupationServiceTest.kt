@@ -5,11 +5,11 @@ import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.exception.OccupationAlreadyExpiredException
 import com.yuiyeong.ticketing.domain.exception.OccupationNotFoundException
 import com.yuiyeong.ticketing.domain.exception.SeatUnavailableException
-import com.yuiyeong.ticketing.domain.model.AllocationStatus
-import com.yuiyeong.ticketing.domain.model.OccupationStatus
-import com.yuiyeong.ticketing.domain.repository.OccupationRepository
-import com.yuiyeong.ticketing.domain.repository.SeatRepository
-import com.yuiyeong.ticketing.domain.service.OccupationService
+import com.yuiyeong.ticketing.domain.model.occupation.AllocationStatus
+import com.yuiyeong.ticketing.domain.model.occupation.OccupationStatus
+import com.yuiyeong.ticketing.domain.repository.occupation.OccupationRepository
+import com.yuiyeong.ticketing.domain.repository.concert.SeatRepository
+import com.yuiyeong.ticketing.domain.service.occupation.OccupationService
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested

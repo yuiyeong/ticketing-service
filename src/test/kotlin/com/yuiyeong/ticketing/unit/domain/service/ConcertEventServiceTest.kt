@@ -2,11 +2,11 @@ package com.yuiyeong.ticketing.unit.domain.service
 
 import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.exception.ConcertEventNotFoundException
-import com.yuiyeong.ticketing.domain.model.Concert
-import com.yuiyeong.ticketing.domain.model.ConcertEvent
-import com.yuiyeong.ticketing.domain.repository.ConcertEventRepository
-import com.yuiyeong.ticketing.domain.repository.SeatRepository
-import com.yuiyeong.ticketing.domain.service.ConcertEventService
+import com.yuiyeong.ticketing.domain.model.concert.Concert
+import com.yuiyeong.ticketing.domain.model.concert.ConcertEvent
+import com.yuiyeong.ticketing.domain.repository.concert.ConcertEventRepository
+import com.yuiyeong.ticketing.domain.repository.concert.SeatRepository
+import com.yuiyeong.ticketing.domain.service.concert.ConcertEventService
 import com.yuiyeong.ticketing.domain.vo.DateTimeRange
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach

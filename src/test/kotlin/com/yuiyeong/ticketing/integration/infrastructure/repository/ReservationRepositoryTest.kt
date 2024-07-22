@@ -1,9 +1,9 @@
 package com.yuiyeong.ticketing.integration.infrastructure.repository
 
 import com.yuiyeong.ticketing.common.asUtc
-import com.yuiyeong.ticketing.domain.model.Reservation
-import com.yuiyeong.ticketing.domain.model.ReservationStatus
-import com.yuiyeong.ticketing.domain.repository.ReservationRepository
+import com.yuiyeong.ticketing.domain.model.reservation.Reservation
+import com.yuiyeong.ticketing.domain.model.reservation.ReservationStatus
+import com.yuiyeong.ticketing.domain.repository.reservation.ReservationRepository
 import org.assertj.core.api.Assertions
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest

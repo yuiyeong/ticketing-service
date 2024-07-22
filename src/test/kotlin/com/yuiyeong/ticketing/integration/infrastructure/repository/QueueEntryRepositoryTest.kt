@@ -1,7 +1,7 @@
 import com.yuiyeong.ticketing.common.asUtc
-import com.yuiyeong.ticketing.domain.model.QueueEntry
-import com.yuiyeong.ticketing.domain.model.QueueEntryStatus
-import com.yuiyeong.ticketing.domain.repository.QueueEntryRepository
+import com.yuiyeong.ticketing.domain.model.queue.QueueEntry
+import com.yuiyeong.ticketing.domain.model.queue.QueueEntryStatus
+import com.yuiyeong.ticketing.domain.repository.queue.QueueEntryRepository
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired

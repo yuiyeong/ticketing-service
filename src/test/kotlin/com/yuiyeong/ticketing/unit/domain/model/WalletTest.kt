@@ -3,7 +3,7 @@ package com.yuiyeong.ticketing.unit.domain.model
 import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.exception.InsufficientBalanceException
 import com.yuiyeong.ticketing.domain.exception.InvalidAmountException
-import com.yuiyeong.ticketing.domain.model.Wallet
+import com.yuiyeong.ticketing.domain.model.wallet.Wallet
 import org.assertj.core.api.Assertions
 import java.math.BigDecimal
 import java.time.ZonedDateTime

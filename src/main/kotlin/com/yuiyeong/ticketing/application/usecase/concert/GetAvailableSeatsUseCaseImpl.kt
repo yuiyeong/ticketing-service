@@ -1,7 +1,7 @@
 package com.yuiyeong.ticketing.application.usecase.concert
 
-import com.yuiyeong.ticketing.application.dto.SeatResult
-import com.yuiyeong.ticketing.domain.service.SeatService
+import com.yuiyeong.ticketing.application.dto.concert.SeatResult
+import com.yuiyeong.ticketing.domain.service.concert.SeatService
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 

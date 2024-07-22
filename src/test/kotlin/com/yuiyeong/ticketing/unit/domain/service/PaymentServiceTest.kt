@@ -1,16 +1,16 @@
 package com.yuiyeong.ticketing.unit.domain.service
 
 import com.yuiyeong.ticketing.common.asUtc
-import com.yuiyeong.ticketing.domain.model.Payment
-import com.yuiyeong.ticketing.domain.model.PaymentStatus
-import com.yuiyeong.ticketing.domain.model.Reservation
-import com.yuiyeong.ticketing.domain.model.ReservationStatus
-import com.yuiyeong.ticketing.domain.model.Transaction
-import com.yuiyeong.ticketing.domain.model.TransactionType
-import com.yuiyeong.ticketing.domain.repository.PaymentRepository
-import com.yuiyeong.ticketing.domain.repository.ReservationRepository
-import com.yuiyeong.ticketing.domain.repository.TransactionRepository
-import com.yuiyeong.ticketing.domain.service.PaymentService
+import com.yuiyeong.ticketing.domain.model.payment.Payment
+import com.yuiyeong.ticketing.domain.model.payment.PaymentStatus
+import com.yuiyeong.ticketing.domain.model.reservation.Reservation
+import com.yuiyeong.ticketing.domain.model.reservation.ReservationStatus
+import com.yuiyeong.ticketing.domain.model.wallet.Transaction
+import com.yuiyeong.ticketing.domain.model.wallet.TransactionType
+import com.yuiyeong.ticketing.domain.repository.payment.PaymentRepository
+import com.yuiyeong.ticketing.domain.repository.reservation.ReservationRepository
+import com.yuiyeong.ticketing.domain.repository.wallet.TransactionRepository
+import com.yuiyeong.ticketing.domain.service.payment.PaymentService
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith

@@ -1,7 +1,7 @@
 package com.yuiyeong.ticketing.application.usecase.payment
 
-import com.yuiyeong.ticketing.application.dto.PaymentResult
-import com.yuiyeong.ticketing.domain.service.PaymentService
+import com.yuiyeong.ticketing.application.dto.payment.PaymentResult
+import com.yuiyeong.ticketing.domain.service.payment.PaymentService
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 

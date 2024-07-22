@@ -2,10 +2,10 @@ package com.yuiyeong.ticketing.integration.infrastructure.security
 
 import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.exception.InvalidTokenException
-import com.yuiyeong.ticketing.domain.model.QueueEntry
-import com.yuiyeong.ticketing.domain.model.QueueEntryStatus
-import com.yuiyeong.ticketing.domain.repository.QueueEntryRepository
-import com.yuiyeong.ticketing.domain.service.TokenService
+import com.yuiyeong.ticketing.domain.model.queue.QueueEntry
+import com.yuiyeong.ticketing.domain.model.queue.QueueEntryStatus
+import com.yuiyeong.ticketing.domain.repository.queue.QueueEntryRepository
+import com.yuiyeong.ticketing.domain.service.queue.TokenService
 import org.assertj.core.api.Assertions
 import org.mockito.kotlin.given
 import org.mockito.kotlin.verify

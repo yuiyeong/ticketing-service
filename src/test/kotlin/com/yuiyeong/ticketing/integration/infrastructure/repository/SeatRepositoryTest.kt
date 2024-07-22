@@ -1,7 +1,7 @@
 package com.yuiyeong.ticketing.integration.infrastructure.repository
 
-import com.yuiyeong.ticketing.domain.model.Seat
-import com.yuiyeong.ticketing.domain.repository.SeatRepository
+import com.yuiyeong.ticketing.domain.model.concert.Seat
+import com.yuiyeong.ticketing.domain.repository.concert.SeatRepository
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested

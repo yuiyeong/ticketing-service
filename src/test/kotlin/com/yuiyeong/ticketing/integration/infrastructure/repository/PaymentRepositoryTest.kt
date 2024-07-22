@@ -1,10 +1,10 @@
 package com.yuiyeong.ticketing.integration.infrastructure.repository
 
 import com.yuiyeong.ticketing.common.asUtc
-import com.yuiyeong.ticketing.domain.model.Payment
-import com.yuiyeong.ticketing.domain.model.PaymentMethod
-import com.yuiyeong.ticketing.domain.model.PaymentStatus
-import com.yuiyeong.ticketing.domain.repository.PaymentRepository
+import com.yuiyeong.ticketing.domain.model.payment.Payment
+import com.yuiyeong.ticketing.domain.model.payment.PaymentMethod
+import com.yuiyeong.ticketing.domain.model.payment.PaymentStatus
+import com.yuiyeong.ticketing.domain.repository.payment.PaymentRepository
 import org.assertj.core.api.Assertions
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest

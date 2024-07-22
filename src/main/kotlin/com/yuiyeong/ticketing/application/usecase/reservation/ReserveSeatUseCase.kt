@@ -1,6 +1,6 @@
 package com.yuiyeong.ticketing.application.usecase.reservation
 
-import com.yuiyeong.ticketing.application.dto.ReservationResult
+import com.yuiyeong.ticketing.application.dto.reservation.ReservationResult
 
 interface ReserveSeatUseCase {
     fun execute(
