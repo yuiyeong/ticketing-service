@@ -1,7 +1,8 @@
 package com.yuiyeong.ticketing.infrastructure.entity.concert
 
 import com.yuiyeong.ticketing.domain.model.concert.Concert
-import com.yuiyeong.ticketing.infrastructure.entity.BaseEntity
+import com.yuiyeong.ticketing.infrastructure.entity.audit.Auditable
+import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -17,7 +18,9 @@ class ConcertEntity(
     val title: String,
     val singer: String,
     val description: String,
-) : BaseEntity() {
+    @Embedded
+    val auditable: Auditable = Auditable(),
+) {
     fun toConcert(): Concert =
         Concert(
             id = id,

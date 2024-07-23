@@ -2,8 +2,9 @@ package com.yuiyeong.ticketing.infrastructure.entity.occupation
 
 import com.yuiyeong.ticketing.domain.model.occupation.Occupation
 import com.yuiyeong.ticketing.domain.model.occupation.OccupationStatus
-import com.yuiyeong.ticketing.infrastructure.entity.BaseEntity
+import com.yuiyeong.ticketing.infrastructure.entity.audit.Auditable
 import jakarta.persistence.CascadeType
+import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -25,7 +26,9 @@ class OccupationEntity(
     val expiredAt: ZonedDateTime?,
     @OneToMany(mappedBy = "occupation", cascade = [CascadeType.ALL])
     val seatAllocations: List<SeatAllocationEntity> = listOf(),
-) : BaseEntity() {
+    @Embedded
+    val auditable: Auditable = Auditable(),
+) {
     fun toOccupation(): Occupation =
         Occupation(
             id = id,
@@ -33,7 +36,7 @@ class OccupationEntity(
             concertEventId = concertEventId,
             allocations = seatAllocations.map { it.toSeatAllocation() },
             status = status.toOccupationStatus(),
-            createdAt = createdAt,
+            createdAt = auditable.createdAt,
             expiresAt = expiresAt,
             expiredAt = expiredAt,
         )

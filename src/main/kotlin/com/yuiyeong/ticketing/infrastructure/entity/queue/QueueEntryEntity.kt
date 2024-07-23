@@ -2,7 +2,8 @@ package com.yuiyeong.ticketing.infrastructure.entity.queue
 
 import com.yuiyeong.ticketing.domain.model.queue.QueueEntry
 import com.yuiyeong.ticketing.domain.model.queue.QueueEntryStatus
-import com.yuiyeong.ticketing.infrastructure.entity.BaseEntity
+import com.yuiyeong.ticketing.infrastructure.entity.audit.Auditable
+import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -24,7 +25,9 @@ class QueueEntryEntity(
     val processedAt: ZonedDateTime?,
     val exitedAt: ZonedDateTime?,
     val expiredAt: ZonedDateTime?,
-) : BaseEntity() {
+    @Embedded
+    val auditable: Auditable = Auditable(),
+) {
     fun toQueueEntry(): QueueEntry =
         QueueEntry(
             id = id,
@@ -32,7 +35,7 @@ class QueueEntryEntity(
             token = token,
             position = queuePosition,
             status = status.toQueueEntryStatus(),
-            enteredAt = createdAt,
+            enteredAt = auditable.createdAt,
             expiresAt = expiresAt,
             processingStartedAt = processedAt,
             exitedAt = exitedAt,

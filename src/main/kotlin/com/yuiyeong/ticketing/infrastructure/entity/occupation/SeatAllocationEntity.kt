@@ -2,9 +2,10 @@ package com.yuiyeong.ticketing.infrastructure.entity.occupation
 
 import com.yuiyeong.ticketing.domain.model.occupation.AllocationStatus
 import com.yuiyeong.ticketing.domain.model.occupation.SeatAllocation
-import com.yuiyeong.ticketing.infrastructure.entity.BaseEntity
+import com.yuiyeong.ticketing.infrastructure.entity.audit.Auditable
 import com.yuiyeong.ticketing.infrastructure.entity.reservation.ReservationEntity
 import jakarta.persistence.ConstraintMode
+import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
 import jakarta.persistence.ForeignKey
@@ -31,7 +32,9 @@ class SeatAllocationEntity(
     val occupiedAt: ZonedDateTime?,
     val expiredAt: ZonedDateTime?,
     val reservedAt: ZonedDateTime?,
-) : BaseEntity() {
+    @Embedded
+    val auditable: Auditable = Auditable(),
+) {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "occupation_id", foreignKey = ForeignKey(ConstraintMode.NO_CONSTRAINT))
     var occupation: OccupationEntity? = null
