@@ -1,4 +1,4 @@
-package com.yuiyeong.ticketing.unit.domain.service
+package com.yuiyeong.ticketing.unit.domain.service.occupation
 
 import com.yuiyeong.ticketing.TestDataFactory.createSeat
 import com.yuiyeong.ticketing.common.asUtc

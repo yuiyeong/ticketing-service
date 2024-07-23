@@ -1,4 +1,4 @@
-package com.yuiyeong.ticketing.integration.domain.service
+package com.yuiyeong.ticketing.integration.domain.service.reservation
 
 import com.yuiyeong.ticketing.TestDataFactory.createConcert
 import com.yuiyeong.ticketing.TestDataFactory.createConcertEvent
@@ -15,9 +15,9 @@ import com.yuiyeong.ticketing.domain.exception.ReservationNotOpenedException
 import com.yuiyeong.ticketing.domain.model.reservation.ReservationStatus
 import com.yuiyeong.ticketing.domain.repository.concert.ConcertEventRepository
 import com.yuiyeong.ticketing.domain.repository.concert.ConcertRepository
+import com.yuiyeong.ticketing.domain.repository.concert.SeatRepository
 import com.yuiyeong.ticketing.domain.repository.occupation.OccupationRepository
 import com.yuiyeong.ticketing.domain.repository.reservation.ReservationRepository
-import com.yuiyeong.ticketing.domain.repository.concert.SeatRepository
 import com.yuiyeong.ticketing.domain.service.reservation.ReservationService
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.AfterEach

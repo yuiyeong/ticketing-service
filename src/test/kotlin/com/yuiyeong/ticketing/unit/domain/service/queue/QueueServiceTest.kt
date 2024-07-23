@@ -1,4 +1,4 @@
-package com.yuiyeong.ticketing.unit.domain.service
+package com.yuiyeong.ticketing.unit.domain.service.queue
 
 import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.exception.InvalidTokenException

@@ -1,4 +1,4 @@
-package com.yuiyeong.ticketing.integration.domain.service
+package com.yuiyeong.ticketing.integration.domain.service.queue
 
 import com.yuiyeong.ticketing.TestDataFactory.createQueueEntry
 import com.yuiyeong.ticketing.common.asUtc

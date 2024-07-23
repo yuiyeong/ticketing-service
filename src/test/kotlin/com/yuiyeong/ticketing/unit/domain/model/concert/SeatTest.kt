@@ -1,4 +1,4 @@
-package com.yuiyeong.ticketing.unit.domain.model
+package com.yuiyeong.ticketing.unit.domain.model.concert
 
 import com.yuiyeong.ticketing.domain.exception.SeatAlreadyUnavailableException
 import com.yuiyeong.ticketing.domain.model.concert.Seat

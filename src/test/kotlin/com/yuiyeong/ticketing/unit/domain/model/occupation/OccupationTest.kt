@@ -1,4 +1,4 @@
-package com.yuiyeong.ticketing.unit.domain.model
+package com.yuiyeong.ticketing.unit.domain.model.occupation
 
 import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.exception.OccupationAlreadyExpiredException

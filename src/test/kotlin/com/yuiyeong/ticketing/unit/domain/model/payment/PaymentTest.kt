@@ -1,4 +1,4 @@
-package com.yuiyeong.ticketing.unit.domain.model
+package com.yuiyeong.ticketing.unit.domain.model.payment
 
 import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.model.payment.Payment

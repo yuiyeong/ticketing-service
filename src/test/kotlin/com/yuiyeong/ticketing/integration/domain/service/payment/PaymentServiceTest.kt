@@ -1,4 +1,4 @@
-package com.yuiyeong.ticketing.integration.domain.service
+package com.yuiyeong.ticketing.integration.domain.service.payment
 
 import com.yuiyeong.ticketing.TestDataFactory.createPayment
 import com.yuiyeong.ticketing.TestDataFactory.createReservation

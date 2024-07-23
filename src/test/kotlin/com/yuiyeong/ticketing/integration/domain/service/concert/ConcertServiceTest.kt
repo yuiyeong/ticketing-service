@@ -1,4 +1,4 @@
-package com.yuiyeong.ticketing.integration.domain.service
+package com.yuiyeong.ticketing.integration.domain.service.concert
 
 import com.yuiyeong.ticketing.TestDataFactory.createConcert
 import com.yuiyeong.ticketing.TestDataFactory.createConcertEvent

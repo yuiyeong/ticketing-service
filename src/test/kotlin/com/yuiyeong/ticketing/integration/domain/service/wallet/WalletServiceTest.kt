@@ -1,4 +1,4 @@
-package com.yuiyeong.ticketing.integration.domain.service
+package com.yuiyeong.ticketing.integration.domain.service.wallet
 import com.yuiyeong.ticketing.TestDataFactory.createWallet
 import com.yuiyeong.ticketing.domain.exception.InsufficientBalanceException
 import com.yuiyeong.ticketing.domain.exception.InvalidAmountException
