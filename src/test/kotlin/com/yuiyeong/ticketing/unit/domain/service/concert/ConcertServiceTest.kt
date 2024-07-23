@@ -61,15 +61,15 @@ class ConcertServiceTest {
         given(concertEventRepository.save(any())).willAnswer { invocation -> invocation.getArgument<ConcertEvent>(0) }
 
         // when
-        concertService.refreshAvailableSeats(concertEvent.id)
+        val result = concertService.refreshAvailableSeats(concertEvent.id)
 
         // then
-        Assertions.assertThat(concertEvent.availableSeatCount).isNotEqualTo(originalAvailableSeatCount)
-        Assertions.assertThat(concertEvent.availableSeatCount).isEqualTo(0)
+        Assertions.assertThat(result.availableSeatCount).isNotEqualTo(originalAvailableSeatCount)
+        Assertions.assertThat(result.availableSeatCount).isEqualTo(0)
 
-        verify(concertEventRepository).findOneByIdWithLock(concertEvent.id)
-        verify(seatRepository).findAllAvailableByConcertEventId(concertEvent.id)
-        verify(concertEventRepository).save(argThat { it -> it.id == concertEvent.id })
+        verify(concertEventRepository).findOneByIdWithLock(result.id)
+        verify(seatRepository).findAllAvailableByConcertEventId(result.id)
+        verify(concertEventRepository).save(argThat { it -> it.id == result.id })
     }
 
     private fun createConcertEvent(

@@ -26,11 +26,10 @@ class ConcertService(
 
     fun getAvailableSeats(concertEventId: Long): List<Seat> = seatRepository.findAllAvailableByConcertEventId(concertEventId)
 
-    fun refreshAvailableSeats(concertEventId: Long) {
+    fun refreshAvailableSeats(concertEventId: Long): ConcertEvent {
         val concertEvent =
             concertEventRepository.findOneByIdWithLock(concertEventId) ?: throw ConcertEventNotFoundException()
         val seats = seatRepository.findAllAvailableByConcertEventId(concertEventId)
-        concertEvent.recalculateAvailableSeatCount(seats)
-        concertEventRepository.save(concertEvent)
+        return concertEventRepository.save(concertEvent.recalculateAvailableSeatCount(seats))
     }
 }

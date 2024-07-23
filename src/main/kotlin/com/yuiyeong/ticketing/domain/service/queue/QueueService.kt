@@ -32,8 +32,7 @@ class QueueService(
     fun exit(entryId: Long): QueueEntry {
         val entry = entryRepository.findOneByIdWithLock(entryId) ?: throw InvalidTokenException()
         val current = ZonedDateTime.now().asUtc
-        entry.exit(current)
-        return entryRepository.save(entry)
+        return entryRepository.save(entry.exit(current))
     }
 
     fun getEntry(token: String?): QueueEntry {
@@ -51,9 +50,8 @@ class QueueService(
         val current = ZonedDateTime.now().asUtc
         val waitingEntries =
             entryRepository.findAllByStatusOrderByPositionWithLock(QueueEntryStatus.WAITING, newActivatingCount)
-        waitingEntries.forEach { it.process(current) }
 
-        return entryRepository.saveAll(waitingEntries)
+        return entryRepository.saveAll(waitingEntries.map { it.process(current) })
     }
 
     fun expireOverdueEntries(): List<QueueEntry> {
@@ -64,8 +62,8 @@ class QueueService(
                 QueueEntryStatus.PROCESSING,
                 QueueEntryStatus.WAITING,
             )
-        entries.forEach { it.expire(current) }
-        return entryRepository.saveAll(entries)
+
+        return entryRepository.saveAll(entries.map { it.expire(current) })
     }
 
     fun dequeueExistingEntries(userId: Long) {

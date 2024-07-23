@@ -14,7 +14,7 @@ class WalletService(
     private val walletRepository: WalletRepository,
     private val transactionRepository: TransactionRepository,
 ) {
-    fun getUserWallet(userId: Long): Wallet = walletRepository.findOneByUserIdWithLock(userId) ?: throw WalletNotFoundException()
+    fun getUserWallet(userId: Long): Wallet = walletRepository.findOneByUserId(userId) ?: throw WalletNotFoundException()
 
     fun charge(
         userId: Long,
@@ -31,14 +31,15 @@ class WalletService(
         amount: BigDecimal,
         type: TransactionType,
     ): Transaction {
-        val wallet = getUserWallet(userId)
-        val transaction = transactionRepository.save(Transaction.create(wallet, amount, type))
+        val transaction = transactionRepository.save(Transaction.create(getUserWallet(userId), amount, type))
 
-        when (type) {
-            TransactionType.CHARGE -> wallet.charge(amount)
-            TransactionType.PAYMENT -> wallet.pay(amount)
-        }
-        walletRepository.save(wallet)
+        val wallet = walletRepository.findOneByUserIdWithLock(userId) ?: throw WalletNotFoundException()
+        walletRepository.save(
+            when (type) {
+                TransactionType.CHARGE -> wallet.charge(amount)
+                TransactionType.PAYMENT -> wallet.pay(amount)
+            },
+        )
         return transaction
     }
 }

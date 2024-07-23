@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Lock
 
 interface WalletJpaRepository : JpaRepository<WalletEntity, Long> {
+    fun findOneByUserId(userId: Long): WalletEntity?
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     fun findOneWithLockByUserId(userId: Long): WalletEntity?
 }

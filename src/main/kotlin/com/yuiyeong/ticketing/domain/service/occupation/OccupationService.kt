@@ -27,9 +27,8 @@ class OccupationService(
 
         if (seats.count() != seatIds.count()) throw SeatUnavailableException()
 
-        seats.forEach { it.makeUnavailable() }
-
-        val occupation = Occupation.create(userId, concertEventId, seatRepository.saveAll(seats), validOccupiedDuration)
+        val occupiedSeats = seatRepository.saveAll(seats.map { it.makeUnavailable() })
+        val occupation = Occupation.create(userId, concertEventId, occupiedSeats, validOccupiedDuration)
         return occupationRepository.save(occupation)
     }
 
@@ -40,14 +39,12 @@ class OccupationService(
         val occupation =
             occupationRepository.findOneByIdWithLock(occupationId) ?: throw OccupationNotFoundException()
         val now = ZonedDateTime.now().asUtc
-        occupation.release(now)
-        return occupationRepository.save(occupation)
+        return occupationRepository.save(occupation.release(now))
     }
 
     fun expireOverdueOccupations(): List<Occupation> {
         val current = ZonedDateTime.now().asUtc
         val occupations = occupationRepository.findAllByExpiresAtBeforeWithLock(current)
-        occupations.forEach { it.expire() }
-        return occupationRepository.saveAll(occupations)
+        return occupationRepository.saveAll(occupations.map { it.expire() })
     }
 }

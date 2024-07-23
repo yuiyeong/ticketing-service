@@ -18,10 +18,10 @@ class WalletTest {
         val amount = BigDecimal(134722)
 
         // when
-        wallet.charge(amount)
+        val result = wallet.charge(amount)
 
         // then
-        Assertions.assertThat(wallet.balance).isEqualTo(BigDecimal(balance) + amount)
+        Assertions.assertThat(result.balance).isEqualTo(BigDecimal(balance) + amount)
     }
 
     @Test
@@ -56,10 +56,10 @@ class WalletTest {
         val amount = BigDecimal(722)
 
         // when
-        wallet.pay(amount)
+        val result = wallet.pay(amount)
 
         // then
-        Assertions.assertThat(wallet.balance).isEqualTo(BigDecimal(balance) - amount)
+        Assertions.assertThat(result.balance).isEqualTo(BigDecimal(balance) - amount)
     }
 
     @Test

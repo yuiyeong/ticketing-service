@@ -13,10 +13,10 @@ class SeatTest {
         val seat = createSeat(true)
 
         // when
-        seat.makeUnavailable()
+        val result = seat.makeUnavailable()
 
         // then
-        Assertions.assertThat(seat.isAvailable).isEqualTo(false)
+        Assertions.assertThat(result.isAvailable).isEqualTo(false)
     }
 
     @Test

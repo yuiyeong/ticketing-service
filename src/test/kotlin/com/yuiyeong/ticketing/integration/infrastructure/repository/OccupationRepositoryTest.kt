@@ -49,8 +49,7 @@ class OccupationRepositoryTest {
         val savedOne = occupationRepository.save(occupation)
 
         // when
-        savedOne.release(ZonedDateTime.now().asUtc)
-        val updatedOne = occupationRepository.save(savedOne)
+        val updatedOne = occupationRepository.save(savedOne.release(ZonedDateTime.now().asUtc))
 
         // then
         Assertions.assertThat(updatedOne.id).isEqualTo(savedOne.id)
@@ -71,8 +70,7 @@ class OccupationRepositoryTest {
         )
 
         // when
-        occupations.forEach { it.expire() }
-        val updatedOnes = occupationRepository.saveAll(occupations)
+        val updatedOnes = occupationRepository.saveAll(occupations.map { it.expire() })
 
         // then
         Assertions.assertThat(updatedOnes.count()).isEqualTo(occupations.count())

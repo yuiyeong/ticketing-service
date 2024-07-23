@@ -48,12 +48,12 @@ class QueueEntryTest {
             val now = ZonedDateTime.now().asUtc
 
             // when
-            queueEntry.process(now)
+            val result = queueEntry.process(now)
 
             // then
-            Assertions.assertThat(queueEntry.status).isEqualTo(QueueEntryStatus.PROCESSING)
-            Assertions.assertThat(queueEntry.position).isEqualTo(0)
-            Assertions.assertThat(queueEntry.processingStartedAt).isEqualTo(now)
+            Assertions.assertThat(result.status).isEqualTo(QueueEntryStatus.PROCESSING)
+            Assertions.assertThat(result.position).isEqualTo(0)
+            Assertions.assertThat(result.processingStartedAt).isEqualTo(now)
         }
 
         @Test
@@ -114,12 +114,12 @@ class QueueEntryTest {
             val now = ZonedDateTime.now().asUtc.plusMinutes(2)
 
             // when
-            queueEntry.exit(now)
+            val result = queueEntry.exit(now)
 
             // then
-            Assertions.assertThat(queueEntry.status).isEqualTo(QueueEntryStatus.EXITED)
-            Assertions.assertThat(queueEntry.position).isEqualTo(0)
-            Assertions.assertThat(queueEntry.exitedAt).isEqualTo(now)
+            Assertions.assertThat(result.status).isEqualTo(QueueEntryStatus.EXITED)
+            Assertions.assertThat(result.position).isEqualTo(0)
+            Assertions.assertThat(result.exitedAt).isEqualTo(now)
         }
 
         @Test
@@ -168,12 +168,12 @@ class QueueEntryTest {
             val now = ZonedDateTime.now().asUtc.plusSeconds(22)
 
             // when
-            queueEntry.expire(now)
+            val result = queueEntry.expire(now)
 
             // then
-            Assertions.assertThat(queueEntry.status).isEqualTo(QueueEntryStatus.EXPIRED)
-            Assertions.assertThat(queueEntry.position).isEqualTo(0)
-            Assertions.assertThat(queueEntry.expiredAt).isEqualTo(now)
+            Assertions.assertThat(result.status).isEqualTo(QueueEntryStatus.EXPIRED)
+            Assertions.assertThat(result.position).isEqualTo(0)
+            Assertions.assertThat(result.expiredAt).isEqualTo(now)
         }
 
         @Test

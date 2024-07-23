@@ -21,10 +21,10 @@ class OccupationTest {
         val occupation = createOccupation(userId, now, OccupationStatus.ACTIVE)
 
         // when
-        occupation.expire()
+        val result = occupation.expire()
 
         // then
-        Assertions.assertThat(occupation.status).isEqualTo(OccupationStatus.EXPIRED)
+        Assertions.assertThat(result.status).isEqualTo(OccupationStatus.EXPIRED)
     }
 
     @Test
@@ -61,10 +61,10 @@ class OccupationTest {
         val occupation = createOccupation(userId, now, OccupationStatus.ACTIVE)
 
         // when
-        occupation.release(now)
+        val result = occupation.release(now)
 
         // then
-        Assertions.assertThat(occupation.status).isEqualTo(OccupationStatus.RELEASED)
+        Assertions.assertThat(result.status).isEqualTo(OccupationStatus.RELEASED)
     }
 
     @Test

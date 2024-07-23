@@ -31,14 +31,12 @@ class ReservationService(
         return reservationRepository.save(reservation)
     }
 
-    fun getReservation(reservationId: Long): Reservation {
-        val reservation = reservationRepository.findOneById(reservationId) ?: throw ReservationNotFoundException()
-        return reservation
-    }
+    fun getReservation(reservationId: Long): Reservation =
+        reservationRepository.findOneById(reservationId) ?: throw ReservationNotFoundException()
 
     fun confirm(reservationId: Long): Reservation {
-        val reservation = reservationRepository.findOneByIdWithLock(reservationId) ?: throw ReservationNotFoundException()
-        reservation.confirm()
-        return reservationRepository.save(reservation)
+        val reservation =
+            reservationRepository.findOneByIdWithLock(reservationId) ?: throw ReservationNotFoundException()
+        return reservationRepository.save(reservation.confirm())
     }
 }
