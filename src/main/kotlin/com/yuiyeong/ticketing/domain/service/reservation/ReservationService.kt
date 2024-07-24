@@ -2,6 +2,7 @@ package com.yuiyeong.ticketing.domain.service.reservation
 
 import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.exception.ConcertEventNotFoundException
+import com.yuiyeong.ticketing.domain.exception.OccupationInvalidException
 import com.yuiyeong.ticketing.domain.exception.OccupationNotFoundException
 import com.yuiyeong.ticketing.domain.exception.ReservationNotFoundException
 import com.yuiyeong.ticketing.domain.model.reservation.Reservation
@@ -25,9 +26,14 @@ class ReservationService(
         val concertEvent = concertEventRepository.findOneById(concertEventId) ?: throw ConcertEventNotFoundException()
         concertEvent.verifyWithinReservationPeriod(ZonedDateTime.now().asUtc)
 
-        val occupation = occupationRepository.findOneById(occupationId) ?: throw OccupationNotFoundException()
+        val occupation = occupationRepository.findOneByIdWithLock(occupationId) ?: throw OccupationNotFoundException()
+        if (userId != occupation.userId) throw OccupationInvalidException()
 
-        val reservation = Reservation.create(userId, concertEvent, occupation.allocations)
+        val reservation = Reservation.create(userId, concertEvent, occupation)
+
+        val now = ZonedDateTime.now().asUtc
+        occupationRepository.save(occupation.release(now))
+
         return reservationRepository.save(reservation)
     }
 

@@ -7,6 +7,8 @@ import com.yuiyeong.ticketing.infrastructure.entity.reservation.ReservationEntit
 import jakarta.persistence.ConstraintMode
 import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
 import jakarta.persistence.ForeignKey
 import jakarta.persistence.GeneratedValue
@@ -28,6 +30,7 @@ class SeatAllocationEntity(
     val seatId: Long,
     val seatPrice: BigDecimal,
     val seatNumber: String,
+    @Enumerated(EnumType.STRING)
     val status: SeatAllocationEntityStatus,
     val occupiedAt: ZonedDateTime?,
     val expiredAt: ZonedDateTime?,

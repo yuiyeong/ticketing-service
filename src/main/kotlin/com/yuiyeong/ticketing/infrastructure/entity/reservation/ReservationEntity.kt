@@ -6,6 +6,8 @@ import com.yuiyeong.ticketing.infrastructure.entity.audit.Auditable
 import com.yuiyeong.ticketing.infrastructure.entity.occupation.SeatAllocationEntity
 import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -22,6 +24,7 @@ class ReservationEntity(
     val userId: Long,
     val concertId: Long,
     val concertEventId: Long,
+    @Enumerated(EnumType.STRING)
     val status: ReservationEntityStatus,
     val totalSeats: Int,
     val totalAmount: BigDecimal,

@@ -5,6 +5,8 @@ import com.yuiyeong.ticketing.domain.model.queue.QueueEntryStatus
 import com.yuiyeong.ticketing.infrastructure.entity.audit.Auditable
 import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -20,6 +22,7 @@ class QueueEntryEntity(
     val userId: Long,
     val token: String,
     val queuePosition: Long,
+    @Enumerated(EnumType.STRING)
     val status: QueueEntryEntityStatus,
     val expiresAt: ZonedDateTime,
     val processedAt: ZonedDateTime?,

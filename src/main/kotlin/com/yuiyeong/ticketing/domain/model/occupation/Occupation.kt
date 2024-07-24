@@ -4,6 +4,7 @@ import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.exception.OccupationAlreadyExpiredException
 import com.yuiyeong.ticketing.domain.exception.OccupationAlreadyReleaseException
 import com.yuiyeong.ticketing.domain.model.concert.Seat
+import java.math.BigDecimal
 import java.time.ZonedDateTime
 
 data class Occupation(
@@ -16,6 +17,10 @@ data class Occupation(
     val expiresAt: ZonedDateTime,
     val expiredAt: ZonedDateTime?,
 ) {
+    val totalSeats: Int by lazy { allocations.count() }
+
+    val totalAmount: BigDecimal by lazy { allocations.sumOf { it.seatPrice } }
+
     fun expire(): Occupation {
         verifyActiveStatus()
         return copy(

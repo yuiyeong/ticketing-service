@@ -3,7 +3,7 @@ package com.yuiyeong.ticketing.domain.model.reservation
 import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.exception.ReservationAlreadyConfirmedException
 import com.yuiyeong.ticketing.domain.model.concert.ConcertEvent
-import com.yuiyeong.ticketing.domain.model.occupation.SeatAllocation
+import com.yuiyeong.ticketing.domain.model.occupation.Occupation
 import java.math.BigDecimal
 import java.time.ZonedDateTime
 
@@ -39,7 +39,7 @@ data class Reservation(
         fun create(
             userId: Long,
             concertEvent: ConcertEvent,
-            allocations: List<SeatAllocation>,
+            occupation: Occupation,
         ): Reservation =
             Reservation(
                 id = 0L,
@@ -47,8 +47,8 @@ data class Reservation(
                 concertId = concertEvent.concert.id,
                 concertEventId = concertEvent.id,
                 status = ReservationStatus.PENDING,
-                totalSeats = allocations.count(),
-                totalAmount = allocations.sumOf { it.seatPrice },
+                totalSeats = occupation.totalSeats,
+                totalAmount = occupation.totalAmount,
                 createdAt = ZonedDateTime.now().asUtc,
             )
     }

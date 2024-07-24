@@ -6,6 +6,8 @@ import com.yuiyeong.ticketing.infrastructure.entity.audit.Auditable
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -21,6 +23,7 @@ class OccupationEntity(
     val id: Long,
     val userId: Long,
     val concertEventId: Long,
+    @Enumerated(EnumType.STRING)
     val status: OccupationEntityStatus,
     val expiresAt: ZonedDateTime,
     val expiredAt: ZonedDateTime?,

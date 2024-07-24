@@ -2,7 +2,6 @@ package com.yuiyeong.ticketing.unit.domain.service.occupation
 
 import com.yuiyeong.ticketing.TestDataFactory.createSeat
 import com.yuiyeong.ticketing.common.asUtc
-import com.yuiyeong.ticketing.domain.exception.OccupationNotFoundException
 import com.yuiyeong.ticketing.domain.model.occupation.AllocationStatus
 import com.yuiyeong.ticketing.domain.model.occupation.Occupation
 import com.yuiyeong.ticketing.domain.model.occupation.OccupationStatus
@@ -17,6 +16,7 @@ import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argThat
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.given
 import org.mockito.kotlin.verify
 import java.math.BigDecimal
@@ -64,53 +64,14 @@ class OccupationServiceTest {
     }
 
     @Test
-    fun `should release occupation with userId and seatIds`() {
-        // given
-        val userId = 12L
-        val occupationId = 98L
-        val seatIds = listOf(42L, 45L)
-        val occupation = createOccupation(userId, seatIds, id = occupationId)
-        given(occupationRepository.findOneByIdWithLock(occupationId)).willReturn(occupation)
-        given(occupationRepository.save(any())).willAnswer { invocation -> invocation.getArgument<Occupation>(0) }
-
-        // when
-        val releasedOne = occupationService.release(userId, occupationId)
-
-        // then
-        Assertions.assertThat(releasedOne.userId).isEqualTo(userId)
-        Assertions.assertThat(releasedOne.allocations.count()).isEqualTo(occupation.allocations.count())
-        releasedOne.allocations.forEach {
-            Assertions.assertThat(it.status).isEqualTo(AllocationStatus.RESERVED)
-        }
-        Assertions.assertThat(releasedOne.status).isEqualTo(OccupationStatus.RELEASED)
-
-        verify(occupationRepository).findOneByIdWithLock(occupationId)
-        verify(occupationRepository).save(
-            argThat { it -> it.id == occupationId && it.userId == userId },
-        )
-    }
-
-    @Test
-    fun `should throw OccupationNotFoundException when trying to releasing unknown user Id and unknown seat ids`() {
-        // given
-        val unknownUserId = 12L
-        val unknownOccupationId = 2L
-
-        // when & then
-        Assertions
-            .assertThatThrownBy { occupationService.release(unknownUserId, unknownOccupationId) }
-            .isInstanceOf(OccupationNotFoundException::class.java)
-
-        verify(occupationRepository).findOneByIdWithLock(unknownOccupationId)
-    }
-
-    @Test
     fun `should return expired occupations`() {
         // given
         val createdAt = ZonedDateTime.now().asUtc.minusHours(1)
         val occupation1 = createOccupation(11L, listOf(24L), createdAt = createdAt)
         val occupation2 = createOccupation(12L, listOf(42L, 43L), createdAt = createdAt)
-        given(occupationRepository.findAllByExpiresAtBeforeWithLock(any())).willReturn(listOf(occupation1, occupation2))
+        given(
+            occupationRepository.findAllByStatusAndExpiresAtBeforeWithLock(eq(OccupationStatus.ACTIVE), any()),
+        ).willReturn(listOf(occupation1, occupation2))
         given(occupationRepository.saveAll(any())).willAnswer { invocation ->
             val savedOnes = invocation.getArgument<List<Occupation>>(0)
             println(savedOnes[0].expiredAt)
@@ -139,7 +100,7 @@ class OccupationServiceTest {
         Assertions.assertThat(expiredOccupations[1].status).isEqualTo(OccupationStatus.EXPIRED)
         Assertions.assertThat(expiredOccupations[1].expiredAt).isNotNull()
 
-        verify(occupationRepository).findAllByExpiresAtBeforeWithLock(any())
+        verify(occupationRepository).findAllByStatusAndExpiresAtBeforeWithLock(eq(OccupationStatus.ACTIVE), any())
         verify(occupationRepository).saveAll(
             argThat { it ->
                 it.size == 2 &&

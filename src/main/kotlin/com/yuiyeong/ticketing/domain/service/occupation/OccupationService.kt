@@ -1,9 +1,9 @@
 package com.yuiyeong.ticketing.domain.service.occupation
 
 import com.yuiyeong.ticketing.common.asUtc
-import com.yuiyeong.ticketing.domain.exception.OccupationNotFoundException
 import com.yuiyeong.ticketing.domain.exception.SeatUnavailableException
 import com.yuiyeong.ticketing.domain.model.occupation.Occupation
+import com.yuiyeong.ticketing.domain.model.occupation.OccupationStatus
 import com.yuiyeong.ticketing.domain.repository.concert.SeatRepository
 import com.yuiyeong.ticketing.domain.repository.occupation.OccupationRepository
 import org.springframework.beans.factory.annotation.Value
@@ -32,19 +32,9 @@ class OccupationService(
         return occupationRepository.save(occupation)
     }
 
-    fun release(
-        userId: Long,
-        occupationId: Long,
-    ): Occupation {
-        val occupation =
-            occupationRepository.findOneByIdWithLock(occupationId) ?: throw OccupationNotFoundException()
-        val now = ZonedDateTime.now().asUtc
-        return occupationRepository.save(occupation.release(now))
-    }
-
     fun expireOverdueOccupations(): List<Occupation> {
         val current = ZonedDateTime.now().asUtc
-        val occupations = occupationRepository.findAllByExpiresAtBeforeWithLock(current)
+        val occupations = occupationRepository.findAllByStatusAndExpiresAtBeforeWithLock(OccupationStatus.ACTIVE, current)
         return occupationRepository.saveAll(occupations.map { it.expire() })
     }
 }

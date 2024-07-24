@@ -24,7 +24,12 @@ class ConcertService(
         return concertEvent
     }
 
-    fun getAvailableSeats(concertEventId: Long): List<Seat> = seatRepository.findAllAvailableByConcertEventId(concertEventId)
+    fun getAvailableSeats(concertEventId: Long): List<Seat> {
+        val concertEvent = getConcertEvent(concertEventId)
+        concertEvent.verifyWithinReservationPeriod(ZonedDateTime.now().asUtc)
+
+        return seatRepository.findAllAvailableByConcertEventId(concertEvent.id)
+    }
 
     fun refreshAvailableSeats(concertEventId: Long): ConcertEvent {
         val concertEvent =

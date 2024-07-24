@@ -40,6 +40,8 @@ class OccupationAlreadyExpiredException : BadRequestException(ErrorCode.OCCUPATI
 
 class OccupationAlreadyReleaseException : BadRequestException(ErrorCode.OCCUPATION_ALREADY_RELEASED)
 
+class OccupationInvalidException : BadRequestException(ErrorCode.OCCUPATION_INVALID)
+
 class ReservationNotFoundException : NotFoundException(ErrorCode.RESERVATION_NOT_FOUND)
 
 class ReservationNotOpenedException : BadRequestException(ErrorCode.RESERVATION_NOT_OPENED)

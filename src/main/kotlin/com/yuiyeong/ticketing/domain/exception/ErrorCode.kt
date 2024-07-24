@@ -18,6 +18,7 @@ enum class ErrorCode(
     OCCUPATION_NOT_FOUND("선택한 좌석을 찾을 수 없습니다."),
     OCCUPATION_ALREADY_EXPIRED("좌석 선택이 만료되었습니다."),
     OCCUPATION_ALREADY_RELEASED("이미 예약된 좌석입니다."),
+    OCCUPATION_INVALID("잘못된 좌석입니다."),
     RESERVATION_NOT_FOUND("요청한 예약을 찾을 수 없습니다."),
     RESERVATION_NOT_OPENED("예약 기간이 아닙니다."),
     RESERVATION_ALREADY_CONFIRMED("이미 예약이 완료되었습니다."),

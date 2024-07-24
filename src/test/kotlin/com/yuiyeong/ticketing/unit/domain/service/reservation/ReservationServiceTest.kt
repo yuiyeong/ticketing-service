@@ -58,7 +58,7 @@ class ReservationServiceTest {
         val occupation = createOccupation(userId, listOf(82L), 12L)
 
         given(concertEventRepository.findOneById(concertEventId)).willReturn(concertEvent)
-        given(occupationRepository.findOneById(occupation.id)).willReturn(occupation)
+        given(occupationRepository.findOneByIdWithLock(occupation.id)).willReturn(occupation)
         given(reservationRepository.save(any())).willAnswer { invocation ->
             val savedOne = invocation.getArgument<Reservation>(0)
             savedOne.copy(id = 1L)
@@ -75,7 +75,7 @@ class ReservationServiceTest {
         Assertions.assertThat(reservation.totalAmount).isEqualTo(occupation.allocations.sumOf { it.seatPrice })
 
         verify(concertEventRepository).findOneById(concertEventId)
-        verify(occupationRepository).findOneById(occupation.id)
+        verify(occupationRepository).findOneByIdWithLock(occupation.id)
         verify(reservationRepository).save(argThat { it -> it.userId == userId && it.concertEventId == concertEventId })
     }
 
@@ -108,7 +108,7 @@ class ReservationServiceTest {
         val unknownOccupationId = 123L
 
         given(concertEventRepository.findOneById(concertEventId)).willReturn(concertEvent)
-        given(occupationRepository.findOneById(unknownOccupationId)).willReturn(null)
+        given(occupationRepository.findOneByIdWithLock(unknownOccupationId)).willReturn(null)
 
         // when
         Assertions
@@ -117,7 +117,7 @@ class ReservationServiceTest {
 
         // then
         verify(concertEventRepository).findOneById(concertEventId)
-        verify(occupationRepository).findOneById(unknownOccupationId)
+        verify(occupationRepository).findOneByIdWithLock(unknownOccupationId)
     }
 
     @Test

@@ -31,15 +31,14 @@ class WalletService(
         amount: BigDecimal,
         type: TransactionType,
     ): Transaction {
-        val transaction = transactionRepository.save(Transaction.create(getUserWallet(userId), amount, type))
-
         val wallet = walletRepository.findOneByUserIdWithLock(userId) ?: throw WalletNotFoundException()
-        walletRepository.save(
-            when (type) {
-                TransactionType.CHARGE -> wallet.charge(amount)
-                TransactionType.PAYMENT -> wallet.pay(amount)
-            },
-        )
-        return transaction
+        val updatedWallet =
+            walletRepository.save(
+                when (type) {
+                    TransactionType.CHARGE -> wallet.charge(amount)
+                    TransactionType.PAYMENT -> wallet.pay(amount)
+                },
+            )
+        return transactionRepository.save(Transaction.create(updatedWallet, amount, type))
     }
 }

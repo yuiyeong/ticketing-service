@@ -1,8 +1,10 @@
 package com.yuiyeong.ticketing.infrastructure.repository.occupation
 
 import com.yuiyeong.ticketing.domain.model.occupation.Occupation
+import com.yuiyeong.ticketing.domain.model.occupation.OccupationStatus
 import com.yuiyeong.ticketing.domain.repository.occupation.OccupationRepository
 import com.yuiyeong.ticketing.infrastructure.entity.occupation.OccupationEntity
+import com.yuiyeong.ticketing.infrastructure.entity.occupation.OccupationEntityStatus
 import org.springframework.stereotype.Repository
 import java.time.ZonedDateTime
 
@@ -20,10 +22,19 @@ class OccupationRepositoryImpl(
         return occupationJpaRepository.saveAll(occupationEntities).map { it.toOccupation() }
     }
 
-    override fun findAllByExpiresAtBeforeWithLock(moment: ZonedDateTime): List<Occupation> =
-        occupationJpaRepository.findAllWithLockByExpiresAtBefore(moment).map {
-            it.toOccupation()
-        }
+    override fun findAllByStatusAndExpiresAtBeforeWithLock(
+        status: OccupationStatus,
+        moment: ZonedDateTime,
+    ): List<Occupation> =
+        occupationJpaRepository
+            .findAllWithLockByStatusAndExpiresAtBefore(
+                OccupationEntityStatus.from(status),
+                moment,
+            ).map {
+                it.toOccupation()
+            }
+
+    override fun findAll(): List<Occupation> = occupationJpaRepository.findAll().map { it.toOccupation() }
 
     override fun findOneById(id: Long): Occupation? = occupationJpaRepository.findOneById(id)?.toOccupation()
 
