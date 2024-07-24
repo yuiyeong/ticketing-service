@@ -10,6 +10,7 @@ import com.yuiyeong.ticketing.domain.repository.concert.ConcertEventRepository
 import com.yuiyeong.ticketing.domain.repository.occupation.OccupationRepository
 import com.yuiyeong.ticketing.domain.repository.reservation.ReservationRepository
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.ZonedDateTime
 
 @Service
@@ -18,6 +19,7 @@ class ReservationService(
     private val concertEventRepository: ConcertEventRepository,
     private val occupationRepository: OccupationRepository,
 ) {
+    @Transactional
     fun reserve(
         userId: Long,
         concertEventId: Long,
@@ -37,9 +39,11 @@ class ReservationService(
         return reservationRepository.save(reservation)
     }
 
+    @Transactional(readOnly = true)
     fun getReservation(reservationId: Long): Reservation =
         reservationRepository.findOneById(reservationId) ?: throw ReservationNotFoundException()
 
+    @Transactional
     fun confirm(reservationId: Long): Reservation {
         val reservation =
             reservationRepository.findOneByIdWithLock(reservationId) ?: throw ReservationNotFoundException()

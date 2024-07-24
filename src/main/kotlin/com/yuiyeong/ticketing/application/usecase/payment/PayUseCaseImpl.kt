@@ -8,7 +8,6 @@ import com.yuiyeong.ticketing.domain.service.queue.QueueService
 import com.yuiyeong.ticketing.domain.service.reservation.ReservationService
 import com.yuiyeong.ticketing.domain.service.wallet.WalletService
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 
 @Component
 class PayUseCaseImpl(
@@ -17,7 +16,6 @@ class PayUseCaseImpl(
     private val paymentService: PaymentService,
     private val queueService: QueueService,
 ) : PayUseCase {
-    @Transactional
     override fun execute(
         userId: Long,
         queueEntryId: Long,

@@ -7,6 +7,7 @@ import com.yuiyeong.ticketing.domain.repository.payment.PaymentRepository
 import com.yuiyeong.ticketing.domain.repository.reservation.ReservationRepository
 import com.yuiyeong.ticketing.domain.repository.wallet.TransactionRepository
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class PaymentService(
@@ -14,6 +15,7 @@ class PaymentService(
     private val transactionRepository: TransactionRepository,
     private val paymentRepository: PaymentRepository,
 ) {
+    @Transactional
     fun create(
         userId: Long,
         reservationId: Long,
@@ -30,5 +32,6 @@ class PaymentService(
         return paymentRepository.save(payment)
     }
 
+    @Transactional(readOnly = true)
     fun getHistory(userId: Long): List<Payment> = paymentRepository.findAllByUserId(userId)
 }

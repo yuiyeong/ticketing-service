@@ -8,6 +8,7 @@ import com.yuiyeong.ticketing.domain.repository.concert.SeatRepository
 import com.yuiyeong.ticketing.domain.repository.occupation.OccupationRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.ZonedDateTime
 
 @Service
@@ -16,6 +17,7 @@ class OccupationService(
     private val occupationRepository: OccupationRepository,
     private val seatRepository: SeatRepository,
 ) {
+    @Transactional
     fun occupy(
         userId: Long,
         concertEventId: Long,
@@ -32,6 +34,7 @@ class OccupationService(
         return occupationRepository.save(occupation)
     }
 
+    @Transactional
     fun expireOverdueOccupations(): List<Occupation> {
         val current = ZonedDateTime.now().asUtc
         val occupations = occupationRepository.findAllByStatusAndExpiresAtBeforeWithLock(OccupationStatus.ACTIVE, current)

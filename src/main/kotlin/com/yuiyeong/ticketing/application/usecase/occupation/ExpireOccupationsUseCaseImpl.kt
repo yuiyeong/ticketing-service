@@ -4,14 +4,12 @@ import com.yuiyeong.ticketing.application.dto.occupation.OccupationResult
 import com.yuiyeong.ticketing.domain.service.concert.ConcertService
 import com.yuiyeong.ticketing.domain.service.occupation.OccupationService
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 
 @Component
 class ExpireOccupationsUseCaseImpl(
     private val occupationService: OccupationService,
     private val concertService: ConcertService,
 ) : ExpireOccupationsUseCase {
-    @Transactional
     override fun execute(): List<OccupationResult> {
         val occupations = occupationService.expireOverdueOccupations()
         val concertEventIds = occupations.map { it.concertEventId }.distinct()

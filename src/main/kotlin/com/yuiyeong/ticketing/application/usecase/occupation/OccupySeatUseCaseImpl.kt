@@ -5,7 +5,6 @@ import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.service.concert.ConcertService
 import com.yuiyeong.ticketing.domain.service.occupation.OccupationService
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 import java.time.ZonedDateTime
 
 @Component
@@ -13,7 +12,6 @@ class OccupySeatUseCaseImpl(
     private val concertService: ConcertService,
     private val occupationService: OccupationService,
 ) : OccupySeatUseCase {
-    @Transactional
     override fun execute(
         userId: Long,
         concertEventId: Long,
