@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 @ConfigurationProperties(prefix = "config.scheduler")
 class SchedulerProperties {
+    var enabled: Boolean = true
     var queueFixedRate: Long = 60000 // 1분
     var occupationFixedRate: Long = 60000 // 1분
 }
