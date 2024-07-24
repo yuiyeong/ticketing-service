@@ -44,7 +44,7 @@ class OccupationServiceTest {
         val userId = 123L
         val seatIds = listOf(82L)
         val seats = listOf(createSeat())
-        given(seatRepository.findAllAvailableByIdsWithLock(seatIds)).willReturn(seats)
+        given(seatRepository.findAllAvailableWithLockByIds(seatIds)).willReturn(seats)
         given(occupationRepository.save(any())).willAnswer { invocation ->
             val savedOne = invocation.getArgument<Occupation>(0)
             savedOne.copy(id = 1L) // Simulate ID assignment
@@ -57,7 +57,7 @@ class OccupationServiceTest {
         Assertions.assertThat(occupation.status).isEqualTo(OccupationStatus.ACTIVE)
         Assertions.assertThat(occupation.expiresAt).isAfter(occupation.createdAt)
 
-        verify(seatRepository).findAllAvailableByIdsWithLock(seatIds)
+        verify(seatRepository).findAllAvailableWithLockByIds(seatIds)
         verify(occupationRepository).save(
             argThat { it -> it.userId == userId && it.status == OccupationStatus.ACTIVE },
         )

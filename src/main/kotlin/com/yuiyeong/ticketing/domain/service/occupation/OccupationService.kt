@@ -25,8 +25,9 @@ class OccupationService(
     ): Occupation {
         if (seatIds.isEmpty()) throw SeatUnavailableException()
 
-        val seats = seatRepository.findAllAvailableByIdsWithLock(seatIds)
+        val seats = seatRepository.findAllAvailableWithLockByIds(seatIds)
 
+        // 점유 요청한 좌석 중 점유 가능하지 않은 상태(이미 얘약이 되었거나 다른 사람이 점유 중)가 있는지 검증
         if (seats.count() != seatIds.count()) throw SeatUnavailableException()
 
         val occupiedSeats = seatRepository.saveAll(seats.map { it.makeUnavailable() })
