@@ -1,9 +1,13 @@
 package com.yuiyeong.ticketing
 
 import com.yuiyeong.ticketing.common.asUtc
+import com.yuiyeong.ticketing.domain.model.concert.Concert
+import com.yuiyeong.ticketing.domain.model.concert.ConcertEvent
+import com.yuiyeong.ticketing.domain.model.concert.Seat
 import com.yuiyeong.ticketing.domain.model.occupation.AllocationStatus
 import com.yuiyeong.ticketing.domain.model.occupation.Occupation
 import com.yuiyeong.ticketing.domain.model.occupation.OccupationStatus
+import com.yuiyeong.ticketing.domain.model.occupation.SeatAllocation
 import com.yuiyeong.ticketing.domain.model.payment.Payment
 import com.yuiyeong.ticketing.domain.model.payment.PaymentMethod
 import com.yuiyeong.ticketing.domain.model.payment.PaymentStatus
@@ -11,18 +15,155 @@ import com.yuiyeong.ticketing.domain.model.queue.QueueEntry
 import com.yuiyeong.ticketing.domain.model.queue.QueueEntryStatus
 import com.yuiyeong.ticketing.domain.model.reservation.Reservation
 import com.yuiyeong.ticketing.domain.model.reservation.ReservationStatus
-import com.yuiyeong.ticketing.domain.model.occupation.SeatAllocation
 import com.yuiyeong.ticketing.domain.model.wallet.Transaction
 import com.yuiyeong.ticketing.domain.model.wallet.TransactionType
 import com.yuiyeong.ticketing.domain.model.wallet.Wallet
-import com.yuiyeong.ticketing.domain.model.concert.Concert
-import com.yuiyeong.ticketing.domain.model.concert.ConcertEvent
-import com.yuiyeong.ticketing.domain.model.concert.Seat
 import com.yuiyeong.ticketing.domain.vo.DateTimeRange
 import java.math.BigDecimal
 import java.time.ZonedDateTime
 
 object TestDataFactory {
+    fun createUnavailableEvent(concert: Concert): ConcertEvent {
+        val now = ZonedDateTime.now().asUtc
+        val future = now.plusWeeks(1)
+        return createConcertEvent(
+            concert,
+            future,
+            future.plusWeeks(1),
+            2,
+            2,
+        )
+    }
+
+    fun createAvailableEvent(
+        concert: Concert,
+        maxSeatCount: Int = 2,
+        availableSeatCount: Int = 1,
+    ): ConcertEvent {
+        val now = ZonedDateTime.now().asUtc
+        val past = now.minusWeeks(1)
+        return createConcertEvent(
+            concert,
+            past,
+            past.plusWeeks(3),
+            maxSeatCount,
+            availableSeatCount,
+        )
+    }
+
+    fun createSeatsOfConcertEvent(concertEvent: ConcertEvent): List<Seat> =
+        (0..<concertEvent.maxSeatCount).map {
+            val isAvailable = it < concertEvent.availableSeatCount
+            createSeat(concertEvent.id, seatNumber = "A$it", isAvailable = isAvailable)
+        }
+
+    fun creatActiveOccupationsWithPastExpiresAt(
+        concertEvent: ConcertEvent,
+        seats: List<Seat>,
+    ): List<Occupation> {
+        val now = ZonedDateTime.now().asUtc
+        val delta = (seats.count() * 5).toLong()
+        return creatOccupations(concertEvent, seats, OccupationStatus.ACTIVE, now.minusMinutes(delta))
+    }
+
+    fun creatActiveOccupationsWithFutureExpiresAt(
+        concertEvent: ConcertEvent,
+        seats: List<Seat>,
+    ): List<Occupation> {
+        val now = ZonedDateTime.now().asUtc
+        val delta = (seats.count() * 5).toLong()
+        return creatOccupations(concertEvent, seats, OccupationStatus.ACTIVE, now.plusMinutes(delta))
+    }
+
+    fun creatOccupations(
+        concertEvent: ConcertEvent,
+        seats: List<Seat>,
+        status: OccupationStatus,
+        baseCreatedAt: ZonedDateTime,
+    ): List<Occupation> =
+        (0..<seats.count()).map {
+            val seat = seats[it]
+            val longIdx = it.toLong()
+            val createdAt = baseCreatedAt.plusSeconds(longIdx)
+            val expiresAt = baseCreatedAt.plusMinutes(5).plusSeconds(longIdx)
+            val allocation =
+                createSeatAllocation(
+                    seatId = seat.id,
+                    userId = longIdx,
+                    seatPrice = seat.price,
+                    seatNumber = seat.seatNumber,
+                    occupiedAt = createdAt,
+                )
+            createOccupation(
+                userId = longIdx,
+                concertEventId = concertEvent.id,
+                status = status,
+                allocations = listOf(allocation),
+                createdAt = createdAt,
+                expiresAt = expiresAt,
+            )
+        }
+
+    fun createReleasedOccupation(
+        userId: Long,
+        concertEvent: ConcertEvent,
+        vararg seats: Seat,
+    ): Occupation {
+        val pastExpiresAt = ZonedDateTime.now().asUtc.minusHours(1)
+        return createOccupation(userId, concertEvent, OccupationStatus.RELEASED, pastExpiresAt, *seats)
+    }
+
+    fun createOccupation(
+        userId: Long,
+        concertEvent: ConcertEvent,
+        status: OccupationStatus,
+        createdAt: ZonedDateTime,
+        vararg seats: Seat,
+    ): Occupation {
+        val allocations =
+            (0..<seats.count()).map {
+                createSeatAllocation(
+                    seatId = seats[it].id,
+                    userId = userId,
+                    seatPrice = seats[it].price,
+                    seatNumber = seats[it].seatNumber,
+                    occupiedAt = createdAt,
+                )
+            }
+        return createOccupation(
+            userId = userId,
+            concertEventId = concertEvent.id,
+            status = status,
+            allocations = allocations,
+            createdAt = createdAt,
+            expiresAt = createdAt.plusMinutes(5),
+        )
+    }
+
+    fun createPendingReservation(
+        concertEvent: ConcertEvent,
+        occupation: Occupation,
+    ): Reservation =
+        createReservation(
+            userId = occupation.userId,
+            concertId = concertEvent.concert.id,
+            concertEventId = concertEvent.id,
+            status = ReservationStatus.PENDING,
+            totalSeats = occupation.totalSeats,
+            totalAmount = occupation.totalAmount,
+        )
+
+    fun createProcessingQueueEntry(userId: Long): QueueEntry {
+        val enteredAt = ZonedDateTime.now().asUtc.minusMinutes(30)
+        return createQueueEntry(
+            userId = userId,
+            status = QueueEntryStatus.PROCESSING,
+            enteredAt = enteredAt,
+            expiresAt = enteredAt.plusHours(3),
+            processingStartedAt = enteredAt.plusMinutes(5),
+        )
+    }
+
     fun createConcert(): Concert =
         Concert(
             id = 0L,
@@ -189,7 +330,7 @@ object TestDataFactory {
         token: String = "test-token",
         position: Long = 0L,
         status: QueueEntryStatus = QueueEntryStatus.WAITING,
-        expiresAt: ZonedDateTime = ZonedDateTime.now().asUtc.plusMinutes(30),
+        expiresAt: ZonedDateTime = ZonedDateTime.now().asUtc.plusHours(3),
         enteredAt: ZonedDateTime = ZonedDateTime.now().asUtc,
         processingStartedAt: ZonedDateTime? = null,
         exitedAt: ZonedDateTime? = null,
