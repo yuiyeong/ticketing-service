@@ -21,6 +21,7 @@ spring:
             hibernate:
                 jdbc.time_zone: UTC
                 lock.timeout: 10000  # 10초
+        open-in-view: false
     jackson:
         time-zone: UTC
 
