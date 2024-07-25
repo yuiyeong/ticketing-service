@@ -57,7 +57,6 @@ class WalletServiceTest {
         // then
         Assertions.assertThat(transaction.type).isEqualTo(TransactionType.CHARGE)
         Assertions.assertThat(transaction.amount).isEqualTo(amount)
-        Assertions.assertThat(wallet.balance).isEqualTo(BigDecimal(balance) + amount)
 
         verify(walletRepository).findOneByUserIdWithLock(userId)
         verify(transactionRepository).save(argThat { it -> it.walletId == wallet.id })
@@ -99,7 +98,6 @@ class WalletServiceTest {
         // then
         Assertions.assertThat(transaction.type).isEqualTo(TransactionType.PAYMENT)
         Assertions.assertThat(transaction.amount).isEqualTo(amount)
-        Assertions.assertThat(wallet.balance).isEqualTo(BigDecimal(balance) - amount)
 
         verify(walletRepository).findOneByUserIdWithLock(userId)
         verify(transactionRepository).save(argThat { it -> it.walletId == wallet.id })

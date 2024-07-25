@@ -4,27 +4,20 @@ import com.yuiyeong.ticketing.domain.model.concert.Seat
 import java.math.BigDecimal
 import java.time.ZonedDateTime
 
-class SeatAllocation(
+data class SeatAllocation(
     val id: Long,
     val userId: Long,
     val seatId: Long,
     val seatPrice: BigDecimal,
     val seatNumber: String,
-    status: AllocationStatus,
+    val status: AllocationStatus,
     val occupiedAt: ZonedDateTime?,
     val expiredAt: ZonedDateTime?,
     val reservedAt: ZonedDateTime?,
 ) {
-    var status: AllocationStatus = status
-        private set
+    fun markAsExpired(): SeatAllocation = copy(status = AllocationStatus.EXPIRED)
 
-    fun markAsExpired() {
-        status = AllocationStatus.EXPIRED
-    }
-
-    fun markAsReserved() {
-        status = AllocationStatus.RESERVED
-    }
+    fun markAsReserved(): SeatAllocation = copy(status = AllocationStatus.RESERVED)
 
     companion object {
         fun createOccupiedOne(

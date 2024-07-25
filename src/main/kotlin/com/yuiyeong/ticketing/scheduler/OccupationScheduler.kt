@@ -2,10 +2,12 @@ package com.yuiyeong.ticketing.scheduler
 
 import com.yuiyeong.ticketing.application.usecase.occupation.ExpireOccupationsUseCase
 import org.slf4j.LoggerFactory
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 
 @Component
+@ConditionalOnProperty(name = ["config.scheduler.enabled"], havingValue = "true", matchIfMissing = false)
 class OccupationScheduler(
     private val expireOccupationsUseCase: ExpireOccupationsUseCase,
 ) {

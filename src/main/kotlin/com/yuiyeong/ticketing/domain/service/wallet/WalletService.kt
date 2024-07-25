@@ -7,6 +7,7 @@ import com.yuiyeong.ticketing.domain.model.wallet.Wallet
 import com.yuiyeong.ticketing.domain.repository.wallet.TransactionRepository
 import com.yuiyeong.ticketing.domain.repository.wallet.WalletRepository
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
 
 @Service
@@ -14,13 +15,16 @@ class WalletService(
     private val walletRepository: WalletRepository,
     private val transactionRepository: TransactionRepository,
 ) {
-    fun getUserWallet(userId: Long): Wallet = walletRepository.findOneByUserIdWithLock(userId) ?: throw WalletNotFoundException()
+    @Transactional(readOnly = true)
+    fun getUserWallet(userId: Long): Wallet = walletRepository.findOneByUserId(userId) ?: throw WalletNotFoundException()
 
+    @Transactional
     fun charge(
         userId: Long,
         amount: BigDecimal,
     ) = createTransaction(userId, amount, TransactionType.CHARGE)
 
+    @Transactional
     fun pay(
         userId: Long,
         amount: BigDecimal,
@@ -31,14 +35,14 @@ class WalletService(
         amount: BigDecimal,
         type: TransactionType,
     ): Transaction {
-        val wallet = getUserWallet(userId)
-        val transaction = transactionRepository.save(Transaction.create(wallet, amount, type))
-
-        when (type) {
-            TransactionType.CHARGE -> wallet.charge(amount)
-            TransactionType.PAYMENT -> wallet.pay(amount)
-        }
-        walletRepository.save(wallet)
-        return transaction
+        val wallet = walletRepository.findOneByUserIdWithLock(userId) ?: throw WalletNotFoundException()
+        val updatedWallet =
+            walletRepository.save(
+                when (type) {
+                    TransactionType.CHARGE -> wallet.charge(amount)
+                    TransactionType.PAYMENT -> wallet.pay(amount)
+                },
+            )
+        return transactionRepository.save(Transaction.create(updatedWallet, amount, type))
     }
 }

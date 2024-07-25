@@ -24,8 +24,8 @@ class SeatRepositoryImpl(
         return seatEntities.map { it.toSeat() }
     }
 
-    override fun findAllAvailableByIdsWithLock(ids: List<Long>): List<Seat> {
-        val seatEntities = seatJpaRepository.findAllAvailableByIds(ids)
+    override fun findAllAvailableWithLockByIds(ids: List<Long>): List<Seat> {
+        val seatEntities = seatJpaRepository.findAllAvailableWithLockByIds(ids)
         return seatEntities.map { it.toSeat() }
     }
 

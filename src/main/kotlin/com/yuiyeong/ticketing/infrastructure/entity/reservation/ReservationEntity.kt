@@ -2,9 +2,12 @@ package com.yuiyeong.ticketing.infrastructure.entity.reservation
 
 import com.yuiyeong.ticketing.domain.model.reservation.Reservation
 import com.yuiyeong.ticketing.domain.model.reservation.ReservationStatus
-import com.yuiyeong.ticketing.infrastructure.entity.BaseEntity
+import com.yuiyeong.ticketing.infrastructure.entity.audit.Auditable
 import com.yuiyeong.ticketing.infrastructure.entity.occupation.SeatAllocationEntity
+import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -21,12 +24,15 @@ class ReservationEntity(
     val userId: Long,
     val concertId: Long,
     val concertEventId: Long,
+    @Enumerated(EnumType.STRING)
     val status: ReservationEntityStatus,
     val totalSeats: Int,
     val totalAmount: BigDecimal,
     @OneToMany(mappedBy = "reservation")
     val seatAllocations: List<SeatAllocationEntity> = listOf(),
-) : BaseEntity() {
+    @Embedded
+    val auditable: Auditable = Auditable(),
+) {
     fun toReservation(): Reservation =
         Reservation(
             id = id,
@@ -36,7 +42,7 @@ class ReservationEntity(
             status = status.toReservationStatus(),
             totalSeats = totalSeats,
             totalAmount = totalAmount,
-            createdAt = createdAt,
+            createdAt = auditable.createdAt,
         )
 
     companion object {

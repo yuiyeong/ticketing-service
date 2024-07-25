@@ -17,5 +17,10 @@ class TransactionRepositoryImpl(
 
     override fun findOneById(id: Long): Transaction? = transactionJapRepository.findByIdOrNull(id)?.toTransaction()
 
+    override fun findAllByWalletId(walletId: Long): List<Transaction> =
+        transactionJapRepository.findAllByWalletId(walletId).map {
+            it.toTransaction()
+        }
+
     override fun deleteAll() = transactionJapRepository.deleteAll()
 }

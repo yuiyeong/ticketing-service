@@ -1,6 +1,7 @@
 package com.yuiyeong.ticketing.infrastructure.repository.occupation
 
 import com.yuiyeong.ticketing.infrastructure.entity.occupation.OccupationEntity
+import com.yuiyeong.ticketing.infrastructure.entity.occupation.OccupationEntityStatus
 import jakarta.persistence.LockModeType
 import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.JpaRepository
@@ -25,8 +26,9 @@ interface OccupationJpaRepository : JpaRepository<OccupationEntity, Long> {
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @EntityGraph(attributePaths = ["seatAllocations"])
-    @Query("SELECT o from OccupationEntity o WHERE o.expiresAt < :moment")
-    fun findAllWithLockByExpiresAtBefore(
+    @Query("SELECT o from OccupationEntity o WHERE o.status = :status AND o.expiresAt < :moment")
+    fun findAllWithLockByStatusAndExpiresAtBefore(
+        @Param("status") status: OccupationEntityStatus,
         @Param("moment") moment: ZonedDateTime,
     ): List<OccupationEntity>
 }

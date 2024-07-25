@@ -6,33 +6,18 @@ import com.yuiyeong.ticketing.domain.exception.QueueEntryAlreadyProcessingExcept
 import com.yuiyeong.ticketing.domain.exception.QueueEntryOverdueException
 import java.time.ZonedDateTime
 
-class QueueEntry(
+data class QueueEntry(
     val id: Long,
     val userId: Long,
     val token: String,
-    position: Long,
-    status: QueueEntryStatus,
+    val position: Long,
+    val status: QueueEntryStatus,
     val expiresAt: ZonedDateTime,
     val enteredAt: ZonedDateTime,
-    processingStartedAt: ZonedDateTime?,
-    exitedAt: ZonedDateTime?,
-    expiredAt: ZonedDateTime?,
+    val processingStartedAt: ZonedDateTime?,
+    val exitedAt: ZonedDateTime?,
+    val expiredAt: ZonedDateTime?,
 ) {
-    var position: Long = position
-        private set
-
-    var status: QueueEntryStatus = status
-        private set
-
-    var processingStartedAt: ZonedDateTime? = processingStartedAt
-        private set
-
-    var exitedAt: ZonedDateTime? = exitedAt
-        private set
-
-    var expiredAt: ZonedDateTime? = expiredAt
-        private set
-
     /**
      * 상대적 position 을 계산하는 함수
      */
@@ -46,7 +31,7 @@ class QueueEntry(
     /**
      * 작업 상태로 변경하고 그 일시는 moment 로 설정하는 함수
      */
-    fun process(moment: ZonedDateTime) {
+    fun process(moment: ZonedDateTime): QueueEntry {
         verifyOnWaitingOrProcessing()
         verifyNotOverExpiresAt(moment)
 
@@ -54,32 +39,38 @@ class QueueEntry(
             throw QueueEntryAlreadyProcessingException()
         }
 
-        resetPosition()
-        status = QueueEntryStatus.PROCESSING
-        processingStartedAt = moment
+        return copy(
+            position = 0,
+            status = QueueEntryStatus.PROCESSING,
+            processingStartedAt = moment,
+        )
     }
 
     /**
      * 대기열에서 나감 상태로 변경하고 그 일시는 moment 로 설정하는 함수
      */
-    fun exit(moment: ZonedDateTime) {
+    fun exit(moment: ZonedDateTime): QueueEntry {
         verifyOnWaitingOrProcessing()
         verifyNotOverExpiresAt(moment)
 
-        resetPosition()
-        status = QueueEntryStatus.EXITED
-        exitedAt = moment
+        return copy(
+            position = 0,
+            status = QueueEntryStatus.EXITED,
+            exitedAt = moment,
+        )
     }
 
     /**
      * 만료 상태로 변경하고 그 일시는 moment 로 설정하는 함수
      */
-    fun expire(moment: ZonedDateTime) {
+    fun expire(moment: ZonedDateTime): QueueEntry {
         verifyOnWaitingOrProcessing()
 
-        resetPosition()
-        status = QueueEntryStatus.EXPIRED
-        expiredAt = moment
+        return copy(
+            position = 0,
+            status = QueueEntryStatus.EXPIRED,
+            expiredAt = moment,
+        )
     }
 
     /**
@@ -104,35 +95,6 @@ class QueueEntry(
             throw QueueEntryOverdueException()
         }
     }
-
-    private fun resetPosition() {
-        position = 0
-    }
-
-    fun copy(
-        id: Long = this.id,
-        userId: Long = this.userId,
-        token: String = this.token,
-        position: Long = this.position,
-        status: QueueEntryStatus = this.status,
-        expiresAt: ZonedDateTime = this.expiresAt,
-        enteredAt: ZonedDateTime = this.enteredAt,
-        processingStartedAt: ZonedDateTime? = this.processingStartedAt,
-        exitedAt: ZonedDateTime? = this.exitedAt,
-        expiredAt: ZonedDateTime? = this.expiredAt,
-    ): QueueEntry =
-        QueueEntry(
-            id = id,
-            userId = userId,
-            token = token,
-            position = position,
-            status = status,
-            expiresAt = expiresAt,
-            enteredAt = enteredAt,
-            processingStartedAt = processingStartedAt,
-            exitedAt = exitedAt,
-            expiredAt = expiredAt,
-        )
 
     companion object {
         const val WORKING_MINUTES = 5L // 1명당 5분 동안 작업을 진행한다고 가정

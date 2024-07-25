@@ -2,8 +2,9 @@ package com.yuiyeong.ticketing.infrastructure.entity.concert
 
 import com.yuiyeong.ticketing.domain.model.concert.ConcertEvent
 import com.yuiyeong.ticketing.domain.vo.DateTimeRange
-import com.yuiyeong.ticketing.infrastructure.entity.BaseEntity
+import com.yuiyeong.ticketing.infrastructure.entity.audit.Auditable
 import jakarta.persistence.ConstraintMode
+import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
 import jakarta.persistence.ForeignKey
@@ -31,7 +32,9 @@ class ConcertEventEntity(
     val duration: Long,
     val maxSeatCount: Int,
     val availableSeatCount: Int,
-) : BaseEntity() {
+    @Embedded
+    val auditable: Auditable = Auditable(),
+) {
     fun toConcertEvent(): ConcertEvent =
         ConcertEvent(
             id = id,

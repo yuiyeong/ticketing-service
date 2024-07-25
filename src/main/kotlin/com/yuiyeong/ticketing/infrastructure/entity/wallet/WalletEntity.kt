@@ -1,7 +1,8 @@
 package com.yuiyeong.ticketing.infrastructure.entity.wallet
 
 import com.yuiyeong.ticketing.domain.model.wallet.Wallet
-import com.yuiyeong.ticketing.infrastructure.entity.BaseEntity
+import com.yuiyeong.ticketing.infrastructure.entity.audit.Auditable
+import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -17,14 +18,16 @@ class WalletEntity(
     val id: Long,
     val userId: Long,
     val balance: BigDecimal,
-) : BaseEntity() {
+    @Embedded
+    val auditable: Auditable = Auditable(),
+) {
     fun toWallet(): Wallet =
         Wallet(
-            id = this.id,
-            userId = this.userId,
-            balance = this.balance,
-            createdAt = this.createdAt,
-            updatedAt = this.updatedAt,
+            id = id,
+            userId = userId,
+            balance = balance,
+            createdAt = auditable.createdAt,
+            updatedAt = auditable.updatedAt,
         )
 
     companion object {

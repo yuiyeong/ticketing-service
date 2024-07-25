@@ -2,8 +2,6 @@ package com.yuiyeong.ticketing.integration.domain.service.occupation
 
 import com.yuiyeong.ticketing.TestDataFactory.createSeat
 import com.yuiyeong.ticketing.common.asUtc
-import com.yuiyeong.ticketing.domain.exception.OccupationAlreadyExpiredException
-import com.yuiyeong.ticketing.domain.exception.OccupationNotFoundException
 import com.yuiyeong.ticketing.domain.exception.SeatUnavailableException
 import com.yuiyeong.ticketing.domain.model.occupation.AllocationStatus
 import com.yuiyeong.ticketing.domain.model.occupation.OccupationStatus
@@ -86,59 +84,6 @@ class OccupationServiceTest {
             Assertions
                 .assertThatThrownBy { occupationService.occupy(userId, 12L, seatIds) }
                 .isInstanceOf(SeatUnavailableException::class.java)
-        }
-    }
-
-    @Nested
-    inner class ReleaseTest {
-        @Test
-        fun `should release occupation successfully`() {
-            // given
-            val userId = 1L
-            val seats = listOf(createSeat(isAvailable = true))
-            val savedSeats = seatRepository.saveAll(seats)
-            val occupation = occupationService.occupy(userId, 2L, savedSeats.map { it.id })
-
-            // when
-            val result = occupationService.release(userId, occupation.id)
-
-            // then
-            Assertions.assertThat(result.status).isEqualTo(OccupationStatus.RELEASED)
-            Assertions.assertThat(result.allocations).allMatch { it.status == AllocationStatus.RESERVED }
-        }
-
-        @Test
-        fun `should throw exception when occupation is already expired`() {
-            // given
-            val userId = 1L
-            val seats = listOf(createSeat(isAvailable = true))
-            val savedSeats = seatRepository.saveAll(seats)
-            val occupation = occupationService.occupy(userId, 12L, savedSeats.map { it.id })
-
-            // Manually expire the occupation
-            val expiredOccupation =
-                occupation.copy(
-                    expiresAt = ZonedDateTime.now().asUtc.minusSeconds(1),
-                    status = OccupationStatus.EXPIRED,
-                )
-            occupationRepository.save(expiredOccupation)
-
-            // when & then
-            Assertions
-                .assertThatThrownBy { occupationService.release(userId, occupation.id) }
-                .isInstanceOf(OccupationAlreadyExpiredException::class.java)
-        }
-
-        @Test
-        fun `should throw exception when occupation is not found`() {
-            // given
-            val userId = 1L
-            val nonExistentOccupationId = 999L
-
-            // when & then
-            Assertions
-                .assertThatThrownBy { occupationService.release(userId, nonExistentOccupationId) }
-                .isInstanceOf(OccupationNotFoundException::class.java)
         }
     }
 

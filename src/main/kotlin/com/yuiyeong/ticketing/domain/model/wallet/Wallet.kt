@@ -9,18 +9,18 @@ import java.time.ZonedDateTime
 data class Wallet(
     val id: Long,
     val userId: Long,
-    var balance: BigDecimal,
+    val balance: BigDecimal,
     val createdAt: ZonedDateTime,
     val updatedAt: ZonedDateTime,
 ) {
-    fun charge(amount: BigDecimal) {
+    fun charge(amount: BigDecimal): Wallet {
         if (amount <= BigDecimal.ZERO) {
             throw InvalidAmountException()
         }
-        balance += amount
+        return copy(balance = balance + amount)
     }
 
-    fun pay(amount: BigDecimal) {
+    fun pay(amount: BigDecimal): Wallet {
         if (amount <= BigDecimal.ZERO) {
             throw InvalidAmountException()
         }
@@ -29,7 +29,7 @@ data class Wallet(
             throw InsufficientBalanceException()
         }
 
-        balance -= amount
+        return copy(balance = balance - amount)
     }
 
     companion object {

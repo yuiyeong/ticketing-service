@@ -8,12 +8,12 @@ data class Seat(
     val concertEventId: Long,
     val seatNumber: String,
     val price: BigDecimal,
-    var isAvailable: Boolean,
+    val isAvailable: Boolean,
 ) {
-    fun makeUnavailable() {
+    fun makeUnavailable(): Seat {
         if (!isAvailable) {
             throw SeatAlreadyUnavailableException()
         }
-        isAvailable = false
+        return copy(isAvailable = false)
     }
 }

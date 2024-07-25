@@ -1,7 +1,8 @@
 package com.yuiyeong.ticketing.infrastructure.entity.concert
 
 import com.yuiyeong.ticketing.domain.model.concert.Seat
-import com.yuiyeong.ticketing.infrastructure.entity.BaseEntity
+import com.yuiyeong.ticketing.infrastructure.entity.audit.Auditable
+import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -19,7 +20,9 @@ class SeatEntity(
     val seatNumber: String,
     val price: BigDecimal,
     val isAvailable: Boolean,
-) : BaseEntity() {
+    @Embedded
+    val auditable: Auditable = Auditable(),
+) {
     fun toSeat(): Seat =
         Seat(
             id = id,

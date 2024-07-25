@@ -16,10 +16,10 @@ class ReservationTest {
         val reservation = createReservation(ReservationStatus.PENDING)
 
         // when
-        reservation.confirm()
+        val result = reservation.confirm()
 
         // then
-        Assertions.assertThat(reservation.status).isEqualTo(ReservationStatus.CONFIRMED)
+        Assertions.assertThat(result.status).isEqualTo(ReservationStatus.CONFIRMED)
     }
 
     @Test

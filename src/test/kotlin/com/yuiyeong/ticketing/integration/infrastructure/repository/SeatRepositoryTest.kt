@@ -72,8 +72,7 @@ class SeatRepositoryTest {
         Assertions.assertThat(savedSeats[1].isAvailable).isEqualTo(seats[1].isAvailable)
 
         // when
-        savedSeats.map { it.makeUnavailable() }
-        val updatedSeats = seatRepository.saveAll(savedSeats)
+        val updatedSeats = seatRepository.saveAll(savedSeats.map { it.makeUnavailable() })
 
         // then
         Assertions.assertThat(updatedSeats[0].id).isEqualTo(savedSeats[0].id)

@@ -3,8 +3,11 @@ package com.yuiyeong.ticketing.infrastructure.entity.payment
 import com.yuiyeong.ticketing.domain.model.payment.Payment
 import com.yuiyeong.ticketing.domain.model.payment.PaymentMethod
 import com.yuiyeong.ticketing.domain.model.payment.PaymentStatus
-import com.yuiyeong.ticketing.infrastructure.entity.BaseEntity
+import com.yuiyeong.ticketing.infrastructure.entity.audit.Auditable
+import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -22,9 +25,12 @@ class PaymentEntity(
     val reservationId: Long,
     val amount: BigDecimal,
     val paymentMethod: PaymentEntityMethod,
+    @Enumerated(EnumType.STRING)
     val status: PaymentEntityStatus,
     val failureReason: String?,
-) : BaseEntity() {
+    @Embedded
+    val auditable: Auditable = Auditable(),
+) {
     fun toPayment(): Payment =
         Payment(
             id = id,
@@ -35,8 +41,8 @@ class PaymentEntity(
             status = status.toPaymentStatus(),
             paymentMethod = paymentMethod.toPaymentMethod(),
             failureReason = failureReason,
-            createdAt = createdAt,
-            updatedAt = updatedAt,
+            createdAt = auditable.createdAt,
+            updatedAt = auditable.updatedAt,
         )
 
     companion object {

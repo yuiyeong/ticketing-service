@@ -2,7 +2,8 @@ package com.yuiyeong.ticketing.infrastructure.entity.wallet
 
 import com.yuiyeong.ticketing.domain.model.wallet.Transaction
 import com.yuiyeong.ticketing.domain.model.wallet.TransactionType
-import com.yuiyeong.ticketing.infrastructure.entity.BaseEntity
+import com.yuiyeong.ticketing.infrastructure.entity.audit.Auditable
+import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
@@ -22,14 +23,16 @@ class WalletTransactionEntity(
     val amount: BigDecimal,
     @Enumerated(EnumType.STRING)
     val type: WalletTransactionType,
-) : BaseEntity() {
+    @Embedded
+    val auditable: Auditable = Auditable(),
+) {
     fun toTransaction(): Transaction =
         Transaction(
-            id = this.id,
-            walletId = this.walletId,
-            amount = this.amount,
-            type = this.type.toTransactionType(),
-            createdAt = createdAt,
+            id = id,
+            walletId = walletId,
+            amount = amount,
+            type = type.toTransactionType(),
+            createdAt = auditable.createdAt,
         )
 
     companion object {

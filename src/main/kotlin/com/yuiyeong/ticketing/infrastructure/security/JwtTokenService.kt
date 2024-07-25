@@ -10,6 +10,7 @@ import io.jsonwebtoken.security.Keys
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 import java.time.ZonedDateTime
 import java.util.Date
 import java.util.UUID
@@ -39,6 +40,7 @@ class JwtTokenService(
             .signWith(signingKey, Jwts.SIG.HS256)
             .compact()
 
+    @Transactional(readOnly = true)
     override fun validateToken(token: String): QueueEntry {
         try {
             Jwts

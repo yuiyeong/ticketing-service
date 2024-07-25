@@ -6,14 +6,17 @@ import com.yuiyeong.ticketing.domain.model.queue.QueueEntry
 import com.yuiyeong.ticketing.domain.model.queue.QueueEntryStatus
 import com.yuiyeong.ticketing.domain.repository.queue.QueueEntryRepository
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.ZonedDateTime
 
 @Service
 class QueueService(
     private val entryRepository: QueueEntryRepository,
 ) {
+    @Transactional(readOnly = true)
     fun getFirstWaitingPosition(): Long = entryRepository.findFirstWaitingPosition() ?: 0
 
+    @Transactional
     fun enter(
         userId: Long,
         token: String,
@@ -29,18 +32,20 @@ class QueueService(
         return entryRepository.save(queueEntry)
     }
 
+    @Transactional
     fun exit(entryId: Long): QueueEntry {
         val entry = entryRepository.findOneByIdWithLock(entryId) ?: throw InvalidTokenException()
         val current = ZonedDateTime.now().asUtc
-        entry.exit(current)
-        return entryRepository.save(entry)
+        return entryRepository.save(entry.exit(current))
     }
 
+    @Transactional(readOnly = true)
     fun getEntry(token: String?): QueueEntry {
         if (token == null) throw InvalidTokenException()
         return entryRepository.findOneByToken(token) ?: throw InvalidTokenException()
     }
 
+    @Transactional
     fun activateWaitingEntries(): List<QueueEntry> {
         val alreadyActivatedEntries = entryRepository.findAllByStatus(QueueEntryStatus.PROCESSING)
         val newActivatingCount = MAX_ACTIVE_ENTRIES - alreadyActivatedEntries.count()
@@ -51,11 +56,11 @@ class QueueService(
         val current = ZonedDateTime.now().asUtc
         val waitingEntries =
             entryRepository.findAllByStatusOrderByPositionWithLock(QueueEntryStatus.WAITING, newActivatingCount)
-        waitingEntries.forEach { it.process(current) }
 
-        return entryRepository.saveAll(waitingEntries)
+        return entryRepository.saveAll(waitingEntries.map { it.process(current) })
     }
 
+    @Transactional
     fun expireOverdueEntries(): List<QueueEntry> {
         val current = ZonedDateTime.now().asUtc
         val entries =
@@ -64,10 +69,11 @@ class QueueService(
                 QueueEntryStatus.PROCESSING,
                 QueueEntryStatus.WAITING,
             )
-        entries.forEach { it.expire(current) }
-        return entryRepository.saveAll(entries)
+
+        return entryRepository.saveAll(entries.map { it.expire(current) })
     }
 
+    @Transactional
     fun dequeueExistingEntries(userId: Long) {
         entryRepository
             .findAllByUserIdWithStatus(userId, QueueEntryStatus.PROCESSING, QueueEntryStatus.WAITING)

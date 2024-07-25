@@ -5,7 +5,6 @@ import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.service.queue.QueueService
 import com.yuiyeong.ticketing.domain.service.queue.TokenService
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 import java.time.ZonedDateTime
 
 @Component
@@ -13,7 +12,6 @@ class EnterQueueUseCaseImpl(
     private val queueService: QueueService,
     private val tokenService: TokenService,
 ) : EnterQueueUseCase {
-    @Transactional
     override fun execute(userId: Long): QueueEntryResult {
         // 기존에 발급 받은 token 이 있다면, 대기열에 제거
         queueService.dequeueExistingEntries(userId)

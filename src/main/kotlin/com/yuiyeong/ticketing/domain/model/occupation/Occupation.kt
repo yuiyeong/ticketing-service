@@ -4,33 +4,33 @@ import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.exception.OccupationAlreadyExpiredException
 import com.yuiyeong.ticketing.domain.exception.OccupationAlreadyReleaseException
 import com.yuiyeong.ticketing.domain.model.concert.Seat
+import java.math.BigDecimal
 import java.time.ZonedDateTime
 
-class Occupation(
+data class Occupation(
     val id: Long,
     val userId: Long,
     val concertEventId: Long,
     val allocations: List<SeatAllocation>,
-    status: OccupationStatus,
+    val status: OccupationStatus,
     val createdAt: ZonedDateTime,
     val expiresAt: ZonedDateTime,
-    expiredAt: ZonedDateTime?,
+    val expiredAt: ZonedDateTime?,
 ) {
-    var status: OccupationStatus = status
-        private set
+    val totalSeats: Int by lazy { allocations.count() }
 
-    var expiredAt: ZonedDateTime? = expiredAt
-        private set
+    val totalAmount: BigDecimal by lazy { allocations.sumOf { it.seatPrice } }
 
-    fun expire() {
+    fun expire(): Occupation {
         verifyActiveStatus()
-
-        status = OccupationStatus.EXPIRED
-        expiredAt = ZonedDateTime.now().asUtc
-        allocations.forEach { it.markAsExpired() }
+        return copy(
+            status = OccupationStatus.EXPIRED,
+            expiredAt = ZonedDateTime.now().asUtc,
+            allocations = allocations.map { it.markAsExpired() },
+        )
     }
 
-    fun release(moment: ZonedDateTime) {
+    fun release(moment: ZonedDateTime): Occupation {
         verifyActiveStatus()
 
         // state 가 EXPIRED 로, 변경되기 전에 release 를 호출했을 경우
@@ -38,8 +38,7 @@ class Occupation(
             throw OccupationAlreadyExpiredException()
         }
 
-        status = OccupationStatus.RELEASED
-        allocations.forEach { it.markAsReserved() }
+        return copy(status = OccupationStatus.RELEASED, allocations = allocations.map { it.markAsReserved() })
     }
 
     private fun verifyActiveStatus() {
@@ -51,27 +50,6 @@ class Occupation(
             throw OccupationAlreadyReleaseException()
         }
     }
-
-    fun copy(
-        id: Long = this.id,
-        userId: Long = this.userId,
-        concertEventId: Long = this.concertEventId,
-        allocations: List<SeatAllocation> = this.allocations,
-        status: OccupationStatus = this.status,
-        createdAt: ZonedDateTime = this.createdAt,
-        expiresAt: ZonedDateTime = this.expiresAt,
-        expiredAt: ZonedDateTime? = this.expiredAt,
-    ): Occupation =
-        Occupation(
-            id = id,
-            userId = userId,
-            concertEventId = concertEventId,
-            allocations = allocations,
-            status = status,
-            createdAt = createdAt,
-            expiresAt = expiresAt,
-            expiredAt = expiredAt,
-        )
 
     companion object {
         fun create(
