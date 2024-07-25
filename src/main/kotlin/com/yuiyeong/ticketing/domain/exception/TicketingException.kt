@@ -26,6 +26,8 @@ class SeatNotFoundException : NotFoundException(ErrorCode.SEAT_NOT_FOUND)
 
 class WalletNotFoundException : NotFoundException(ErrorCode.WALLET_NOT_FOUND)
 
+class WalletUnavailableException : NotFoundException(ErrorCode.WALLET_UNAVAILABLE)
+
 class SeatUnavailableException : BadRequestException(ErrorCode.SEAT_UNAVAILABLE)
 
 class SeatAlreadyUnavailableException : BadRequestException(ErrorCode.SEAT_ALREADY_UNAVAILABLE)
