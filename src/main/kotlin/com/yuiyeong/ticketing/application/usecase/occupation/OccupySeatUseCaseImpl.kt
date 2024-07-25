@@ -17,12 +17,16 @@ class OccupySeatUseCaseImpl(
         concertEventId: Long,
         seatId: Long,
     ): OccupationResult {
+        // 콘서트 이벤트가 예약 기간인지 확인
         val now = ZonedDateTime.now().asUtc
         val concertEvent = concertService.getConcertEvent(concertEventId)
         concertEvent.verifyWithinReservationPeriod(now)
 
+        // seatId 를 가지는 좌석에 대해 점유
         val seatIds = listOf(seatId)
         val occupation = occupationService.occupy(userId, concertEventId, seatIds)
+
+        // 콘서트 이벤트의 선택 가능한 좌석 수 업데이트
         concertService.refreshAvailableSeats(concertEventId)
         return OccupationResult.from(occupation)
     }
