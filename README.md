@@ -59,6 +59,9 @@
 
 - [상세 erd](./docs/erd.md)
 
+## 동시성 문제
+- [좌석 점유에 관한 동시성 문제](./docs/report_of_race_condition.md)
+
 ## 회고
 
 - [프로젝트 중간 리뷰](./docs/half-review.md)
