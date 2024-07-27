@@ -1,10 +1,10 @@
 package com.yuiyeong.ticketing.integration.application.usecase.wallet
 
-import com.yuiyeong.ticketing.TestDataFactory
 import com.yuiyeong.ticketing.application.usecase.wallet.ChargeWalletUseCase
 import com.yuiyeong.ticketing.domain.exception.InvalidAmountException
 import com.yuiyeong.ticketing.domain.exception.WalletNotFoundException
 import com.yuiyeong.ticketing.domain.repository.wallet.WalletRepository
+import com.yuiyeong.ticketing.helper.TestDataFactory
 import org.assertj.core.api.Assertions
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest

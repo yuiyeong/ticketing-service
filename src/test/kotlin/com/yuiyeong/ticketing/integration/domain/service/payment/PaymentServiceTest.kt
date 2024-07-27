@@ -1,8 +1,5 @@
 package com.yuiyeong.ticketing.integration.domain.service.payment
 
-import com.yuiyeong.ticketing.TestDataFactory.createPayment
-import com.yuiyeong.ticketing.TestDataFactory.createReservation
-import com.yuiyeong.ticketing.TestDataFactory.createTransaction
 import com.yuiyeong.ticketing.domain.exception.ReservationNotFoundException
 import com.yuiyeong.ticketing.domain.exception.TransactionNotFoundException
 import com.yuiyeong.ticketing.domain.model.payment.PaymentMethod
@@ -11,6 +8,9 @@ import com.yuiyeong.ticketing.domain.repository.payment.PaymentRepository
 import com.yuiyeong.ticketing.domain.repository.reservation.ReservationRepository
 import com.yuiyeong.ticketing.domain.repository.wallet.TransactionRepository
 import com.yuiyeong.ticketing.domain.service.payment.PaymentService
+import com.yuiyeong.ticketing.helper.TestDataFactory.createPayment
+import com.yuiyeong.ticketing.helper.TestDataFactory.createReservation
+import com.yuiyeong.ticketing.helper.TestDataFactory.createTransaction
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.parallel.Execution

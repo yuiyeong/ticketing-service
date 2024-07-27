@@ -1,11 +1,11 @@
 package com.yuiyeong.ticketing.integration.domain.service.queue
 
-import com.yuiyeong.ticketing.TestDataFactory.createQueueEntry
 import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.exception.InvalidTokenException
 import com.yuiyeong.ticketing.domain.model.queue.QueueEntryStatus
 import com.yuiyeong.ticketing.domain.repository.queue.QueueEntryRepository
 import com.yuiyeong.ticketing.domain.service.queue.QueueService
+import com.yuiyeong.ticketing.helper.TestDataFactory.createQueueEntry
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.parallel.Execution

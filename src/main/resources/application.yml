@@ -13,11 +13,11 @@ spring:
             maximum-pool-size: 30
             connection-timeout: 5000
     data:
-      redis:
-          host: localhost
-          port: 6379
+        redis:
+            host: localhost
+            port: 6379
     jpa:
-        database-platform: org.hibernate.dialect.MySQLDialect
+        database-platform: org.hibernate.dialect.MySQL8Dialect
         hibernate:
             ddl-auto: update
         properties:

@@ -1,6 +1,5 @@
 package com.yuiyeong.ticketing.integration.application.usecase.payment
 
-import com.yuiyeong.ticketing.TestDataFactory
 import com.yuiyeong.ticketing.application.usecase.payment.PayUseCase
 import com.yuiyeong.ticketing.domain.model.payment.PaymentStatus
 import com.yuiyeong.ticketing.domain.model.queue.QueueEntry
@@ -15,6 +14,7 @@ import com.yuiyeong.ticketing.domain.repository.queue.QueueEntryRepository
 import com.yuiyeong.ticketing.domain.repository.reservation.ReservationRepository
 import com.yuiyeong.ticketing.domain.repository.wallet.TransactionRepository
 import com.yuiyeong.ticketing.domain.repository.wallet.WalletRepository
+import com.yuiyeong.ticketing.helper.TestDataFactory
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired

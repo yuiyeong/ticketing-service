@@ -1,4 +1,4 @@
-package com.yuiyeong.ticketing
+package com.yuiyeong.ticketing.helper
 
 import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.model.concert.Concert

@@ -1,6 +1,5 @@
 package com.yuiyeong.ticketing.integration.application.usecase.occupation
 
-import com.yuiyeong.ticketing.TestDataFactory
 import com.yuiyeong.ticketing.application.usecase.occupation.OccupySeatUseCase
 import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.exception.ReservationNotOpenedException
@@ -11,14 +10,19 @@ import com.yuiyeong.ticketing.domain.repository.concert.ConcertEventRepository
 import com.yuiyeong.ticketing.domain.repository.concert.ConcertRepository
 import com.yuiyeong.ticketing.domain.repository.concert.SeatRepository
 import com.yuiyeong.ticketing.domain.repository.occupation.OccupationRepository
+import com.yuiyeong.ticketing.helper.DBCleanUp
+import com.yuiyeong.ticketing.helper.TestDataFactory
 import org.assertj.core.api.Assertions
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import java.time.ZonedDateTime
 import kotlin.test.Test
 
 @SpringBootTest
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class OccupySeatUseCaseTest {
     @Autowired
     private lateinit var occupySeatUseCase: OccupySeatUseCase
@@ -35,13 +39,16 @@ class OccupySeatUseCaseTest {
     @Autowired
     private lateinit var occupationRepository: OccupationRepository
 
+    @Autowired
+    private lateinit var dbCleanUp: DBCleanUp
+
     private lateinit var unavailableConcertEvent: ConcertEvent
     private lateinit var availableConcertEvent: ConcertEvent
     private lateinit var availableSeat: Seat
     private lateinit var unavailableSeat: Seat
 
     @BeforeEach
-    fun setUp() {
+    fun beforeEach() {
         val concert = concertRepository.save(TestDataFactory.createConcert())
 
         val now = ZonedDateTime.now().asUtc
@@ -54,6 +61,11 @@ class OccupySeatUseCaseTest {
 
         availableSeat = seatRepository.save(TestDataFactory.createSeat(availableConcertEvent.id, isAvailable = true))
         unavailableSeat = seatRepository.save(TestDataFactory.createSeat(availableConcertEvent.id, isAvailable = false))
+    }
+
+    @AfterAll
+    fun afterEach() {
+        dbCleanUp.execute()
     }
 
     @Test

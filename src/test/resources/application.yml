@@ -17,7 +17,7 @@ spring:
             host: localhost
             port: 6379
     jpa:
-        database-platform: org.hibernate.dialect.MySQLDialect
+        database-platform: org.hibernate.dialect.MySQL8Dialect
         hibernate:
             ddl-auto: create
         properties:

@@ -1,14 +1,17 @@
 package com.yuiyeong.ticketing.integration.concurrent
 
-import com.yuiyeong.ticketing.TestDataFactory
 import com.yuiyeong.ticketing.application.usecase.occupation.OccupySeatUseCase
 import com.yuiyeong.ticketing.domain.model.concert.ConcertEvent
 import com.yuiyeong.ticketing.domain.model.concert.Seat
 import com.yuiyeong.ticketing.domain.repository.concert.ConcertEventRepository
 import com.yuiyeong.ticketing.domain.repository.concert.ConcertRepository
 import com.yuiyeong.ticketing.domain.repository.concert.SeatRepository
+import com.yuiyeong.ticketing.helper.DBCleanUp
+import com.yuiyeong.ticketing.helper.TestDataFactory
 import org.assertj.core.api.Assertions
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.TestInstance
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -21,6 +24,7 @@ import kotlin.math.max
 import kotlin.test.Test
 
 @SpringBootTest
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class OccupySeatUseCaseConcurrentTest {
     @Autowired
     private lateinit var occupySeatUseCase: OccupySeatUseCase
@@ -37,6 +41,9 @@ class OccupySeatUseCaseConcurrentTest {
     private lateinit var concertEvent: ConcertEvent
     private lateinit var seat: Seat
 
+    @Autowired
+    private lateinit var dbCleanUp: DBCleanUp
+
     private val logger = LoggerFactory.getLogger("좌석 점유 동시성 테스트")
 
     @BeforeEach
@@ -44,6 +51,11 @@ class OccupySeatUseCaseConcurrentTest {
         val concert = concertRepository.save(TestDataFactory.createConcert())
         concertEvent = concertEventRepository.save(TestDataFactory.createAvailableEvent(concert, 1, 1))
         seat = seatRepository.save(TestDataFactory.createSeatsOfConcertEvent(concertEvent).first())
+    }
+
+    @AfterAll
+    fun afterEach() {
+        dbCleanUp.execute()
     }
 
     @Test

@@ -1,6 +1,5 @@
 package com.yuiyeong.ticketing.integration.domain.service.occupation
 
-import com.yuiyeong.ticketing.TestDataFactory.createSeat
 import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.exception.SeatUnavailableException
 import com.yuiyeong.ticketing.domain.model.occupation.AllocationStatus
@@ -8,6 +7,7 @@ import com.yuiyeong.ticketing.domain.model.occupation.OccupationStatus
 import com.yuiyeong.ticketing.domain.repository.concert.SeatRepository
 import com.yuiyeong.ticketing.domain.repository.occupation.OccupationRepository
 import com.yuiyeong.ticketing.domain.service.occupation.OccupationService
+import com.yuiyeong.ticketing.helper.TestDataFactory.createSeat
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.parallel.Execution
