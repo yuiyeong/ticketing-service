@@ -8,6 +8,4 @@ interface PaymentRepository {
     fun saveAll(payments: List<Payment>): List<Payment>
 
     fun findAllByUserId(userId: Long): List<Payment>
-
-    fun deleteAll()
 }

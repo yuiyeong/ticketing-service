@@ -17,6 +17,4 @@ class WalletRepositoryImpl(
     override fun findOneByUserId(userId: Long): Wallet? = walletJpaRepository.findOneByUserId(userId)?.toWallet()
 
     override fun findOneByUserIdWithLock(userId: Long): Wallet? = walletJpaRepository.findOneWithLockByUserId(userId)?.toWallet()
-
-    override fun deleteAll() = walletJpaRepository.deleteAll()
 }

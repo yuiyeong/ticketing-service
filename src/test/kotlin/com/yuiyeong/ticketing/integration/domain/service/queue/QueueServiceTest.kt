@@ -7,7 +7,6 @@ import com.yuiyeong.ticketing.domain.model.queue.QueueEntryStatus
 import com.yuiyeong.ticketing.domain.repository.queue.QueueEntryRepository
 import com.yuiyeong.ticketing.domain.service.queue.QueueService
 import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
@@ -32,11 +31,6 @@ class QueueServiceTest {
 
     @Autowired
     private lateinit var queueEntryRepository: QueueEntryRepository
-
-    @AfterEach
-    fun afterEach() {
-        queueEntryRepository.deleteAll()
-    }
 
     @Nested
     inner class GetFirstWaitingPositionTest {

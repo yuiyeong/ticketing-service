@@ -33,6 +33,4 @@ interface QueueEntryRepository {
     fun findLastWaitingPosition(): Long?
 
     fun findFirstWaitingPosition(): Long?
-
-    fun deleteAll()
 }

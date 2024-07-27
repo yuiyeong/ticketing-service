@@ -12,7 +12,6 @@ import com.yuiyeong.ticketing.domain.repository.reservation.ReservationRepositor
 import com.yuiyeong.ticketing.domain.repository.wallet.TransactionRepository
 import com.yuiyeong.ticketing.domain.service.payment.PaymentService
 import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
@@ -42,13 +41,6 @@ class PaymentServiceTest {
 
     @Autowired
     private lateinit var paymentRepository: PaymentRepository
-
-    @AfterEach
-    fun afterEach() {
-        paymentRepository.deleteAll()
-        transactionRepository.deleteAll()
-        reservationRepository.deleteAll()
-    }
 
     @Nested
     inner class CreateTest {

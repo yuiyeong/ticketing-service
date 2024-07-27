@@ -12,7 +12,6 @@ import com.yuiyeong.ticketing.domain.repository.concert.ConcertRepository
 import com.yuiyeong.ticketing.domain.repository.concert.SeatRepository
 import com.yuiyeong.ticketing.domain.service.concert.ConcertService
 import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.parallel.Execution
@@ -29,8 +28,8 @@ import java.time.ZonedDateTime
 import kotlin.test.Test
 
 @SpringBootTest
-@Transactional
 @Testcontainers
+@Transactional
 @Execution(ExecutionMode.CONCURRENT)
 class ConcertServiceTest {
     @Autowired
@@ -50,13 +49,6 @@ class ConcertServiceTest {
     @BeforeEach
     fun beforeEach() {
         concert = concertRepository.save(createConcert())
-    }
-
-    @AfterEach
-    fun afterEach() {
-        seatRepository.deleteAll()
-        concertEventRepository.deleteAll()
-        concertRepository.deleteAll()
     }
 
     @Nested

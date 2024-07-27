@@ -69,6 +69,4 @@ class QueueEntryRepositoryImpl(
         queueEntryJpaRepository.findFirstPositionByStatus(
             QueueEntryEntityStatus.READY,
         )
-
-    override fun deleteAll() = queueEntryJpaRepository.deleteAll()
 }

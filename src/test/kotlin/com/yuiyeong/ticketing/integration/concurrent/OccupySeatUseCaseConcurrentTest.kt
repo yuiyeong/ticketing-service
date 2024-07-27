@@ -7,9 +7,7 @@ import com.yuiyeong.ticketing.domain.model.concert.Seat
 import com.yuiyeong.ticketing.domain.repository.concert.ConcertEventRepository
 import com.yuiyeong.ticketing.domain.repository.concert.ConcertRepository
 import com.yuiyeong.ticketing.domain.repository.concert.SeatRepository
-import com.yuiyeong.ticketing.domain.repository.occupation.OccupationRepository
 import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -36,9 +34,6 @@ class OccupySeatUseCaseConcurrentTest {
     @Autowired
     private lateinit var seatRepository: SeatRepository
 
-    @Autowired
-    private lateinit var occupationRepository: OccupationRepository
-
     private lateinit var concertEvent: ConcertEvent
     private lateinit var seat: Seat
 
@@ -49,14 +44,6 @@ class OccupySeatUseCaseConcurrentTest {
         val concert = concertRepository.save(TestDataFactory.createConcert())
         concertEvent = concertEventRepository.save(TestDataFactory.createAvailableEvent(concert, 1, 1))
         seat = seatRepository.save(TestDataFactory.createSeatsOfConcertEvent(concertEvent).first())
-    }
-
-    @AfterEach
-    fun afterEach() {
-        occupationRepository.deleteAll()
-        seatRepository.deleteAll()
-        concertRepository.deleteAll()
-        concertRepository.deleteAll()
     }
 
     @Test

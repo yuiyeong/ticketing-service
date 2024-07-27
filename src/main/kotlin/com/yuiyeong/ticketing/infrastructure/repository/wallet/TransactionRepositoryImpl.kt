@@ -21,6 +21,4 @@ class TransactionRepositoryImpl(
         transactionJapRepository.findAllByWalletId(walletId).map {
             it.toTransaction()
         }
-
-    override fun deleteAll() = transactionJapRepository.deleteAll()
 }

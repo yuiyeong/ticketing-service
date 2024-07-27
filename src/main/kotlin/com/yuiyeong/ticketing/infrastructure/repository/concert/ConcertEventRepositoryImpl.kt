@@ -34,6 +34,4 @@ class ConcertEventRepositoryImpl(
     override fun findOneById(id: Long): ConcertEvent? = concertEventJpaRepository.findByIdOrNull(id)?.toConcertEvent()
 
     override fun findOneByIdWithLock(id: Long): ConcertEvent? = concertEventJpaRepository.findOneWithLockById(id)?.toConcertEvent()
-
-    override fun deleteAll() = concertEventJpaRepository.deleteAll()
 }

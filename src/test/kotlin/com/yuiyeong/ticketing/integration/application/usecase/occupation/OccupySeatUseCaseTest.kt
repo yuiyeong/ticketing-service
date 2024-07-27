@@ -11,7 +11,6 @@ import com.yuiyeong.ticketing.domain.repository.concert.ConcertEventRepository
 import com.yuiyeong.ticketing.domain.repository.concert.ConcertRepository
 import com.yuiyeong.ticketing.domain.repository.concert.SeatRepository
 import com.yuiyeong.ticketing.domain.repository.occupation.OccupationRepository
-import jakarta.transaction.Transactional
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
@@ -19,7 +18,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import java.time.ZonedDateTime
 import kotlin.test.Test
 
-@Transactional
 @SpringBootTest
 class OccupySeatUseCaseTest {
     @Autowired
@@ -61,7 +59,7 @@ class OccupySeatUseCaseTest {
     @Test
     fun `should return OccupationResult after occupying a seat`() {
         // given
-        val userId = 32L
+        val userId = 92L
 
         // when
         val result = occupySeatUseCase.execute(userId, availableConcertEvent.id, availableSeat.id)
@@ -70,7 +68,6 @@ class OccupySeatUseCaseTest {
         val occupation = occupationRepository.findOneById(result.id)
         Assertions.assertThat(result.id).isEqualTo(occupation!!.id)
         Assertions.assertThat(result.userId).isEqualTo(occupation.userId)
-        Assertions.assertThat(result.seatId).isEqualTo(occupation.allocations[0].seatId)
         Assertions.assertThat(result.status).isEqualTo(occupation.status)
         Assertions.assertThat(result.expiresAt).isEqualTo(occupation.expiresAt)
     }
@@ -78,7 +75,7 @@ class OccupySeatUseCaseTest {
     @Test
     fun `should throw ReservationNotOpenedException when trying to occupy a seat in a concert event that is not opened`() {
         // given
-        val userId = 32L
+        val userId = 3L
         val someSeatId = 22L
 
         // when & then

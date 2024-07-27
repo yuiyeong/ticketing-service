@@ -16,6 +16,4 @@ interface ConcertEventRepository {
     fun findOneById(id: Long): ConcertEvent?
 
     fun findOneByIdWithLock(id: Long): ConcertEvent?
-
-    fun deleteAll()
 }

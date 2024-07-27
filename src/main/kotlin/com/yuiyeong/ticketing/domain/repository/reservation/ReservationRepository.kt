@@ -8,6 +8,4 @@ interface ReservationRepository {
     fun findOneById(id: Long): Reservation?
 
     fun findOneByIdWithLock(id: Long): Reservation?
-
-    fun deleteAll()
 }

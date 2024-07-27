@@ -14,6 +14,4 @@ interface SeatRepository {
     fun findAllAvailableByConcertEventId(concertEventId: Long): List<Seat>
 
     fun saveAll(seats: List<Seat>): List<Seat>
-
-    fun deleteAll()
 }

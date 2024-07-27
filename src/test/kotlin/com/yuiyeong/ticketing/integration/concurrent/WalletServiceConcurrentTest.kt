@@ -5,7 +5,6 @@ import com.yuiyeong.ticketing.domain.repository.wallet.TransactionRepository
 import com.yuiyeong.ticketing.domain.repository.wallet.WalletRepository
 import com.yuiyeong.ticketing.domain.service.wallet.WalletService
 import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -37,12 +36,6 @@ class WalletServiceConcurrentTest {
     fun beforeEach() {
         // given: 잔고가 10,000 인 지갑
         walletRepository.save(TestDataFactory.createWallet(userId = userId, balance = initialBalance))
-    }
-
-    @AfterEach
-    fun afterEach() {
-        walletRepository.deleteAll()
-        transactionRepository.deleteAll()
     }
 
     @Test

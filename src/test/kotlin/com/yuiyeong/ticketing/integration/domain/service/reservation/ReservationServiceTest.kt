@@ -20,7 +20,6 @@ import com.yuiyeong.ticketing.domain.repository.occupation.OccupationRepository
 import com.yuiyeong.ticketing.domain.repository.reservation.ReservationRepository
 import com.yuiyeong.ticketing.domain.service.reservation.ReservationService
 import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
@@ -57,15 +56,6 @@ class ReservationServiceTest {
 
     @Autowired
     private lateinit var seatRepository: SeatRepository
-
-    @AfterEach
-    fun afterEach() {
-        reservationRepository.deleteAll()
-        occupationRepository.deleteAll()
-        seatRepository.deleteAll()
-        concertEventRepository.deleteAll()
-        concertRepository.deleteAll()
-    }
 
     @Nested
     inner class ReserveTest {
