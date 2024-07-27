@@ -11,6 +11,7 @@ enum class ErrorCode(
     CONCERT_EVENT_NOT_FOUND("요청한 콘서트 이벤트를 찾을 수 없습니다."),
     SEAT_NOT_FOUND("요청한 좌석을 찾을 수 없습니다."),
     WALLET_NOT_FOUND("요청한 사용자의 잔액을 찾을 수 없습니다."),
+    WALLET_UNAVAILABLE("요청한 사용자의 지갑을 사용할 수 없습니다."),
     SEAT_UNAVAILABLE("다른 사용자가 선택한 좌석이거나 이미 예약된 좌석입니다."),
     SEAT_ALREADY_UNAVAILABLE("이미 사용불가한 좌석입니다."),
     INVALID_AMOUNT("유효하지 않은 충전 금액입니다."),
