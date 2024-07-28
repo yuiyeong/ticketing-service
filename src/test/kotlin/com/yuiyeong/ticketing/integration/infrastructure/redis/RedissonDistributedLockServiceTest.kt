@@ -1,6 +1,6 @@
 package com.yuiyeong.ticketing.integration.infrastructure.redis
 
-import com.yuiyeong.ticketing.infrastructure.redis.RedisDistributedLockService
+import com.yuiyeong.ticketing.infrastructure.redis.RedissonDistributedLockService
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -16,16 +16,16 @@ import java.util.concurrent.Executors
 
 @SpringBootTest
 @Testcontainers
-class RedisDistributedLockServiceTest {
+class RedissonDistributedLockServiceTest {
     @Autowired
-    private lateinit var distributedLockService: RedisDistributedLockService
+    private lateinit var redissonDistributedLockService: RedissonDistributedLockService
 
     @Nested
     inner class WithLockTest {
         @Test
         fun `should execute action when lock is acquired`() {
             // when
-            val result = distributedLockService.withLock("withLock:testKey") { "success" }
+            val result = redissonDistributedLockService.withLock("withLock:testKey") { "success" }
 
             // then
             Assertions.assertThat(result).isEqualTo("success")
@@ -35,16 +35,19 @@ class RedisDistributedLockServiceTest {
         fun `should not execute action when lock is already held`() {
             // given
             val key = "withLock:testKey-for-already-held"
-            val executorService = Executors.newFixedThreadPool(2)
+            val executorService = Executors.newFixedThreadPool(1)
+            val latch = CountDownLatch(1)
             executorService.submit {
-                distributedLockService.withLock(key) {
-                    Thread.sleep(500)
+                redissonDistributedLockService.withLock(key) {
+                    latch.countDown()
+                    Thread.sleep(50)
                     "first"
                 }
             }
+            latch.await()
 
             // when
-            val result = executorService.submit<String?> { distributedLockService.withLock(key) { "second" } }.get()
+            val result = redissonDistributedLockService.withLock(key) { "second" }
 
             // then
             Assertions.assertThat(result).isNull()
@@ -53,11 +56,11 @@ class RedisDistributedLockServiceTest {
     }
 
     @Nested
-    inner class WithLockAndRetryTest {
+    inner class WithLockByWaiting {
         @Test
         fun `should execute action when lock is acquired`() {
             // when
-            val result = distributedLockService.withLockAndRetry("withLockAndRetry:testKey") { "success" }
+            val result = redissonDistributedLockService.withLockByWaiting("withLockAndRetry:testKey") { "success" }
 
             // then
             Assertions.assertThat(result).isEqualTo("success")
@@ -67,22 +70,21 @@ class RedisDistributedLockServiceTest {
         fun `should retry and succeed if lock is acquired later`() {
             // given
             val key = "withLockAndRetry:testKey-for-retry"
-            val executorService = Executors.newFixedThreadPool(2)
+            val executorService = Executors.newFixedThreadPool(1)
             val latch = CountDownLatch(1)
 
-            // given: lock 획득 후 1초 동안 작업 진행하는 thread
+            // given: lock 획득 후 100 milli seconds 동안 작업 진행하는 thread
             executorService.submit {
-                distributedLockService.withLock(key) {
-                    Thread.sleep(500)
+                redissonDistributedLockService.withLockByWaiting(key) {
                     latch.countDown()
-                    Thread.sleep(500)
+                    Thread.sleep(100)
                     "first"
                 }
             }
             latch.await()
 
             // when: 기다려서 lock 획득 후 작업 진행
-            val result = executorService.submit<String?> { distributedLockService.withLockAndRetry(key) { "second" } }.get()
+            val result = redissonDistributedLockService.withLockByWaiting(key) { "second" }
 
             // then
             Assertions.assertThat(result).isEqualTo("second")
@@ -94,22 +96,21 @@ class RedisDistributedLockServiceTest {
         fun `should return null if lock is never acquired`() {
             // given
             val key = "withLockAndRetry:testKey-for-never-acquired"
-            val executorService = Executors.newFixedThreadPool(2)
+            val executorService = Executors.newFixedThreadPool(1)
             val latch = CountDownLatch(1)
 
-            // given: 락 획득 후 6 초 동안 작업 진행
+            // given: 락 획득 후 1초 동안 작업 진행
             executorService.submit {
-                distributedLockService.withLock(key) {
-                    Thread.sleep(1000)
+                redissonDistributedLockService.withLockByWaiting(key) {
                     latch.countDown()
-                    Thread.sleep(5000)
+                    Thread.sleep(1100)
                     "first"
                 }
             }
             latch.await()
 
             // when: 락 획득을 기다리지만 결국 못 얻음
-            val result = executorService.submit<String?> { distributedLockService.withLockAndRetry(key) { "second" } }.get()
+            val result = redissonDistributedLockService.withLockByWaiting(key) { "second" }
 
             // then
             Assertions.assertThat(result).isNull()

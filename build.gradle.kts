@@ -21,7 +21,6 @@ repositories {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -36,6 +35,9 @@ dependencies {
 
     // for logging
     implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0")
+
+    // for redis
+    implementation("org.redisson:redisson-spring-boot-starter:3.33.0")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")

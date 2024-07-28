@@ -20,7 +20,7 @@ class ChargeWalletUseCaseImpl(
         userId: Long,
         amount: Long,
     ): WalletResult {
-        distributedLockService.withLockAndRetry(lockKeyGenerator.generateUserWalletKey(userId)) {
+        distributedLockService.withLockByWaiting(lockKeyGenerator.generateUserWalletKey(userId)) {
             walletService.charge(userId, BigDecimal(amount))
         } ?: throw WalletUnavailableException()
         return WalletResult.from(walletService.getUserWallet(userId))

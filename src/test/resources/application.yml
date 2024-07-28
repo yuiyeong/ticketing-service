@@ -41,8 +41,8 @@ jwt:
 config:
     valid-occupied-duration: 5 # 5분
     distributed-lock:
-        acquire-timeout: 5000 # lock 획득까지 기다릴 시간; 5초
-        lock-ttl: 10000 # distributed lock 의 만료 시간; 10초
+        acquire-timeout: 1000 # lock 획득까지 기다릴 시간; 1초
+        lock-ttl: 2000 # distributed lock 의 만료 시간; 2초
 
 decorator:
     datasource:

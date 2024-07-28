@@ -1,5 +1,6 @@
 package com.yuiyeong.ticketing.config
 
+import com.yuiyeong.ticketing.config.property.LoggingProperties
 import com.yuiyeong.ticketing.presentation.filter.TicketingLoggingFilter
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.web.servlet.FilterRegistrationBean
