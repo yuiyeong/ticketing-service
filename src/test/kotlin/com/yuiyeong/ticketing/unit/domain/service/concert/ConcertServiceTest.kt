@@ -5,6 +5,7 @@ import com.yuiyeong.ticketing.domain.exception.ConcertEventNotFoundException
 import com.yuiyeong.ticketing.domain.model.concert.Concert
 import com.yuiyeong.ticketing.domain.model.concert.ConcertEvent
 import com.yuiyeong.ticketing.domain.repository.concert.ConcertEventRepository
+import com.yuiyeong.ticketing.domain.repository.concert.ConcertRepository
 import com.yuiyeong.ticketing.domain.repository.concert.SeatRepository
 import com.yuiyeong.ticketing.domain.service.concert.ConcertService
 import com.yuiyeong.ticketing.domain.vo.DateTimeRange
@@ -24,6 +25,9 @@ import kotlin.test.Test
 @ExtendWith(MockitoExtension::class)
 class ConcertServiceTest {
     @Mock
+    private lateinit var concertRepository: ConcertRepository
+
+    @Mock
     private lateinit var concertEventRepository: ConcertEventRepository
 
     @Mock
@@ -33,7 +37,7 @@ class ConcertServiceTest {
 
     @BeforeEach
     fun beforeEach() {
-        concertService = ConcertService(concertEventRepository, seatRepository)
+        concertService = ConcertService(concertRepository, concertEventRepository, seatRepository)
     }
 
     @Test

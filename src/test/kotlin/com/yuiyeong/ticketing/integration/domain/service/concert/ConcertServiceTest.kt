@@ -44,15 +44,42 @@ class ConcertServiceTest {
     @Autowired
     private lateinit var seatRepository: SeatRepository
 
-    private lateinit var concert: Concert
+    @Nested
+    inner class GetConcertsTest {
+        @Test
+        fun `should return all concerts`() {
+            // given
+            val concert = concertRepository.save(createConcert())
 
-    @BeforeEach
-    fun beforeEach() {
-        concert = concertRepository.save(createConcert())
+            // when
+            val concerts = concertService.getConcerts()
+
+            // then
+            Assertions.assertThat(concerts.count()).isEqualTo(1)
+            Assertions.assertThat(concerts[0].title).isEqualTo(concert.title)
+            Assertions.assertThat(concerts[0].singer).isEqualTo(concert.singer)
+            Assertions.assertThat(concerts[0].description).isEqualTo(concert.description)
+        }
+
+        @Test
+        fun `should return empty list when there are no concerts`() {
+            // when
+            val concerts = concertService.getConcerts()
+
+            // then
+            Assertions.assertThat(concerts).isEmpty()
+        }
     }
 
     @Nested
     inner class GetAvailableEventsTest {
+        private lateinit var concert: Concert
+
+        @BeforeEach
+        fun beforeEach() {
+            concert = concertRepository.save(createConcert())
+        }
+
         @Test
         fun `should return events within reservation period`() {
             // given
@@ -128,6 +155,13 @@ class ConcertServiceTest {
 
     @Nested
     inner class GetConcertEventTest {
+        private lateinit var concert: Concert
+
+        @BeforeEach
+        fun beforeEach() {
+            concert = concertRepository.save(createConcert())
+        }
+
         @Test
         fun `should return event when it exists`() {
             // given
@@ -157,10 +191,13 @@ class ConcertServiceTest {
 
     @Nested
     inner class RefreshAvailableSeatsTest {
+        private lateinit var concert: Concert
         private lateinit var concertEvent: ConcertEvent
 
         @BeforeEach
         fun beforeEach() {
+            concert = concertRepository.save(createConcert())
+
             val now = ZonedDateTime.now().asUtc
             concertEvent = concertEventRepository.save(createConcertEvent(concert, now, now.plusHours(2)))
         }

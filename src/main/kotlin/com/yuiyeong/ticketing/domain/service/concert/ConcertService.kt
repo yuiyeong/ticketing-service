@@ -2,9 +2,11 @@ package com.yuiyeong.ticketing.domain.service.concert
 
 import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.exception.ConcertEventNotFoundException
+import com.yuiyeong.ticketing.domain.model.concert.Concert
 import com.yuiyeong.ticketing.domain.model.concert.ConcertEvent
 import com.yuiyeong.ticketing.domain.model.concert.Seat
 import com.yuiyeong.ticketing.domain.repository.concert.ConcertEventRepository
+import com.yuiyeong.ticketing.domain.repository.concert.ConcertRepository
 import com.yuiyeong.ticketing.domain.repository.concert.SeatRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -12,9 +14,13 @@ import java.time.ZonedDateTime
 
 @Service
 class ConcertService(
+    private val concertRepository: ConcertRepository,
     private val concertEventRepository: ConcertEventRepository,
     private val seatRepository: SeatRepository,
 ) {
+    @Transactional(readOnly = true)
+    fun getConcerts(): List<Concert> = concertRepository.findAll()
+
     @Transactional(readOnly = true)
     fun getAvailableEvents(concertId: Long): List<ConcertEvent> {
         val now = ZonedDateTime.now().asUtc
