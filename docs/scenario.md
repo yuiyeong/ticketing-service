@@ -168,34 +168,75 @@ sequenceDiagram
 sequenceDiagram
     actor User
     participant API as Seat Occupation API
-    participant ReservationService as Reservation Service
+    participant OccupationService as Occupation Service
     participant TokenManager as Token Manager
     participant Repository as Repository
     User ->> API: 좌석 점유 요청 (Token, 콘서트ID, 날짜, 좌석ID)
-    API ->> ReservationService: 좌석 점유 요청 (Token, 콘서트ID, 날짜, 좌석ID)
-    ReservationService ->> TokenManager: Token 유효성 검증
+    API ->> OccupationService: 좌석 점유 요청 (Token, 콘서트ID, 날짜, 좌석ID)
+    OccupationService ->> TokenManager: Token 유효성 검증
     alt Token 유효
-        TokenManager -->> ReservationService: Token 유효 확인
-        ReservationService ->> Repository: 콘서트 및 좌석 정보 요청 (콘서트ID, 날짜, 좌석ID)
+        TokenManager -->> OccupationService: Token 유효 확인
+        OccupationService ->> Repository: 콘서트 및 좌석 정보 요청 (콘서트ID, 날짜, 좌석ID)
         alt 콘서트 정보 존재 및 유효한 날짜
-            Repository -->> ReservationService: 콘서트 및 좌석 정보
-            ReservationService ->> ReservationService: 좌석 점유 가능 여부 확인
+            Repository -->> OccupationService: 콘서트 및 좌석 정보
+            OccupationService ->> OccupationService: 좌석 점유 가능 여부 확인
             alt 좌석 점유 가능
-                ReservationService ->> Repository: 좌석 점유 요청 (5분)
-                Repository -->> ReservationService: 점유 성공 확인
-                ReservationService -->> API: 좌석 점유 성공 (점유 정보, 시간 제한)
+                OccupationService ->> Repository: 좌석 점유 요청 (5분)
+                Repository -->> OccupationService: 점유 성공 확인
+                OccupationService -->> API: 좌석 점유 성공 (점유 정보, 시간 제한)
                 API -->> User: 좌석 점유 성공 (점유 정보, 시간 제한)
             else 이미 점유된 좌석
-                ReservationService -->> API: Error (이미 점유된 좌석)
+                OccupationService -->> API: Error (이미 점유된 좌석)
                 API -->> User: Error Response (이미 점유된 좌석)
             end
         else 콘서트 정보 없음
-            Repository -->> ReservationService: 콘서트 정보 없음
-            ReservationService -->> API: Error (알 수 없는 콘서트)
+            Repository -->> OccupationService: 콘서트 정보 없음
+            OccupationService -->> API: Error (알 수 없는 콘서트)
             API -->> User: Error Response (알 수 없는 콘서트)
         else 유효하지 않은 날짜
-            ReservationService -->> API: Error (예약 불가능한 날짜)
+            OccupationService -->> API: Error (예약 불가능한 날짜)
             API -->> User: Error Response (예약 불가능한 날짜)
+        end
+    else Token 유효하지 않음
+        TokenManager -->> OccupationService: Token 유효하지 않음
+        OccupationService -->> API: Error (유효하지 않은 Token)
+        API -->> User: Error Response (유효하지 않은 Token)
+    end
+```
+
+## 5. 좌석 예약
+
+### 5.1 사용자가 점유한 좌석에 대해 예약 API 호출
+
+- 5.1.1. 예약에 성공하면, 아래 작업을 완료한 뒤, 예약 정보를 반환한다
+- 5.1.2. 유효하지 않은 token 으로 호출한 경우, 해당 내용에 대응되는 Error Response 를 반환한다.
+- 5.1.3. 좌석의 점유 시간이 만료되어 예약할 수 없는 경우, 해당 내용에 대응되는 Error Response 를 반환한다.
+- 5.1.4. 이미 예약된 좌석인 경우, 해당 내용에 대응되는 Error Response 를 반환한다
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant API as Reservation API
+    participant ReservationService as Reservation Service
+    participant TokenManager as Token Manager
+    participant Repository as Repository
+    User ->> API: 예약 요청 (Token, 좌석 ID)
+    API ->> ReservationService: 예약 요청 (Token, 좌석 ID)
+    ReservationService ->> TokenManager: Token 유효성 검증
+    alt Token 유효
+        TokenManager -->> ReservationService: Token 유효 확인
+        ReservationService ->> Repository: 좌석 정보 조회
+        Repository -->> ReservationService: 좌석 정보
+        alt 예약 가능
+            ReservationService ->> ReservationService: 예약 처리
+            ReservationService -->> API: 예약 성공 (예약 정보)
+            API -->> User: 예약 성공 (예약 정보)
+        else 점유 시간 만료
+            ReservationService -->> API: Error (점유 시간 만료)
+            API -->> User: Error Response (점유 시간 만료)
+        else 이미 예약된 좌석
+            ReservationService -->> API: Error (이미 예약된 좌석)
+            API -->> User: Error Response (이미 예약된 좌석)
         end
     else Token 유효하지 않음
         TokenManager -->> ReservationService: Token 유효하지 않음
@@ -204,17 +245,17 @@ sequenceDiagram
     end
 ```
 
-## 5. 결제
+## 6. 결제
 
-### 5.1 사용자가 점유한 좌석에 대해 결제 API 호출
+### 6.1 사용자가 점유한 좌석에 대해 결제 API 호출
 
-- 5.1.1. 잔액이 충분하여 결제 성공이 되면, 아래 작업을 완료한 뒤, 예약 정보를 내려준다.
+- 6.1.1. 잔액이 충분하여 결제 성공이 되면, 아래 작업을 완료한 뒤, 예약 정보를 내려준다.
     - 결제 내역을 만든다.
     - 해당 좌석의 소유권을 사용자에게 위임한다.
     - 대기열 token 을 만료시킨다.
-- 5.1.2. 유효하지 않은 token 으로 호출한 경우, 해당 내용에 대응 되는 Error Response 를 내려준다.
-- 5.1.3. 잔액이 부족하여 결제할 수 없는 경우, 해당 내용에 대응 되는 Error Response 를 내려준다.
-- 5.1.4. 좌석의 점유 시간이 만료되어 결제할 수 없는 경우, 해당 내용에 대응 되는 Error Response 를 내려준다.
+- 6.1.2. 유효하지 않은 token 으로 호출한 경우, 해당 내용에 대응 되는 Error Response 를 내려준다.
+- 6.1.3. 잔액이 부족하여 결제할 수 없는 경우, 해당 내용에 대응 되는 Error Response 를 내려준다.
+- 6.1.4. 좌석의 점유 시간이 만료되어 결제할 수 없는 경우, 해당 내용에 대응 되는 Error Response 를 내려준다.
 
 ```mermaid
 sequenceDiagram
@@ -224,29 +265,29 @@ sequenceDiagram
     participant TokenManager as Token Manager
     participant Repository as Repository
     participant QueueService as Queue Service
-    User ->> API: 결제 요청 (Token, 좌석ID)
-    API ->> PaymentService: 결제 요청 (Token, 좌석ID)
+    User ->> API: 결제 요청 (Token, 예약 ID)
+    API ->> PaymentService: 결제 요청 (Token, 예약 ID)
     PaymentService ->> TokenManager: Token 유효성 검증
     alt Token 유효
         TokenManager -->> PaymentService: Token 유효 확인
-        PaymentService ->> Repository: 좌석 정보 및 사용자 잔액 조회
-        Repository -->> PaymentService: 좌석 정보 및 사용자 잔액
-        PaymentService ->> PaymentService: 결제 가능 여부 확인 (잔액, 점유 시간)
+        PaymentService ->> Repository: 예약 정보 및 사용자 잔액 조회
+        Repository -->> PaymentService: 예약 정보 및 사용자 잔액
+        PaymentService ->> PaymentService: 결제 가능 여부 확인 (잔액, 예약 상태)
         alt 결제 가능
             PaymentService ->> Repository: 결제 처리 요청
             Repository -->> PaymentService: 결제 처리 완료
-            PaymentService ->> Repository: 좌석 소유권 이전
-            Repository -->> PaymentService: 소유권 이전 완료
+            PaymentService ->> Repository: 예약 상태 변경
+            Repository -->> PaymentService: 상태 변경 완료
             PaymentService ->> QueueService: 대기열 Token 만료 요청
             QueueService -->> PaymentService: Token 만료 완료
-            PaymentService -->> API: 결제 성공 (예약 정보)
-            API -->> User: 결제 성공 (예약 정보)
+            PaymentService -->> API: 결제 성공 (결제 정보)
+            API -->> User: 결제 성공 (결제 정보)
         else 잔액 부족
             PaymentService -->> API: Error (잔액 부족)
             API -->> User: Error Response (잔액 부족)
-        else 점유 시간 만료
-            PaymentService -->> API: Error (점유 시간 만료)
-            API -->> User: Error Response (점유 시간 만료)
+        else 유효하지 않은 예약
+            PaymentService -->> API: Error (유효하지 않은 예약)
+            API -->> User: Error Response (유효하지 않은 예약)
         end
     else Token 유효하지 않음
         TokenManager -->> PaymentService: Token 유효하지 않음
@@ -255,10 +296,10 @@ sequenceDiagram
     end
 ```
 
-### 5.2 사용자가 결제 내역 목록 API 호출
+### 6.2 사용자가 결제 내역 목록 API 호출
 
-- 5.2.1. 사용자의 결제 내역 목록을 내려준다.
-- 5.2.2. 만약 결제 내역이 없다면, 빈 리스트를 내려준다.
+- 6.2.1. 사용자의 결제 내역 목록을 내려준다.
+- 6.2.2. 만약 결제 내역이 없다면, 빈 리스트를 내려준다.
 
 ```mermaid
 sequenceDiagram
@@ -274,11 +315,11 @@ sequenceDiagram
     API -->> User: 결제 내역 목록
 ```
 
-## 6. 잔액 관리
+## 7. 잔액 관리
 
-### 6.1 사용자가 잔액 조회 API 호출
+### 7.1 사용자가 잔액 조회 API 호출
 
-- 6.1.1. 사용자의 현재 잔액 정보를 반환한다.
+- 7.1.1. 사용자의 현재 잔액 정보를 반환한다.
 
 ```mermaid
 sequenceDiagram
@@ -294,9 +335,9 @@ sequenceDiagram
     API -->> User: 현재 잔액 정보
 ```
 
-### 6.2 사용자가 잔액 충전 API 호출
+### 7.2 사용자가 잔액 충전 API 호출
 
-- 6.2.1. 충전이 성공적으로 처리되면, 시스템이 충전 처리 후 갱신된 잔액 정보를 반환한다.
+- 7.2.1. 충전이 성공적으로 처리되면, 시스템이 충전 처리 후 갱신된 잔액 정보를 반환한다.
 
 ```mermaid
 sequenceDiagram
@@ -312,13 +353,13 @@ sequenceDiagram
     API -->> User: 갱신된 잔액 정보
 ```
 
-## 7. 시스템 백그라운드 프로세스
+## 8. 시스템 백그라운드 프로세스
 
-### 7.1 대기열 관리
+### 8.1 대기열 관리
 
-- 7.1.1. 시스템이 주기적으로 사용자의 최근 API 호출 시간을 확인한다.
-- 7.1.2. 일정 시간이 경과한 사용자를 발견하면, 해당 사용자를 대기열에서 자동으로 제거한다.
-- 7.1.3. 제거된 사용자의 token 을 무효화한다.
+- 8.1.1. 시스템이 주기적으로 사용자의 최근 API 호출 시간을 확인한다.
+- 8.1.2. 일정 시간이 경과한 사용자를 발견하면, 해당 사용자를 대기열에서 자동으로 제거한다.
+- 8.1.3. 제거된 사용자의 token 을 무효화한다.
 
 ```mermaid
 sequenceDiagram
@@ -343,11 +384,11 @@ sequenceDiagram
     end
 ```
 
-### 7.2 좌석 점유 만료 관리
+### 8.2 좌석 점유 만료 관리
 
-- 7.2.1. 시스템이 주기적으로 점유된 좌석의 점유 시간을 확인한다.
-- 7.2.2. 점유 시간이 만료된 좌석을 발견하면, 해당 좌석의 점유를 자동으로 해제한다.
-- 7.2.3. 해제된 좌석을 다시 예약 가능한 상태로 변경한다.
+- 8.2.1. 시스템이 주기적으로 점유된 좌석의 점유 시간을 확인한다.
+- 8.2.2. 점유 시간이 만료된 좌석을 발견하면, 해당 좌석의 점유를 자동으로 해제한다.
+- 8.2.3. 해제된 좌석을 다시 예약 가능한 상태로 변경한다.
 
 ```mermaid
 sequenceDiagram
@@ -369,6 +410,6 @@ sequenceDiagram
     end
 ```
 
-### 7.3 예외 처리
+### 8.3 예외 처리
 
-- 7.3.1. 백그라운드 프로세스 실행 중 오류가 발생한 경우, 시스템이 오류 로그를 기록한다.
+- 8.3.1. 백그라운드 프로세스 실행 중 오류가 발생한 경우, 시스템이 오류 로그를 기록한다.
