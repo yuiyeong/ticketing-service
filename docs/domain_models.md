@@ -14,7 +14,6 @@
 8. Reservation: 좌석 예약 정보를 관리
 9. Occupation: 좌석 임시 점유 정보를 관리
 10. Payment: 결제 정보를 관리
-11. QueueEntry: 대기열 정보를 관리
 
 ### 값 객체
 
@@ -24,7 +23,6 @@
 4. ReservationStatus: PENDING, CONFIRMED, PAYMENT_FAILED
 5. OccupationStatus: ACTIVE, EXPIRED, RELEASED
 6. PaymentStatus: PENDING, COMPLETED, FAILED
-7. QueueEntryStatus: READY, PROCESSING, EXITED, EXPIRED
 
 ## 바운디드 컨텍스트 및 애그리거트
 
@@ -66,13 +64,6 @@
     - 루트: Payment
     - 포함 엔티티: (없음)
     - 값 객체: PaymentStatus
-
-### f. 대기열 관리 컨텍스트
-
-- QueueEntry 애그리게이트
-    - 루트: QueueEntry
-    - 포함 엔티티: (없음)
-    - 값 객체: QueueStatus
 
 ## 도메인 모델 다이어그램
 
@@ -185,20 +176,4 @@ classDiagram
         FAILED
     }
     Payment -- PaymentStatus
-
-    %% 대기열 관리 컨텍스트
-    class QueueEntry {
-        +id
-        +userId
-        +concertEventId
-        +status
-    }
-    class QueueEntryStatus {
-        <<enumeration>>
-        READY
-        PROCESSING
-        EXITED
-        EXPIRED
-    }
-    QueueEntry -- QueueEntryStatus
 ```
