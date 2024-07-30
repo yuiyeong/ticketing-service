@@ -1,8 +1,7 @@
 package com.yuiyeong.ticketing.presentation.controller.concert
 
-import com.yuiyeong.ticketing.application.annotation.CurrentEntry
+import com.yuiyeong.ticketing.application.annotation.CurrentUserId
 import com.yuiyeong.ticketing.application.annotation.RequiresUserToken
-import com.yuiyeong.ticketing.application.dto.queue.QueueEntryResult
 import com.yuiyeong.ticketing.application.usecase.concert.GetAvailableSeatsUseCase
 import com.yuiyeong.ticketing.application.usecase.occupation.OccupySeatUseCase
 import com.yuiyeong.ticketing.application.usecase.reservation.ReserveSeatUseCase
@@ -13,8 +12,8 @@ import com.yuiyeong.ticketing.presentation.dto.TicketingListResponse
 import com.yuiyeong.ticketing.presentation.dto.TicketingResponse
 import com.yuiyeong.ticketing.presentation.dto.concert.SeatResponseDto
 import com.yuiyeong.ticketing.presentation.dto.occupation.ConcertEventOccupationRequest
-import com.yuiyeong.ticketing.presentation.dto.reservation.ConcertEventReservationRequest
 import com.yuiyeong.ticketing.presentation.dto.occupation.OccupationResponseDto
+import com.yuiyeong.ticketing.presentation.dto.reservation.ConcertEventReservationRequest
 import com.yuiyeong.ticketing.presentation.dto.reservation.ReservationResponseDto
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.GetMapping
@@ -46,11 +45,11 @@ class ConcertEventController(
     @RequiresUserToken
     @OccupySeatApiDoc
     fun occupy(
-        @CurrentEntry entry: QueueEntryResult,
+        @CurrentUserId userId: Long,
         @PathVariable("concertEventId") concertEventId: Long,
         @RequestBody req: ConcertEventOccupationRequest,
     ): TicketingResponse<OccupationResponseDto> {
-        val data = OccupationResponseDto.from(occupySeatUseCase.execute(entry.userId, concertEventId, req.seatId))
+        val data = OccupationResponseDto.from(occupySeatUseCase.execute(userId, concertEventId, req.seatId))
         return TicketingResponse(data)
     }
 
@@ -58,11 +57,11 @@ class ConcertEventController(
     @RequiresUserToken
     @ReserveSeatApiDoc
     fun reserve(
-        @CurrentEntry entry: QueueEntryResult,
+        @CurrentUserId userId: Long,
         @PathVariable("concertEventId") concertEventId: Long,
         @RequestBody req: ConcertEventReservationRequest,
     ): TicketingResponse<ReservationResponseDto> {
-        val data = ReservationResponseDto.from(reserveSeatUseCase.execute(entry.userId, concertEventId, req.seatId))
+        val data = ReservationResponseDto.from(reserveSeatUseCase.execute(userId, concertEventId, req.seatId))
         return TicketingResponse(data)
     }
 }

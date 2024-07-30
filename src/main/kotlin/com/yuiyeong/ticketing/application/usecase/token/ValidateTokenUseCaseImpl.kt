@@ -1,17 +1,11 @@
 package com.yuiyeong.ticketing.application.usecase.token
 
-import com.yuiyeong.ticketing.application.dto.queue.QueueEntryResult
-import com.yuiyeong.ticketing.domain.service.queue.QueueService
+import com.yuiyeong.ticketing.domain.service.queue.TokenService
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 
 @Component
 class ValidateTokenUseCaseImpl(
-    private val queueService: QueueService,
+    private val tokenService: TokenService,
 ) : ValidateTokenUseCase {
-    @Transactional(readOnly = true)
-    override fun execute(token: String): QueueEntryResult {
-        val positionOffset = queueService.getFirstWaitingPosition()
-        return QueueEntryResult.from(queueService.getEntry(token), positionOffset)
-    }
+    override fun execute(token: String): Long = tokenService.validateToken(token)
 }

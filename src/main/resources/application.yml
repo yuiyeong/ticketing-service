@@ -35,11 +35,11 @@ logging:
         preview-length: 200
         max-content-length: 524288  # 500KB in bytes
 
-jwt:
-    secret: very_difficult_and_secure_secret_key_that_is_at_least_256_bits
 
 config:
     valid-occupied-duration: 5 # 5분
+    jwt:
+        secret: very_difficult_and_secure_secret_key_that_is_at_least_256_bits
     distributed-lock:
         acquire-timeout: 5000 # lock 획득까지 기다릴 시간; 5초
         lock-ttl: 10000 # distributed lock 의 만료 시간; 10초

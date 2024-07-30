@@ -1,7 +1,6 @@
 package com.yuiyeong.ticketing.presentation.resolver
 
-import com.yuiyeong.ticketing.application.annotation.CurrentEntry
-import com.yuiyeong.ticketing.application.dto.queue.QueueEntryResult
+import com.yuiyeong.ticketing.application.annotation.CurrentUserId
 import com.yuiyeong.ticketing.domain.exception.InvalidTokenException
 import com.yuiyeong.ticketing.presentation.interceptor.UserTokenInterceptor
 import jakarta.servlet.http.HttpServletRequest
@@ -13,9 +12,9 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.method.support.ModelAndViewContainer
 
 @Component
-class EntryArgumentResolver : HandlerMethodArgumentResolver {
+class CurrentUserIdArgumentResolver : HandlerMethodArgumentResolver {
     override fun supportsParameter(parameter: MethodParameter): Boolean =
-        parameter.hasParameterAnnotation(CurrentEntry::class.java) && parameter.parameterType == QueueEntryResult::class.java
+        parameter.hasParameterAnnotation(CurrentUserId::class.java) && parameter.parameterType == Long::class.java
 
     override fun resolveArgument(
         parameter: MethodParameter,
@@ -24,7 +23,7 @@ class EntryArgumentResolver : HandlerMethodArgumentResolver {
         binderFactory: WebDataBinderFactory?,
     ): Any {
         val request = webRequest.getNativeRequest(HttpServletRequest::class.java)
-        return request?.getAttribute(UserTokenInterceptor.ATTR_QUEUE_ENTRY) as? QueueEntryResult
+        return request?.getAttribute(UserTokenInterceptor.ATTR_USER_ID) as? Long
             ?: throw InvalidTokenException()
     }
 }

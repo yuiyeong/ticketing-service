@@ -5,7 +5,7 @@ import com.yuiyeong.ticketing.application.dto.payment.PaymentResult
 interface PayUseCase {
     fun execute(
         userId: Long,
-        queueEntryId: Long,
+        token: String,
         reservationId: Long,
     ): PaymentResult
 }

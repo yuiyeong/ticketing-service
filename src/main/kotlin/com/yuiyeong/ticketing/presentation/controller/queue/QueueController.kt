@@ -1,12 +1,11 @@
 package com.yuiyeong.ticketing.presentation.controller.queue
 
-import com.yuiyeong.ticketing.application.annotation.CurrentEntry
+import com.yuiyeong.ticketing.application.annotation.CurrentToken
 import com.yuiyeong.ticketing.application.annotation.RequiresUserToken
-import com.yuiyeong.ticketing.application.dto.queue.QueueEntryResult
 import com.yuiyeong.ticketing.application.usecase.queue.EnterQueueUseCase
+import com.yuiyeong.ticketing.application.usecase.queue.GetWaitingInfoUseCase
 import com.yuiyeong.ticketing.config.swagger.annotation.api.QueueStatusApiDoc
 import com.yuiyeong.ticketing.config.swagger.annotation.api.QueueTokenIssuanceApiDoc
-import com.yuiyeong.ticketing.domain.model.queue.QueueEntryStatus
 import com.yuiyeong.ticketing.presentation.dto.TicketingResponse
 import com.yuiyeong.ticketing.presentation.dto.queue.GeneratingQueueTokenRequest
 import com.yuiyeong.ticketing.presentation.dto.queue.QueuePositionResponseDto
@@ -23,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController
 @Tag(name = "대기열", description = "대기열 관련 API")
 class QueueController(
     private val enterQueueUseCase: EnterQueueUseCase,
+    private val getWaitingInfoUseCase: GetWaitingInfoUseCase,
 ) {
     @PostMapping("token")
     @QueueTokenIssuanceApiDoc
@@ -34,19 +34,12 @@ class QueueController(
     }
 
     @GetMapping("status")
-    @RequiresUserToken(
-        allowedStatus = [
-            QueueEntryStatus.WAITING,
-            QueueEntryStatus.PROCESSING,
-            QueueEntryStatus.EXITED,
-            QueueEntryStatus.EXPIRED,
-        ],
-    )
+    @RequiresUserToken(onlyProcessing = false)
     @QueueStatusApiDoc
     fun getStatus(
-        @CurrentEntry entry: QueueEntryResult,
+        @CurrentToken token: String,
     ): TicketingResponse<QueuePositionResponseDto> {
-        val data = QueuePositionResponseDto.from(entry)
+        val data = QueuePositionResponseDto.from(getWaitingInfoUseCase.execute(token))
         return TicketingResponse(data)
     }
 }
