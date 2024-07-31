@@ -11,8 +11,6 @@ import com.yuiyeong.ticketing.domain.model.occupation.SeatAllocation
 import com.yuiyeong.ticketing.domain.model.payment.Payment
 import com.yuiyeong.ticketing.domain.model.payment.PaymentMethod
 import com.yuiyeong.ticketing.domain.model.payment.PaymentStatus
-import com.yuiyeong.ticketing.domain.model.queue.QueueEntry
-import com.yuiyeong.ticketing.domain.model.queue.QueueEntryStatus
 import com.yuiyeong.ticketing.domain.model.reservation.Reservation
 import com.yuiyeong.ticketing.domain.model.reservation.ReservationStatus
 import com.yuiyeong.ticketing.domain.model.wallet.Transaction
@@ -152,17 +150,6 @@ object TestDataFactory {
             totalSeats = occupation.totalSeats,
             totalAmount = occupation.totalAmount,
         )
-
-    fun createProcessingQueueEntry(userId: Long): QueueEntry {
-        val enteredAt = ZonedDateTime.now().asUtc.minusMinutes(30)
-        return createQueueEntry(
-            userId = userId,
-            status = QueueEntryStatus.PROCESSING,
-            enteredAt = enteredAt,
-            expiresAt = enteredAt.plusHours(3),
-            processingStartedAt = enteredAt.plusMinutes(5),
-        )
-    }
 
     fun createConcert(): Concert =
         Concert(
@@ -322,30 +309,5 @@ object TestDataFactory {
             balance = balance,
             createdAt = createdAt,
             updatedAt = updatedAt,
-        )
-
-    fun createQueueEntry(
-        id: Long = 0L,
-        userId: Long = 1L,
-        token: String = "test-token",
-        position: Long = 0L,
-        status: QueueEntryStatus = QueueEntryStatus.WAITING,
-        expiresAt: ZonedDateTime = ZonedDateTime.now().asUtc.plusHours(3),
-        enteredAt: ZonedDateTime = ZonedDateTime.now().asUtc,
-        processingStartedAt: ZonedDateTime? = null,
-        exitedAt: ZonedDateTime? = null,
-        expiredAt: ZonedDateTime? = null,
-    ): QueueEntry =
-        QueueEntry(
-            id = id,
-            userId = userId,
-            token = token,
-            position = position,
-            status = status,
-            expiresAt = expiresAt,
-            enteredAt = enteredAt,
-            processingStartedAt = processingStartedAt,
-            exitedAt = exitedAt,
-            expiredAt = expiredAt,
         )
 }
