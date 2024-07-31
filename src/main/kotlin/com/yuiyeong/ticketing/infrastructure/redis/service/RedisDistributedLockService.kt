@@ -1,4 +1,4 @@
-package com.yuiyeong.ticketing.infrastructure.redis
+package com.yuiyeong.ticketing.infrastructure.redis.service
 
 import com.yuiyeong.ticketing.config.property.DistributedLockProperties
 import com.yuiyeong.ticketing.domain.service.lock.DistributedLockService
@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component
 import java.util.concurrent.TimeUnit
 
 @Component
-class RedissonDistributedLockService(
+class RedisDistributedLockService(
     private val distributedLockProperties: DistributedLockProperties,
     private val redissonClient: RedissonClient,
 ) : DistributedLockService {

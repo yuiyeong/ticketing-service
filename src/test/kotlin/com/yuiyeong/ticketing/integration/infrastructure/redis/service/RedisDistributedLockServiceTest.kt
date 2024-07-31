@@ -1,6 +1,6 @@
-package com.yuiyeong.ticketing.integration.infrastructure.redis
+package com.yuiyeong.ticketing.integration.infrastructure.redis.service
 
-import com.yuiyeong.ticketing.infrastructure.redis.RedissonDistributedLockService
+import com.yuiyeong.ticketing.infrastructure.redis.service.RedisDistributedLockService
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -16,16 +16,16 @@ import java.util.concurrent.Executors
 
 @SpringBootTest
 @Testcontainers
-class RedissonDistributedLockServiceTest {
+class RedisDistributedLockServiceTest {
     @Autowired
-    private lateinit var redissonDistributedLockService: RedissonDistributedLockService
+    private lateinit var redisDistributedLockService: RedisDistributedLockService
 
     @Nested
     inner class WithLockTest {
         @Test
         fun `should execute action when lock is acquired`() {
             // when
-            val result = redissonDistributedLockService.withLock("withLock:testKey") { "success" }
+            val result = redisDistributedLockService.withLock("withLock:testKey") { "success" }
 
             // then
             Assertions.assertThat(result).isEqualTo("success")
@@ -38,7 +38,7 @@ class RedissonDistributedLockServiceTest {
             val executorService = Executors.newFixedThreadPool(1)
             val latch = CountDownLatch(1)
             executorService.submit {
-                redissonDistributedLockService.withLock(key) {
+                redisDistributedLockService.withLock(key) {
                     latch.countDown()
                     Thread.sleep(50)
                     "first"
@@ -47,7 +47,7 @@ class RedissonDistributedLockServiceTest {
             latch.await()
 
             // when
-            val result = redissonDistributedLockService.withLock(key) { "second" }
+            val result = redisDistributedLockService.withLock(key) { "second" }
 
             // then
             Assertions.assertThat(result).isNull()
@@ -60,7 +60,7 @@ class RedissonDistributedLockServiceTest {
         @Test
         fun `should execute action when lock is acquired`() {
             // when
-            val result = redissonDistributedLockService.withLockByWaiting("withLockAndRetry:testKey") { "success" }
+            val result = redisDistributedLockService.withLockByWaiting("withLockAndRetry:testKey") { "success" }
 
             // then
             Assertions.assertThat(result).isEqualTo("success")
@@ -75,7 +75,7 @@ class RedissonDistributedLockServiceTest {
 
             // given: lock 획득 후 100 milli seconds 동안 작업 진행하는 thread
             executorService.submit {
-                redissonDistributedLockService.withLockByWaiting(key) {
+                redisDistributedLockService.withLockByWaiting(key) {
                     latch.countDown()
                     Thread.sleep(100)
                     "first"
@@ -84,7 +84,7 @@ class RedissonDistributedLockServiceTest {
             latch.await()
 
             // when: 기다려서 lock 획득 후 작업 진행
-            val result = redissonDistributedLockService.withLockByWaiting(key) { "second" }
+            val result = redisDistributedLockService.withLockByWaiting(key) { "second" }
 
             // then
             Assertions.assertThat(result).isEqualTo("second")
@@ -101,7 +101,7 @@ class RedissonDistributedLockServiceTest {
 
             // given: 락 획득 후 1초 동안 작업 진행
             executorService.submit {
-                redissonDistributedLockService.withLockByWaiting(key) {
+                redisDistributedLockService.withLockByWaiting(key) {
                     latch.countDown()
                     Thread.sleep(1100)
                     "first"
@@ -110,7 +110,7 @@ class RedissonDistributedLockServiceTest {
             latch.await()
 
             // when: 락 획득을 기다리지만 결국 못 얻음
-            val result = redissonDistributedLockService.withLockByWaiting(key) { "second" }
+            val result = redisDistributedLockService.withLockByWaiting(key) { "second" }
 
             // then
             Assertions.assertThat(result).isNull()
