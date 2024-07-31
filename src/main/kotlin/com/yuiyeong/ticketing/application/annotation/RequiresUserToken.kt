@@ -6,5 +6,5 @@ package com.yuiyeong.ticketing.application.annotation
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class RequiresUserToken(
-    val onlyProcessing: Boolean = true,
+    val onlyActive: Boolean = true,
 )

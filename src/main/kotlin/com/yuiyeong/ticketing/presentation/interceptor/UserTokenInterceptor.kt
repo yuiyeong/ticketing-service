@@ -24,7 +24,7 @@ class UserTokenInterceptor(
             val requiresUserToken = handler.getMethodAnnotation(RequiresUserToken::class.java) ?: return true
 
             val token = request.getHeader(HEADER_USER_TOKEN) ?: throw InvalidTokenException()
-            if (requiresUserToken.onlyProcessing) {
+            if (requiresUserToken.onlyActive) {
                 checkActiveTokenUseCase.execute(token)
             }
 

@@ -34,7 +34,7 @@ class QueueController(
     }
 
     @GetMapping("status")
-    @RequiresUserToken(onlyProcessing = false)
+    @RequiresUserToken(onlyActive = false)
     @QueueStatusApiDoc
     fun getStatus(
         @CurrentToken token: String,
