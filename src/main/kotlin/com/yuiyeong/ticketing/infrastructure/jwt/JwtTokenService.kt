@@ -1,4 +1,4 @@
-package com.yuiyeong.ticketing.infrastructure.security
+package com.yuiyeong.ticketing.infrastructure.jwt
 
 import com.yuiyeong.ticketing.config.property.JwtProperties
 import com.yuiyeong.ticketing.domain.exception.InvalidTokenException

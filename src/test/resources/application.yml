@@ -35,9 +35,6 @@ logging:
         preview-length: 200
         max-content-length: 524288  # 500KB in bytes
 
-jwt:
-    secret: test_very_difficult_and_secure_secret_key_that_is_at_least_256_bits
-
 config:
     valid-occupied-duration: 5 # 5분
     distributed-lock:
