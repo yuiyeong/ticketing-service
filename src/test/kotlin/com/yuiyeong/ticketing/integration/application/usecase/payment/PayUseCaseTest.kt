@@ -2,15 +2,13 @@ package com.yuiyeong.ticketing.integration.application.usecase.payment
 
 import com.yuiyeong.ticketing.application.usecase.payment.PayUseCase
 import com.yuiyeong.ticketing.domain.model.payment.PaymentStatus
-import com.yuiyeong.ticketing.domain.model.queue.QueueEntry
-import com.yuiyeong.ticketing.domain.model.queue.QueueEntryStatus
 import com.yuiyeong.ticketing.domain.model.reservation.Reservation
 import com.yuiyeong.ticketing.domain.model.wallet.TransactionType
 import com.yuiyeong.ticketing.domain.repository.concert.ConcertEventRepository
 import com.yuiyeong.ticketing.domain.repository.concert.ConcertRepository
 import com.yuiyeong.ticketing.domain.repository.concert.SeatRepository
 import com.yuiyeong.ticketing.domain.repository.occupation.OccupationRepository
-import com.yuiyeong.ticketing.domain.repository.queue.QueueEntryRepository
+import com.yuiyeong.ticketing.domain.repository.queue.QueueRepository
 import com.yuiyeong.ticketing.domain.repository.reservation.ReservationRepository
 import com.yuiyeong.ticketing.domain.repository.wallet.TransactionRepository
 import com.yuiyeong.ticketing.domain.repository.wallet.WalletRepository
@@ -45,7 +43,7 @@ class PayUseCaseTest {
     private lateinit var reservationRepository: ReservationRepository
 
     @Autowired
-    private lateinit var queueEntryRepository: QueueEntryRepository
+    private lateinit var queueRepository: QueueRepository
 
     @Autowired
     private lateinit var walletRepository: WalletRepository
@@ -53,14 +51,16 @@ class PayUseCaseTest {
     @Autowired
     private lateinit var transactionRepository: TransactionRepository
 
-    private lateinit var queueEntry: QueueEntry
+    private val userId = 926L
+    private lateinit var token: String
     private lateinit var reservation: Reservation
 
     @BeforeEach
     fun setUp() {
-        // given: processing 이 queueEntry 와 pending 인 reservation
-        val userId = 83L
-        queueEntry = queueEntryRepository.save(TestDataFactory.createProcessingQueueEntry(userId))
+        // given: userId 와 그 userId 에 대응되는 활성 상태 token 과 pending 인 reservation
+        token = "user-$userId-token"
+        queueRepository.addToWaitingQueue(token)
+        queueRepository.moveToActiveQueue(1)
 
         val concert = concertRepository.save(TestDataFactory.createConcert())
         val concertEvent = concertEventRepository.save(TestDataFactory.createAvailableEvent(concert, 10, 9))
@@ -74,11 +74,11 @@ class PayUseCaseTest {
         // given: 충분한 돈이 있는 지갑
         val originalWallet =
             walletRepository.save(
-                TestDataFactory.createWallet(userId = queueEntry.userId, balance = BigDecimal(2000000)),
+                TestDataFactory.createWallet(userId = userId, balance = BigDecimal(2000000)),
             )
 
         // when
-        val result = payUseCase.execute(queueEntry.userId, queueEntry.id, reservation.id)
+        val result = payUseCase.execute(userId, token, reservation.id)
 
         // then: 결제 결과에 대한 정보가 있다.
         Assertions.assertThat(result.reservationId).isEqualTo(reservation.id)
@@ -87,14 +87,13 @@ class PayUseCaseTest {
         Assertions.assertThat(result.failureReason).isNull()
 
         // then: wallet balance 가 줄어 있다.
-        val wallet = walletRepository.findOneByUserId(queueEntry.userId)
+        val wallet = walletRepository.findOneByUserId(userId)
         Assertions.assertThat(wallet).isNotNull()
         Assertions.assertThat(wallet!!.balance).isEqualByComparingTo(originalWallet.balance - reservation.totalAmount)
 
-        // then: queueEntry 가 대기열에서 나갔다.
-        val entry = queueEntryRepository.findOneByToken(queueEntry.token)
-        Assertions.assertThat(entry).isNotNull()
-        Assertions.assertThat(entry!!.status).isEqualTo(QueueEntryStatus.EXITED)
+        // then: token 이 Queue 에서 나갔다.
+        Assertions.assertThat(queueRepository.isInWaitingQueue(token)).isFalse()
+        Assertions.assertThat(queueRepository.isInActiveQueue(token)).isFalse()
 
         // then: transaction 이 한 개있다.
         val transactions = transactionRepository.findAllByWalletId(wallet.id)
@@ -107,11 +106,11 @@ class PayUseCaseTest {
         // given: 돈이 없는 지갑
         val originalWallet =
             walletRepository.save(
-                TestDataFactory.createWallet(userId = queueEntry.userId, balance = BigDecimal(200)),
+                TestDataFactory.createWallet(userId = userId, balance = BigDecimal(200)),
             )
 
         // when
-        val result = payUseCase.execute(queueEntry.userId, queueEntry.id, reservation.id)
+        val result = payUseCase.execute(userId, token, reservation.id)
 
         // then: 결제 결과에 실피에 대한 정보가 있다.
         Assertions.assertThat(result.reservationId).isEqualTo(reservation.id)
@@ -120,14 +119,13 @@ class PayUseCaseTest {
         Assertions.assertThat(result.failureReason).isEqualTo("잔액이 부족합니다.")
 
         // then: wallet balance 가 그대로이다.
-        val wallet = walletRepository.findOneByUserId(queueEntry.userId)
+        val wallet = walletRepository.findOneByUserId(userId)
         Assertions.assertThat(wallet).isNotNull()
         Assertions.assertThat(wallet!!.balance).isEqualByComparingTo(originalWallet.balance)
 
-        // then: queueEntry 가 대기열에서 나갔다.
-        val entry = queueEntryRepository.findOneByToken(queueEntry.token)
-        Assertions.assertThat(entry).isNotNull()
-        Assertions.assertThat(entry!!.status).isEqualTo(QueueEntryStatus.EXITED)
+        // then: token 이 Queue 에서 나갔다.
+        Assertions.assertThat(queueRepository.isInWaitingQueue(token)).isFalse()
+        Assertions.assertThat(queueRepository.isInActiveQueue(token)).isFalse()
 
         // then: transaction 이 없다.
         val transactions = transactionRepository.findAllByWalletId(wallet.id)
