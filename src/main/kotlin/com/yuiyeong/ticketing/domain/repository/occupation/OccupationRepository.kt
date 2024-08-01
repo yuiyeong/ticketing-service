@@ -19,6 +19,4 @@ interface OccupationRepository {
     fun findOneById(id: Long): Occupation?
 
     fun findOneByIdWithLock(id: Long): Occupation?
-
-    fun deleteAll()
 }

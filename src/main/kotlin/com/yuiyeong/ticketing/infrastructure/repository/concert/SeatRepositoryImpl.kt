@@ -38,6 +38,4 @@ class SeatRepositoryImpl(
         val seatEntities = seatJpaRepository.saveAll(seats.map { SeatEntity.from(it) })
         return seatEntities.map { it.toSeat() }
     }
-
-    override fun deleteAll() = seatJpaRepository.deleteAll()
 }

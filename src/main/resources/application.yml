@@ -6,28 +6,22 @@ spring:
         name: ticketing
     datasource:
         driver-class-name: com.mysql.cj.jdbc.Driver
-        url: jdbc:mysql://localhost:3306/ticketing?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC
-        username: root
-        password: very_difficult_root_password
         hikari:
             maximum-pool-size: 30
             connection-timeout: 5000
-    data:
-      redis:
-          host: localhost
-          port: 6379
     jpa:
-        database-platform: org.hibernate.dialect.MySQLDialect
+        database-platform: org.hibernate.dialect.MySQL8Dialect
         hibernate:
             ddl-auto: update
         properties:
-            jakarta.persistence.lock.timeout: 10000  # 10초
+            jakarta.persistence.lock.timeout: 10000
             hibernate:
                 jdbc.time_zone: UTC
-                lock.timeout: 10000  # 10초
+                lock.timeout: 10000
         open-in-view: false
     jackson:
         time-zone: UTC
+
 
 logging:
     request-response:
@@ -35,18 +29,6 @@ logging:
         preview-length: 200
         max-content-length: 524288  # 500KB in bytes
 
-jwt:
-    secret: very_difficult_and_secure_secret_key_that_is_at_least_256_bits
-
-config:
-    valid-occupied-duration: 5 # 5분
-    distributed-lock:
-        acquire-timeout: 5000 # lock 획득까지 기다릴 시간; 5초
-        lock-ttl: 10000 # distributed lock 의 만료 시간; 10초
-    scheduler:
-        enabled: true
-        queue-fixed-rate: 60000 # 1분
-        occupation-fixed-rate: 60000 # 1분
 
 decorator:
     datasource:
@@ -55,3 +37,27 @@ decorator:
             multiline: false
             logging: slf4j
             log-file: spy.log
+
+
+management:
+    endpoints:
+        web:
+            exposure:
+                include: health,info,prometheus
+    prometheus:
+        metrics:
+            export:
+                enabled: true
+
+
+config:
+    valid-occupied-duration: 5 # 5분
+    jwt:
+        secret: very_difficult_and_secure_secret_key_that_is_at_least_256_bits
+    distributed-lock:
+        acquire-timeout: 5000 # lock 획득까지 기다릴 시간; 5초
+        lock-ttl: 10000 # distributed lock 의 만료 시간; 10초
+    scheduler:
+        enabled: true
+        queue-fixed-rate: 60000 # 1분
+        occupation-fixed-rate: 60000 # 1분

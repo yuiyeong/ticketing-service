@@ -39,6 +39,4 @@ class OccupationRepositoryImpl(
     override fun findOneById(id: Long): Occupation? = occupationJpaRepository.findOneById(id)?.toOccupation()
 
     override fun findOneByIdWithLock(id: Long): Occupation? = occupationJpaRepository.findOneWithLockById(id)?.toOccupation()
-
-    override fun deleteAll() = occupationJpaRepository.deleteAll()
 }

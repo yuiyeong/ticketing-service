@@ -15,6 +15,4 @@ class ConcertRepositoryImpl(
     }
 
     override fun findAll(): List<Concert> = concertJpaRepository.findAll().map { it.toConcert() }
-
-    override fun deleteAll() = concertJpaRepository.deleteAll()
 }

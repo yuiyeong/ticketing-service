@@ -1,8 +1,8 @@
 package com.yuiyeong.ticketing.config
 
-import com.yuiyeong.ticketing.application.usecase.token.ValidateTokenUseCase
 import com.yuiyeong.ticketing.presentation.interceptor.UserTokenInterceptor
-import com.yuiyeong.ticketing.presentation.resolver.EntryArgumentResolver
+import com.yuiyeong.ticketing.presentation.resolver.CurrentTokenArgumentResolver
+import com.yuiyeong.ticketing.presentation.resolver.CurrentUserIdArgumentResolver
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry
@@ -10,14 +10,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @Configuration
 class WebMvcConfig(
-    private val validateTokenUseCase: ValidateTokenUseCase,
-    private val entryArgumentResolver: EntryArgumentResolver,
+    private val userTokenInterceptor: UserTokenInterceptor,
+    private val currentUserIdArgumentResolver: CurrentUserIdArgumentResolver,
+    private val currentTokenArgumentResolver: CurrentTokenArgumentResolver,
 ) : WebMvcConfigurer {
     override fun addInterceptors(registry: InterceptorRegistry) {
-        registry.addInterceptor(UserTokenInterceptor(validateTokenUseCase))
+        registry.addInterceptor(userTokenInterceptor)
     }
 
     override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
-        resolvers.add(entryArgumentResolver)
+        resolvers.add(currentUserIdArgumentResolver)
+        resolvers.add(currentTokenArgumentResolver)
     }
 }

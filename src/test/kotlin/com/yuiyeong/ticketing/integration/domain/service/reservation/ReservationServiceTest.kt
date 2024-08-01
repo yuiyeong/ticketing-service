@@ -1,11 +1,5 @@
 package com.yuiyeong.ticketing.integration.domain.service.reservation
 
-import com.yuiyeong.ticketing.TestDataFactory.createConcert
-import com.yuiyeong.ticketing.TestDataFactory.createConcertEvent
-import com.yuiyeong.ticketing.TestDataFactory.createOccupation
-import com.yuiyeong.ticketing.TestDataFactory.createReservation
-import com.yuiyeong.ticketing.TestDataFactory.createSeat
-import com.yuiyeong.ticketing.TestDataFactory.createSeatAllocation
 import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.exception.ConcertEventNotFoundException
 import com.yuiyeong.ticketing.domain.exception.OccupationNotFoundException
@@ -19,8 +13,13 @@ import com.yuiyeong.ticketing.domain.repository.concert.SeatRepository
 import com.yuiyeong.ticketing.domain.repository.occupation.OccupationRepository
 import com.yuiyeong.ticketing.domain.repository.reservation.ReservationRepository
 import com.yuiyeong.ticketing.domain.service.reservation.ReservationService
+import com.yuiyeong.ticketing.helper.TestDataFactory.createConcert
+import com.yuiyeong.ticketing.helper.TestDataFactory.createConcertEvent
+import com.yuiyeong.ticketing.helper.TestDataFactory.createOccupation
+import com.yuiyeong.ticketing.helper.TestDataFactory.createReservation
+import com.yuiyeong.ticketing.helper.TestDataFactory.createSeat
+import com.yuiyeong.ticketing.helper.TestDataFactory.createSeatAllocation
 import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
@@ -57,15 +56,6 @@ class ReservationServiceTest {
 
     @Autowired
     private lateinit var seatRepository: SeatRepository
-
-    @AfterEach
-    fun afterEach() {
-        reservationRepository.deleteAll()
-        occupationRepository.deleteAll()
-        seatRepository.deleteAll()
-        concertEventRepository.deleteAll()
-        concertRepository.deleteAll()
-    }
 
     @Nested
     inner class ReserveTest {

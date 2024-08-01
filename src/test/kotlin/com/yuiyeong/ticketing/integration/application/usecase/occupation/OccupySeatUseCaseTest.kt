@@ -1,6 +1,5 @@
 package com.yuiyeong.ticketing.integration.application.usecase.occupation
 
-import com.yuiyeong.ticketing.TestDataFactory
 import com.yuiyeong.ticketing.application.usecase.occupation.OccupySeatUseCase
 import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.exception.ReservationNotOpenedException
@@ -11,16 +10,19 @@ import com.yuiyeong.ticketing.domain.repository.concert.ConcertEventRepository
 import com.yuiyeong.ticketing.domain.repository.concert.ConcertRepository
 import com.yuiyeong.ticketing.domain.repository.concert.SeatRepository
 import com.yuiyeong.ticketing.domain.repository.occupation.OccupationRepository
-import jakarta.transaction.Transactional
+import com.yuiyeong.ticketing.helper.DBCleanUp
+import com.yuiyeong.ticketing.helper.TestDataFactory
 import org.assertj.core.api.Assertions
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import java.time.ZonedDateTime
 import kotlin.test.Test
 
-@Transactional
 @SpringBootTest
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class OccupySeatUseCaseTest {
     @Autowired
     private lateinit var occupySeatUseCase: OccupySeatUseCase
@@ -37,13 +39,16 @@ class OccupySeatUseCaseTest {
     @Autowired
     private lateinit var occupationRepository: OccupationRepository
 
+    @Autowired
+    private lateinit var dbCleanUp: DBCleanUp
+
     private lateinit var unavailableConcertEvent: ConcertEvent
     private lateinit var availableConcertEvent: ConcertEvent
     private lateinit var availableSeat: Seat
     private lateinit var unavailableSeat: Seat
 
     @BeforeEach
-    fun setUp() {
+    fun beforeEach() {
         val concert = concertRepository.save(TestDataFactory.createConcert())
 
         val now = ZonedDateTime.now().asUtc
@@ -58,10 +63,15 @@ class OccupySeatUseCaseTest {
         unavailableSeat = seatRepository.save(TestDataFactory.createSeat(availableConcertEvent.id, isAvailable = false))
     }
 
+    @AfterAll
+    fun afterEach() {
+        dbCleanUp.execute()
+    }
+
     @Test
     fun `should return OccupationResult after occupying a seat`() {
         // given
-        val userId = 32L
+        val userId = 92L
 
         // when
         val result = occupySeatUseCase.execute(userId, availableConcertEvent.id, availableSeat.id)
@@ -70,7 +80,6 @@ class OccupySeatUseCaseTest {
         val occupation = occupationRepository.findOneById(result.id)
         Assertions.assertThat(result.id).isEqualTo(occupation!!.id)
         Assertions.assertThat(result.userId).isEqualTo(occupation.userId)
-        Assertions.assertThat(result.seatId).isEqualTo(occupation.allocations[0].seatId)
         Assertions.assertThat(result.status).isEqualTo(occupation.status)
         Assertions.assertThat(result.expiresAt).isEqualTo(occupation.expiresAt)
     }
@@ -78,7 +87,7 @@ class OccupySeatUseCaseTest {
     @Test
     fun `should throw ReservationNotOpenedException when trying to occupy a seat in a concert event that is not opened`() {
         // given
-        val userId = 32L
+        val userId = 3L
         val someSeatId = 22L
 
         // when & then

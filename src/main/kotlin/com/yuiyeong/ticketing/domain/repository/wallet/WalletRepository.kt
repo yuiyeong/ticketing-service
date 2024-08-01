@@ -8,6 +8,4 @@ interface WalletRepository {
     fun findOneByUserId(userId: Long): Wallet?
 
     fun findOneByUserIdWithLock(userId: Long): Wallet?
-
-    fun deleteAll()
 }

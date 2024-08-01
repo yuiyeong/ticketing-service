@@ -1,12 +1,13 @@
 package com.yuiyeong.ticketing.integration.concurrent
 
-import com.yuiyeong.ticketing.TestDataFactory
-import com.yuiyeong.ticketing.domain.repository.wallet.TransactionRepository
 import com.yuiyeong.ticketing.domain.repository.wallet.WalletRepository
 import com.yuiyeong.ticketing.domain.service.wallet.WalletService
+import com.yuiyeong.ticketing.helper.DBCleanUp
+import com.yuiyeong.ticketing.helper.TestDataFactory
 import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.TestInstance
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -19,6 +20,7 @@ import kotlin.math.max
 import kotlin.test.Test
 
 @SpringBootTest
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class WalletServiceConcurrentTest {
     @Autowired
     private lateinit var walletService: WalletService
@@ -27,7 +29,7 @@ class WalletServiceConcurrentTest {
     private lateinit var walletRepository: WalletRepository
 
     @Autowired
-    private lateinit var transactionRepository: TransactionRepository
+    private lateinit var dbCleanUp: DBCleanUp
 
     private val userId = 742L
     private val initialBalance = BigDecimal(10_000)
@@ -39,10 +41,9 @@ class WalletServiceConcurrentTest {
         walletRepository.save(TestDataFactory.createWallet(userId = userId, balance = initialBalance))
     }
 
-    @AfterEach
+    @AfterAll
     fun afterEach() {
-        walletRepository.deleteAll()
-        transactionRepository.deleteAll()
+        dbCleanUp.execute()
     }
 
     @Test

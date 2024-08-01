@@ -1,8 +1,8 @@
 package com.yuiyeong.ticketing.presentation.controller.payment
 
-import com.yuiyeong.ticketing.application.annotation.CurrentEntry
+import com.yuiyeong.ticketing.application.annotation.CurrentToken
+import com.yuiyeong.ticketing.application.annotation.CurrentUserId
 import com.yuiyeong.ticketing.application.annotation.RequiresUserToken
-import com.yuiyeong.ticketing.application.dto.queue.QueueEntryResult
 import com.yuiyeong.ticketing.application.usecase.payment.GetPaymentListUseCase
 import com.yuiyeong.ticketing.application.usecase.payment.PayUseCase
 import com.yuiyeong.ticketing.config.swagger.annotation.api.PayApiDoc
@@ -30,10 +30,11 @@ class PaymentController(
     @RequiresUserToken
     @PayApiDoc
     fun pay(
-        @CurrentEntry entry: QueueEntryResult,
+        @CurrentUserId userId: Long,
+        @CurrentToken token: String,
         @RequestBody req: PayRequest,
     ): TicketingResponse<PaymentResponseDto> {
-        val data = PaymentResponseDto.from(payUseCase.execute(entry.userId, entry.id, req.reservationId))
+        val data = PaymentResponseDto.from(payUseCase.execute(userId, token, req.reservationId))
         return TicketingResponse(data)
     }
 

@@ -1,10 +1,10 @@
 package com.yuiyeong.ticketing.integration.application.usecase.concert
 
-import com.yuiyeong.ticketing.TestDataFactory
 import com.yuiyeong.ticketing.application.usecase.concert.GetAvailableConcertEventsUseCase
 import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.repository.concert.ConcertEventRepository
 import com.yuiyeong.ticketing.domain.repository.concert.ConcertRepository
+import com.yuiyeong.ticketing.helper.TestDataFactory
 import jakarta.transaction.Transactional
 import org.assertj.core.api.Assertions
 import org.springframework.beans.factory.annotation.Autowired

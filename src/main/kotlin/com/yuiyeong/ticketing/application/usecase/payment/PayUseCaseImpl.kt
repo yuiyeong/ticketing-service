@@ -18,7 +18,7 @@ class PayUseCaseImpl(
 ) : PayUseCase {
     override fun execute(
         userId: Long,
-        queueEntryId: Long,
+        token: String,
         reservationId: Long,
     ): PaymentResult {
         val reservation = reservationService.getReservation(reservationId)
@@ -46,7 +46,7 @@ class PayUseCaseImpl(
         reservationService.confirm(reservation.id)
 
         // queue 에서 entry 제거
-        queueService.exit(queueEntryId)
+        queueService.exit(token)
 
         return PaymentResult.from(payment)
     }

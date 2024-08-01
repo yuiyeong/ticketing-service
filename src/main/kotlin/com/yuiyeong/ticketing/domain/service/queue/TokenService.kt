@@ -1,6 +1,5 @@
 package com.yuiyeong.ticketing.domain.service.queue
 
-import com.yuiyeong.ticketing.domain.model.queue.QueueEntry
 import java.time.ZonedDateTime
 
 interface TokenService {
@@ -10,5 +9,5 @@ interface TokenService {
         expiresAt: ZonedDateTime,
     ): String
 
-    fun validateToken(token: String): QueueEntry
+    fun validateToken(token: String): Long
 }

@@ -18,6 +18,4 @@ class ReservationRepositoryImpl(
     override fun findOneById(id: Long): Reservation? = reservationJpaRepository.findByIdOrNull(id)?.toReservation()
 
     override fun findOneByIdWithLock(id: Long): Reservation? = reservationJpaRepository.findOneWithLockById(id)?.toReservation()
-
-    override fun deleteAll() = reservationJpaRepository.deleteAll()
 }

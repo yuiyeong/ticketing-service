@@ -1,16 +1,17 @@
 package com.yuiyeong.ticketing.integration.concurrent
 
-import com.yuiyeong.ticketing.TestDataFactory
 import com.yuiyeong.ticketing.application.usecase.occupation.OccupySeatUseCase
 import com.yuiyeong.ticketing.domain.model.concert.ConcertEvent
 import com.yuiyeong.ticketing.domain.model.concert.Seat
 import com.yuiyeong.ticketing.domain.repository.concert.ConcertEventRepository
 import com.yuiyeong.ticketing.domain.repository.concert.ConcertRepository
 import com.yuiyeong.ticketing.domain.repository.concert.SeatRepository
-import com.yuiyeong.ticketing.domain.repository.occupation.OccupationRepository
+import com.yuiyeong.ticketing.helper.DBCleanUp
+import com.yuiyeong.ticketing.helper.TestDataFactory
 import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.TestInstance
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -23,6 +24,7 @@ import kotlin.math.max
 import kotlin.test.Test
 
 @SpringBootTest
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class OccupySeatUseCaseConcurrentTest {
     @Autowired
     private lateinit var occupySeatUseCase: OccupySeatUseCase
@@ -36,11 +38,11 @@ class OccupySeatUseCaseConcurrentTest {
     @Autowired
     private lateinit var seatRepository: SeatRepository
 
-    @Autowired
-    private lateinit var occupationRepository: OccupationRepository
-
     private lateinit var concertEvent: ConcertEvent
     private lateinit var seat: Seat
+
+    @Autowired
+    private lateinit var dbCleanUp: DBCleanUp
 
     private val logger = LoggerFactory.getLogger("좌석 점유 동시성 테스트")
 
@@ -51,12 +53,9 @@ class OccupySeatUseCaseConcurrentTest {
         seat = seatRepository.save(TestDataFactory.createSeatsOfConcertEvent(concertEvent).first())
     }
 
-    @AfterEach
+    @AfterAll
     fun afterEach() {
-        occupationRepository.deleteAll()
-        seatRepository.deleteAll()
-        concertRepository.deleteAll()
-        concertRepository.deleteAll()
+        dbCleanUp.execute()
     }
 
     @Test

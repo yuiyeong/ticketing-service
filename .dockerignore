@@ -1,0 +1,21 @@
+# .dockerignore 파일 내용
+
+# 빌드 출력 및 임시 파일
+build/
+out/
+*.class
+*.jar
+
+# 문서 및 기타 파일
+README.md
+docs/
+k6/
+
+# Git 관련
+.git/
+.gitignore
+
+# IDE 관련
+.idea/
+*.iml
+.vscode/

@@ -1,14 +1,12 @@
 package com.yuiyeong.ticketing.integration.domain.service.wallet
-import com.yuiyeong.ticketing.TestDataFactory.createWallet
 import com.yuiyeong.ticketing.domain.exception.InsufficientBalanceException
 import com.yuiyeong.ticketing.domain.exception.InvalidAmountException
 import com.yuiyeong.ticketing.domain.exception.WalletNotFoundException
 import com.yuiyeong.ticketing.domain.model.wallet.TransactionType
-import com.yuiyeong.ticketing.domain.repository.wallet.TransactionRepository
 import com.yuiyeong.ticketing.domain.repository.wallet.WalletRepository
 import com.yuiyeong.ticketing.domain.service.wallet.WalletService
+import com.yuiyeong.ticketing.helper.TestDataFactory.createWallet
 import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
@@ -33,15 +31,6 @@ class WalletServiceTest {
 
     @Autowired
     private lateinit var walletRepository: WalletRepository
-
-    @Autowired
-    private lateinit var transactionRepository: TransactionRepository
-
-    @AfterEach
-    fun afterEach() {
-        transactionRepository.deleteAll()
-        walletRepository.deleteAll()
-    }
 
     @Nested
     inner class GetUserWalletTest {

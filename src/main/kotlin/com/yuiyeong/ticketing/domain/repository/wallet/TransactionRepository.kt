@@ -8,6 +8,4 @@ interface TransactionRepository {
     fun findOneById(id: Long): Transaction?
 
     fun findAllByWalletId(walletId: Long): List<Transaction>
-
-    fun deleteAll()
 }

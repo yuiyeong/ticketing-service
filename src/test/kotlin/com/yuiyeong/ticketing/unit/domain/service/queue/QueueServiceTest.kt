@@ -1,407 +1,256 @@
 package com.yuiyeong.ticketing.unit.domain.service.queue
 
-import com.yuiyeong.ticketing.common.asUtc
+import com.yuiyeong.ticketing.config.property.QueueProperties
 import com.yuiyeong.ticketing.domain.exception.InvalidTokenException
-import com.yuiyeong.ticketing.domain.model.queue.QueueEntry
-import com.yuiyeong.ticketing.domain.model.queue.QueueEntryStatus
-import com.yuiyeong.ticketing.domain.repository.queue.QueueEntryRepository
+import com.yuiyeong.ticketing.domain.exception.QueueNotAvailableException
+import com.yuiyeong.ticketing.domain.exception.TokenNotInActiveQueueException
+import com.yuiyeong.ticketing.domain.repository.queue.QueueRepository
 import com.yuiyeong.ticketing.domain.service.queue.QueueService
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.BDDMockito.given
+import org.mockito.BDDMockito.never
+import org.mockito.BDDMockito.verify
 import org.mockito.Mock
-import org.mockito.Mockito.mock
 import org.mockito.junit.jupiter.MockitoExtension
-import org.mockito.kotlin.any
-import org.mockito.kotlin.argThat
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.given
-import org.mockito.kotlin.never
-import org.mockito.kotlin.verify
-import java.time.ZonedDateTime
-import kotlin.test.Test
 
 @ExtendWith(MockitoExtension::class)
 class QueueServiceTest {
+    private val queueProperties: QueueProperties = QueueProperties()
+
     @Mock
-    private lateinit var entryRepository: QueueEntryRepository
+    private lateinit var queueRepository: QueueRepository
 
     private lateinit var queueService: QueueService
 
     @BeforeEach
-    fun beforeEach() {
-        queueService = QueueService(entryRepository)
+    fun setup() {
+        queueService = QueueService(queueProperties, queueRepository)
     }
 
-    @Nested
-    inner class EnterTest {
-        @Test
-        fun `should enter a queue as PROCESSING`() {
-            // given
-            val userId = 321L
-            given(entryRepository.findLastWaitingPosition()).willReturn(0)
-            given(entryRepository.findAllByStatus(QueueEntryStatus.PROCESSING)).willReturn(emptyList())
-            given(entryRepository.save(any())).willAnswer { invocation ->
-                val savedOne = invocation.getArgument<QueueEntry>(0)
-                savedOne.copy(id = 1L)
-            }
-            val enteredAt = ZonedDateTime.now().asUtc
-            val expiresAt = enteredAt.plusMinutes(EXPIRATION_MINUTES)
-            val token = "valid_token"
+    @Test
+    fun `should return WaitingInfo when token is in the queue`() {
+        // given
+        val token = "test-token"
+        val position = 2
+        given(queueRepository.getWaitingQueuePosition(token)).willReturn(position)
 
-            // when
-            val entry = queueService.enter(userId, token, enteredAt, expiresAt)
+        // when
+        val waitingInfo = queueService.getWaitingInfo(token)
 
-            // then
-            Assertions.assertThat(entry.userId).isEqualTo(userId)
-            Assertions.assertThat(entry.status).isEqualTo(QueueEntryStatus.PROCESSING)
-            Assertions.assertThat(entry.position).isEqualTo(0)
-            Assertions.assertThat(entry.processingStartedAt).isEqualTo(entry.enteredAt)
+        // then
+        Assertions.assertThat(waitingInfo).isNotNull
+        Assertions.assertThat(waitingInfo!!.token).isEqualTo(token)
+        Assertions.assertThat(waitingInfo.position).isEqualTo(position)
+        Assertions
+            .assertThat(waitingInfo.estimatedWaitingTime)
+            .isEqualTo(position * queueProperties.estimatedWorkingTimeInMinutes)
 
-            verify(entryRepository).findLastWaitingPosition()
-            verify(entryRepository).findAllByStatus(QueueEntryStatus.PROCESSING)
-            verify(entryRepository).save(argThat { it -> it.userId == userId })
-        }
-
-        @Test
-        fun `should enter a queue as WAITING`() {
-            // given
-            val userId = 32L
-            given(entryRepository.findLastWaitingPosition()).willReturn(0)
-            given(
-                entryRepository.findAllByStatus(QueueEntryStatus.PROCESSING),
-            ).willReturn(List(QueueService.MAX_ACTIVE_ENTRIES) { mock() })
-            given(entryRepository.save(any())).willAnswer { invocation ->
-                val savedOne = invocation.getArgument<QueueEntry>(0)
-                savedOne.copy(id = 1L)
-            }
-            val enteredAt = ZonedDateTime.now().asUtc
-            val expiresAt = enteredAt.plusMinutes(EXPIRATION_MINUTES)
-            val token = "valid_token"
-
-            // when
-            val entry = queueService.enter(userId, token, enteredAt, expiresAt)
-
-            // then
-            Assertions.assertThat(entry.userId).isEqualTo(userId)
-            Assertions.assertThat(entry.status).isEqualTo(QueueEntryStatus.WAITING)
-            Assertions.assertThat(entry.position).isEqualTo(1)
-            Assertions.assertThat(entry.enteredAt).isNotNull()
-            Assertions.assertThat(entry.processingStartedAt).isNull()
-
-            verify(entryRepository).findLastWaitingPosition()
-            verify(entryRepository).findAllByStatus(QueueEntryStatus.PROCESSING)
-            verify(entryRepository).save(argThat { it -> it.userId == userId })
-        }
+        verify(queueRepository).getWaitingQueuePosition(token)
     }
 
-    @Nested
-    inner class ExitTest {
-        @Test
-        fun `should exit a queue by changing status to EXITED`() {
-            // given
-            val userId = 213L
-            val userEntry = createQueueEntry(userId, 1)
-            given(entryRepository.findOneByIdWithLock(userEntry.id)).willReturn(userEntry)
-            given(entryRepository.save(any())).willAnswer { it.getArgument<QueueEntry>(0) }
+    @Test
+    fun `should return WaitingInfo after entering the queue`() {
+        // given
+        val token = "test-token"
+        val position = 3
+        given(queueRepository.addToWaitingQueue(token)).willReturn(true)
+        given(queueRepository.getWaitingQueuePosition(token)).willReturn(position)
 
-            // when
-            val exitedOne = queueService.exit(userEntry.id)
+        // when
+        val waitingInfo = queueService.enter(token)
 
-            // then
-            Assertions.assertThat(exitedOne.token).isEqualTo(userEntry.token)
-            Assertions.assertThat(exitedOne.status).isEqualTo(QueueEntryStatus.EXITED)
-            Assertions.assertThat(exitedOne.exitedAt).isNotNull()
+        // then
+        Assertions.assertThat(waitingInfo.token).isEqualTo(token)
+        Assertions.assertThat(waitingInfo.position).isEqualTo(position)
+        Assertions
+            .assertThat(waitingInfo.estimatedWaitingTime)
+            .isEqualTo(position * queueProperties.estimatedWorkingTimeInMinutes)
 
-            verify(entryRepository).findOneByIdWithLock(userEntry.id)
-        }
-
-        @Test
-        fun `should throw InvalidTokenException when trying to exit with unknown token`() {
-            // given
-            val unknownEntryId = 5234L
-            given(entryRepository.findOneByIdWithLock(unknownEntryId)).willReturn(null)
-
-            // when & then
-            Assertions
-                .assertThatThrownBy { queueService.exit(unknownEntryId) }
-                .isInstanceOf(InvalidTokenException::class.java)
-
-            verify(entryRepository).findOneByIdWithLock(unknownEntryId)
-        }
+        verify(queueRepository).addToWaitingQueue(token)
+        verify(queueRepository).getWaitingQueuePosition(token)
     }
 
-    @Nested
-    inner class EntryInfoTest {
-        @Test
-        fun `should return queueEntry when valid token is provided`() {
-            // given
-            val userId = 1L
-            val position = 5L
-            val status = QueueEntryStatus.WAITING
-            val entry = createQueueEntry(userId, position, status = status)
-            val token = entry.token
+    @Test
+    fun `should throw InvalidTokenException when trying to exit for a token not in any queue`() {
+        // given
+        val notInQueueToken = "notInQueueToken"
+        given(queueRepository.isInActiveQueue(notInQueueToken)).willReturn(false)
+        given(queueRepository.isInWaitingQueue(notInQueueToken)).willReturn(false)
 
-            given(entryRepository.findOneByToken(token)).willReturn(entry)
+        // when & then
+        Assertions
+            .assertThatThrownBy { queueService.exit(notInQueueToken) }
+            .isInstanceOf(InvalidTokenException::class.java)
 
-            // when
-            val enteredOne = queueService.getEntry(token)
-
-            // then
-            Assertions.assertThat(enteredOne.userId).isEqualTo(userId)
-            Assertions.assertThat(enteredOne.token).isEqualTo(token)
-            Assertions.assertThat(enteredOne.position).isEqualTo(position)
-            Assertions.assertThat(enteredOne.status).isEqualTo(status)
-
-            verify(entryRepository).findOneByToken(token)
-        }
-
-        @Test
-        fun `should throw InvalidTokenException when invalid token is provided`() {
-            // given
-            val invalidToken = "invalidToken"
-            given(entryRepository.findOneByToken(invalidToken)).willReturn(null)
-
-            // when & then
-            Assertions
-                .assertThatThrownBy { queueService.getEntry(invalidToken) }
-                .isInstanceOf(InvalidTokenException::class.java)
-
-            verify(entryRepository).findOneByToken(invalidToken)
-        }
-
-        @Test
-        fun `should return correct data for expired entry`() {
-            // given
-            val userId = 3L
-            val position = 0L
-            val status = QueueEntryStatus.EXPIRED
-            val entry = createQueueEntry(userId, position, status = status)
-            val token = entry.token
-
-            given(entryRepository.findOneByToken(token)).willReturn(entry)
-
-            // when
-            val foundOne = queueService.getEntry(token)
-
-            // then
-            Assertions.assertThat(foundOne.userId).isEqualTo(userId)
-            Assertions.assertThat(foundOne.token).isEqualTo(token)
-            Assertions.assertThat(foundOne.position).isEqualTo(0)
-            Assertions.assertThat(foundOne.status).isEqualTo(QueueEntryStatus.EXPIRED)
-
-            verify(entryRepository).findOneByToken(token)
-        }
+        verify(queueRepository).isInActiveQueue(notInQueueToken)
+        verify(queueRepository).isInWaitingQueue(notInQueueToken)
     }
 
-    @Nested
-    inner class ActivationEntriesTest {
-        @Test
-        fun `should return activated entries when activating waiting entries`() {
-            // given
-            given(entryRepository.findAllByStatus(QueueEntryStatus.PROCESSING)).willReturn(emptyList())
+    @Test
+    fun `should return a count for activating tokens in waiting queue`() {
+        // given
+        val tokenCount = 3
+        given(queueRepository.getWaitingQueueSize()).willReturn(tokenCount)
+        given(queueRepository.moveToActiveQueue(tokenCount)).willReturn(tokenCount)
 
-            val entry1 = createQueueEntry(11L, 3, status = QueueEntryStatus.WAITING)
-            val entry2 = createQueueEntry(21L, 4, status = QueueEntryStatus.WAITING)
-            val entry3 = createQueueEntry(31L, 5, status = QueueEntryStatus.WAITING)
+        // when
+        val activatedCount = queueService.activateWaitingEntries()
 
-            given(
-                entryRepository.findAllByStatusOrderByPositionWithLock(
-                    QueueEntryStatus.WAITING,
-                    QueueService.MAX_ACTIVE_ENTRIES,
-                ),
-            ).willReturn(listOf(entry1, entry2, entry3))
-            given(entryRepository.saveAll(any())).willAnswer { invocation ->
-                val savedEntries = invocation.getArgument<List<QueueEntry>>(0)
-                savedEntries.mapIndexed { index, queueEntry -> queueEntry.copy(id = (2L + index)) }
-            }
+        // then
+        Assertions.assertThat(activatedCount).isEqualTo(tokenCount)
 
-            // when
-            val activatedEntries = queueService.activateWaitingEntries()
-
-            // then
-            Assertions.assertThat(activatedEntries.size).isEqualTo(3)
-            Assertions.assertThat(activatedEntries[0].token).isEqualTo(entry1.token)
-            Assertions.assertThat(activatedEntries[1].token).isEqualTo(entry2.token)
-            Assertions.assertThat(activatedEntries[2].token).isEqualTo(entry3.token)
-
-            activatedEntries.forEach {
-                Assertions.assertThat(it.status).isEqualTo(QueueEntryStatus.PROCESSING)
-            }
-
-            verify(entryRepository).findAllByStatus(QueueEntryStatus.PROCESSING)
-            verify(entryRepository).findAllByStatusOrderByPositionWithLock(
-                QueueEntryStatus.WAITING,
-                QueueService.MAX_ACTIVE_ENTRIES,
-            )
-            verify(entryRepository).saveAll(any())
-        }
-
-        @Test
-        fun `should activate correct number of entries when some are already processing`() {
-            // given
-            val currentProcessingEntries = 3
-            val waitingEntries = 7
-
-            val processingEntryList =
-                (1..currentProcessingEntries).map {
-                    createQueueEntry(it.toLong(), 0, status = QueueEntryStatus.PROCESSING)
-                }
-
-            val queueEntryList =
-                (currentProcessingEntries + 1..waitingEntries + currentProcessingEntries).map {
-                    createQueueEntry(
-                        it.toLong(),
-                        (it - currentProcessingEntries).toLong(),
-                        status = QueueEntryStatus.WAITING,
-                    )
-                }
-
-            given(entryRepository.findAllByStatus(QueueEntryStatus.PROCESSING)).willReturn(processingEntryList)
-            given(entryRepository.findAllByStatusOrderByPositionWithLock(eq(QueueEntryStatus.WAITING), any())).willReturn(
-                queueEntryList,
-            )
-            given(entryRepository.saveAll(any())).willAnswer { invocation ->
-                val savedEntries = invocation.getArgument<List<QueueEntry>>(0)
-                savedEntries.mapIndexed { index, queueEntry -> queueEntry.copy(id = (2L + index)) }
-            }
-
-            // when
-            val activatedEntries = queueService.activateWaitingEntries()
-
-            // then
-            val expectedActivatedCount = QueueService.MAX_ACTIVE_ENTRIES - currentProcessingEntries
-            Assertions.assertThat(activatedEntries).hasSize(expectedActivatedCount)
-
-            activatedEntries.forEachIndexed { index, entry ->
-                Assertions.assertThat(entry.status).isEqualTo(QueueEntryStatus.PROCESSING)
-                Assertions.assertThat(entry.userId).isEqualTo((index + currentProcessingEntries + 1).toLong())
-            }
-
-            verify(entryRepository).findAllByStatus(QueueEntryStatus.PROCESSING)
-            verify(entryRepository).findAllByStatusOrderByPositionWithLock(
-                eq(QueueEntryStatus.WAITING),
-                eq(expectedActivatedCount),
-            )
-            verify(entryRepository).saveAll(any())
-        }
-
-        @Test
-        fun `should not activate any entries when max processing limit is reached`() {
-            // given
-            val currentProcessingEntries = 10
-
-            val processingEntryList =
-                (1..currentProcessingEntries).map {
-                    createQueueEntry(it.toLong(), 0, status = QueueEntryStatus.PROCESSING)
-                }
-
-            given(entryRepository.findAllByStatus(QueueEntryStatus.PROCESSING)).willReturn(processingEntryList)
-
-            // when
-            val activatedEntries = queueService.activateWaitingEntries()
-
-            // then
-            Assertions.assertThat(activatedEntries).isEmpty()
-
-            verify(entryRepository).findAllByStatus(QueueEntryStatus.PROCESSING)
-            verify(entryRepository, never()).findAllByStatusOrderByPositionWithLock(any(), any())
-            verify(entryRepository, never()).save(any())
-        }
+        verify(queueRepository).getWaitingQueueSize()
+        verify(queueRepository).moveToActiveQueue(tokenCount)
     }
 
-    @Nested
-    inner class ExpireOverdueEntries {
-        @Test
-        fun `should expire overdue entries and return them`() {
-            // given
-            val overdueEntry1 = createQueueEntry(1L, 1L, 5L, QueueEntryStatus.WAITING)
-            val overdueEntry2 = createQueueEntry(2L, 2L, 12L, QueueEntryStatus.PROCESSING)
+    @Test
+    fun `should throw InvalidTokenException when token is not in any queue`() {
+        // given
+        val token = "invalidToken"
+        given(queueRepository.isInActiveQueue(token)).willReturn(false)
+        given(queueRepository.isInWaitingQueue(token)).willReturn(false)
 
-            val overdueEntries = listOf(overdueEntry1, overdueEntry2)
-            given(
-                entryRepository.findAllByExpiresAtBeforeAndStatusWithLock(
-                    any(),
-                    eq(QueueEntryStatus.PROCESSING),
-                    eq(QueueEntryStatus.WAITING),
-                ),
-            ).willReturn(overdueEntries)
-            given(entryRepository.saveAll(any())).willAnswer { invocation ->
-                val savedEntries = invocation.getArgument<List<QueueEntry>>(0)
-                savedEntries.mapIndexed { index, queueEntry -> queueEntry.copy(id = (2L + index)) }
-            }
+        // when & then
+        Assertions
+            .assertThatThrownBy { queueService.verifyTokenIsInAnyQueue(token) }
+            .isInstanceOf(InvalidTokenException::class.java)
 
-            // when
-            val result = queueService.expireOverdueEntries()
-
-            // then
-            Assertions.assertThat(result).hasSize(2)
-            Assertions.assertThat(result[0].userId).isEqualTo(1L)
-            Assertions.assertThat(result[1].userId).isEqualTo(2L)
-            Assertions.assertThat(result[0].status).isEqualTo(QueueEntryStatus.EXPIRED)
-            Assertions.assertThat(result[1].status).isEqualTo(QueueEntryStatus.EXPIRED)
-            Assertions.assertThat(result[0].position).isEqualTo(0)
-            Assertions.assertThat(result[1].position).isEqualTo(0)
-
-            verify(
-                entryRepository,
-            ).findAllByExpiresAtBeforeAndStatusWithLock(
-                any(),
-                eq(QueueEntryStatus.PROCESSING),
-                eq(QueueEntryStatus.WAITING),
-            )
-            verify(entryRepository).saveAll(any())
-        }
-
-        @Test
-        fun `should return empty list when no overdue entries`() {
-            // given
-            given(
-                entryRepository.findAllByExpiresAtBeforeAndStatusWithLock(
-                    any(),
-                    eq(QueueEntryStatus.PROCESSING),
-                    eq(QueueEntryStatus.WAITING),
-                ),
-            ).willReturn(emptyList())
-
-            // when
-            val result = queueService.expireOverdueEntries()
-
-            // then
-            Assertions.assertThat(result).isEmpty()
-
-            verify(
-                entryRepository,
-            ).findAllByExpiresAtBeforeAndStatusWithLock(
-                any(),
-                eq(QueueEntryStatus.PROCESSING),
-                eq(QueueEntryStatus.WAITING),
-            )
-            verify(entryRepository, never()).save(any())
-        }
+        verify(queueRepository).isInActiveQueue(token)
+        verify(queueRepository).isInWaitingQueue(token)
     }
 
-    private fun createQueueEntry(
-        userId: Long,
-        position: Long,
-        id: Long = 53L,
-        status: QueueEntryStatus = QueueEntryStatus.WAITING,
-        createdAt: ZonedDateTime = ZonedDateTime.now().asUtc,
-    ) = QueueEntry(
-        id = id,
-        userId = userId,
-        token = "valid_token_${id}_${userId}_${position}_${createdAt.toEpochSecond()}",
-        position = position,
-        status = status,
-        expiresAt = createdAt.plusMinutes(EXPIRATION_MINUTES),
-        enteredAt = createdAt,
-        processingStartedAt = null,
-        exitedAt = null,
-        expiredAt = null,
-    )
+    @Test
+    fun `should throw TokenNotInActiveQueueException when token is not in active queue`() {
+        // given
+        val token = "inactiveToken"
+        given(queueRepository.isInActiveQueue(token)).willReturn(false)
 
-    companion object {
-        const val EXPIRATION_MINUTES = 60L // 60분 뒤 만료
+        // when & then
+        Assertions
+            .assertThatThrownBy { queueService.verifyTokenIsActive(token) }
+            .isInstanceOf(TokenNotInActiveQueueException::class.java)
+
+        verify(queueRepository).isInActiveQueue(token)
+    }
+
+    @Test
+    fun `should return null when token is not in waiting queue`() {
+        // given: 대기열에 token 이 없는 상황
+        val token = "notWaitingToken"
+        given(queueRepository.getWaitingQueuePosition(token)).willReturn(null)
+
+        // when
+        val waitingInfo = queueService.getWaitingInfo(token)
+
+        // then
+        Assertions.assertThat(waitingInfo).isNull()
+
+        verify(queueRepository).getWaitingQueuePosition(token)
+    }
+
+    @Test
+    fun `should return WaitingInfo when token is in waiting queue`() {
+        // given: token 이 대기열의 5번째에 있는 상황
+        val token = "waitingToken"
+        val position = 5
+        given(queueRepository.getWaitingQueuePosition(token)).willReturn(position)
+
+        // when
+        val waitingInfo = queueService.getWaitingInfo(token)
+
+        // then: 5번째인 대기 정보가 와야한다.
+        Assertions.assertThat(waitingInfo).isNotNull
+        Assertions.assertThat(waitingInfo!!.token).isEqualTo(token)
+        Assertions.assertThat(waitingInfo.position).isEqualTo(position)
+        Assertions
+            .assertThat(waitingInfo.estimatedWaitingTime)
+            .isEqualTo(position * queueProperties.estimatedWorkingTimeInMinutes)
+
+        verify(queueRepository).getWaitingQueuePosition(token)
+    }
+
+    @Test
+    fun `should throw QueueNotAvailableException when adding is not possible`() {
+        // given: 대기열에 token 을 넣을 수 없는 상황
+        val token = "newToken"
+        given(queueRepository.addToWaitingQueue(token)).willReturn(false)
+
+        // when & then: 대기열에 없으므로, 대기 정보가 없어야 한다.
+        Assertions
+            .assertThatThrownBy { queueService.enter(token) }
+            .isInstanceOf(QueueNotAvailableException::class.java)
+
+        verify(queueRepository).addToWaitingQueue(token)
+    }
+
+    @Test
+    fun `should return WaitingInfo when successfully added to queue`() {
+        // given: 대기열에 9개의 token 있는 상황
+        val token = "newToken"
+        val position = 10
+        given(queueRepository.addToWaitingQueue(token)).willReturn(true)
+        given(queueRepository.getWaitingQueuePosition(token)).willReturn(position)
+
+        // when
+        val waitingInfo = queueService.enter(token)
+
+        // then: 10번째로 대기열에 진입했다는 대기 정보가 와야한다.
+        Assertions.assertThat(waitingInfo.token).isEqualTo(token)
+        Assertions.assertThat(waitingInfo.position).isEqualTo(position)
+        Assertions
+            .assertThat(waitingInfo.estimatedWaitingTime)
+            .isEqualTo(position * queueProperties.estimatedWorkingTimeInMinutes)
+
+        verify(queueRepository).addToWaitingQueue(token)
+        verify(queueRepository).getWaitingQueuePosition(token)
+    }
+
+    @Test
+    fun `should remove token from queue when token is valid`() {
+        // given: token 이 활성 Queue 에 있는 상황
+        val token = "validToken"
+        given(queueRepository.isInActiveQueue(token)).willReturn(true)
+
+        // when
+        queueService.exit(token)
+
+        // then
+        verify(queueRepository).removeFromQueue(token)
+    }
+
+    @Test
+    fun `should return zero when waiting queue is empty`() {
+        // given: 대기열에 아무 token 도 없는 상황
+        val movedCount = 0
+        given(queueRepository.getWaitingQueueSize()).willReturn(movedCount)
+
+        // when
+        val result = queueService.activateWaitingEntries()
+
+        // then: 아무것도 활성화하지 않았으므로, activatedCount 는 0 이어야 한다.
+        Assertions.assertThat(result).isEqualTo(0)
+
+        verify(queueRepository).getWaitingQueueSize()
+        verify(queueRepository, never()).moveToActiveQueue(movedCount)
+    }
+
+    @Test
+    fun `should move entries to active queue`() {
+        // given: 대기열에 2000 개의 token 이 있고, 그 2000 개를 활성 Queue 로 옮기려는 상황
+        val waitingQueueSize = 2000
+        given(queueRepository.getWaitingQueueSize()).willReturn(waitingQueueSize)
+        given(queueRepository.moveToActiveQueue(waitingQueueSize)).willReturn(waitingQueueSize)
+
+        // when
+        val result = queueService.activateWaitingEntries()
+
+        // then
+        Assertions.assertThat(result).isEqualTo(waitingQueueSize)
+
+        verify(queueRepository).getWaitingQueueSize()
+        verify(queueRepository).moveToActiveQueue(waitingQueueSize)
     }
 }

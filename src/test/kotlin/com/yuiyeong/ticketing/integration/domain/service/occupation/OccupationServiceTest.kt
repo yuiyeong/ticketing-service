@@ -1,6 +1,5 @@
 package com.yuiyeong.ticketing.integration.domain.service.occupation
 
-import com.yuiyeong.ticketing.TestDataFactory.createSeat
 import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.exception.SeatUnavailableException
 import com.yuiyeong.ticketing.domain.model.occupation.AllocationStatus
@@ -8,8 +7,8 @@ import com.yuiyeong.ticketing.domain.model.occupation.OccupationStatus
 import com.yuiyeong.ticketing.domain.repository.concert.SeatRepository
 import com.yuiyeong.ticketing.domain.repository.occupation.OccupationRepository
 import com.yuiyeong.ticketing.domain.service.occupation.OccupationService
+import com.yuiyeong.ticketing.helper.TestDataFactory.createSeat
 import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
@@ -17,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
-import org.springframework.transaction.annotation.Transactional
 import org.testcontainers.containers.MySQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
@@ -26,7 +24,6 @@ import kotlin.test.Test
 
 @SpringBootTest
 @Testcontainers
-@Transactional
 @Execution(ExecutionMode.CONCURRENT)
 class OccupationServiceTest {
     @Autowired
@@ -37,12 +34,6 @@ class OccupationServiceTest {
 
     @Autowired
     private lateinit var seatRepository: SeatRepository
-
-    @AfterEach
-    fun afterEach() {
-        occupationRepository.deleteAll()
-        seatRepository.deleteAll()
-    }
 
     @Nested
     inner class CreateOccupationTest {
@@ -71,7 +62,7 @@ class OccupationServiceTest {
         @Test
         fun `should throw SeatUnavailableException when seats are not available`() {
             // given
-            val userId = 1L
+            val userId = 13L
             val seats =
                 listOf(
                     createSeat(isAvailable = false),
@@ -92,7 +83,7 @@ class OccupationServiceTest {
         @Test
         fun `should expire overdue occupations`() {
             // given
-            val userId = 1L
+            val userId = 18L
             val seats = listOf(createSeat(isAvailable = true))
             val savedSeats = seatRepository.saveAll(seats)
             val occupation = occupationService.occupy(userId, 9L, savedSeats.map { it.id })
@@ -117,7 +108,7 @@ class OccupationServiceTest {
         @Test
         fun `should not expire non-overdue occupations`() {
             // given
-            val userId = 1L
+            val userId = 10L
             val seats = listOf(createSeat(isAvailable = true))
             val savedSeats = seatRepository.saveAll(seats)
             occupationService.occupy(userId, 32L, savedSeats.map { it.id })

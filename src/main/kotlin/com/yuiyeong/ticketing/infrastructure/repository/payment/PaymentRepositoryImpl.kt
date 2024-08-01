@@ -20,6 +20,4 @@ class PaymentRepositoryImpl(
     }
 
     override fun findAllByUserId(userId: Long): List<Payment> = paymentJpaRepository.findAllByUserId(userId).map { it.toPayment() }
-
-    override fun deleteAll() = paymentJpaRepository.deleteAll()
 }

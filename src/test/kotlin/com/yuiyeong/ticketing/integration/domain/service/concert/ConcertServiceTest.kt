@@ -1,8 +1,5 @@
 package com.yuiyeong.ticketing.integration.domain.service.concert
 
-import com.yuiyeong.ticketing.TestDataFactory.createConcert
-import com.yuiyeong.ticketing.TestDataFactory.createConcertEvent
-import com.yuiyeong.ticketing.TestDataFactory.createSeat
 import com.yuiyeong.ticketing.common.asUtc
 import com.yuiyeong.ticketing.domain.exception.ConcertEventNotFoundException
 import com.yuiyeong.ticketing.domain.model.concert.Concert
@@ -11,8 +8,10 @@ import com.yuiyeong.ticketing.domain.repository.concert.ConcertEventRepository
 import com.yuiyeong.ticketing.domain.repository.concert.ConcertRepository
 import com.yuiyeong.ticketing.domain.repository.concert.SeatRepository
 import com.yuiyeong.ticketing.domain.service.concert.ConcertService
+import com.yuiyeong.ticketing.helper.TestDataFactory.createConcert
+import com.yuiyeong.ticketing.helper.TestDataFactory.createConcertEvent
+import com.yuiyeong.ticketing.helper.TestDataFactory.createSeat
 import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.parallel.Execution
@@ -29,8 +28,8 @@ import java.time.ZonedDateTime
 import kotlin.test.Test
 
 @SpringBootTest
-@Transactional
 @Testcontainers
+@Transactional
 @Execution(ExecutionMode.CONCURRENT)
 class ConcertServiceTest {
     @Autowired
@@ -45,22 +44,42 @@ class ConcertServiceTest {
     @Autowired
     private lateinit var seatRepository: SeatRepository
 
-    private lateinit var concert: Concert
+    @Nested
+    inner class GetConcertsTest {
+        @Test
+        fun `should return all concerts`() {
+            // given
+            val concert = concertRepository.save(createConcert())
 
-    @BeforeEach
-    fun beforeEach() {
-        concert = concertRepository.save(createConcert())
-    }
+            // when
+            val concerts = concertService.getConcerts()
 
-    @AfterEach
-    fun afterEach() {
-        seatRepository.deleteAll()
-        concertEventRepository.deleteAll()
-        concertRepository.deleteAll()
+            // then
+            Assertions.assertThat(concerts.count()).isEqualTo(1)
+            Assertions.assertThat(concerts[0].title).isEqualTo(concert.title)
+            Assertions.assertThat(concerts[0].singer).isEqualTo(concert.singer)
+            Assertions.assertThat(concerts[0].description).isEqualTo(concert.description)
+        }
+
+        @Test
+        fun `should return empty list when there are no concerts`() {
+            // when
+            val concerts = concertService.getConcerts()
+
+            // then
+            Assertions.assertThat(concerts).isEmpty()
+        }
     }
 
     @Nested
     inner class GetAvailableEventsTest {
+        private lateinit var concert: Concert
+
+        @BeforeEach
+        fun beforeEach() {
+            concert = concertRepository.save(createConcert())
+        }
+
         @Test
         fun `should return events within reservation period`() {
             // given
@@ -136,6 +155,13 @@ class ConcertServiceTest {
 
     @Nested
     inner class GetConcertEventTest {
+        private lateinit var concert: Concert
+
+        @BeforeEach
+        fun beforeEach() {
+            concert = concertRepository.save(createConcert())
+        }
+
         @Test
         fun `should return event when it exists`() {
             // given
@@ -165,10 +191,13 @@ class ConcertServiceTest {
 
     @Nested
     inner class RefreshAvailableSeatsTest {
+        private lateinit var concert: Concert
         private lateinit var concertEvent: ConcertEvent
 
         @BeforeEach
         fun beforeEach() {
+            concert = concertRepository.save(createConcert())
+
             val now = ZonedDateTime.now().asUtc
             concertEvent = concertEventRepository.save(createConcertEvent(concert, now, now.plusHours(2)))
         }

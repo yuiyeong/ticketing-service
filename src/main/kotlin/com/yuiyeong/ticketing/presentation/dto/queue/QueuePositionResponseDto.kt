@@ -1,13 +1,16 @@
 package com.yuiyeong.ticketing.presentation.dto.queue
 
-import com.yuiyeong.ticketing.application.dto.queue.QueueEntryResult
+import com.yuiyeong.ticketing.application.dto.queue.WaitingInfoResult
 
 data class QueuePositionResponseDto(
-    val queuePosition: Long,
+    val position: Int,
     val estimatedWaitingTime: Long,
 ) {
     companion object {
-        fun from(entryDto: QueueEntryResult): QueuePositionResponseDto =
-            QueuePositionResponseDto(entryDto.position, entryDto.estimatedWaitingTime)
+        fun from(result: WaitingInfoResult): QueuePositionResponseDto =
+            QueuePositionResponseDto(
+                position = result.position,
+                estimatedWaitingTime = result.estimatedWaitingTime,
+            )
     }
 }
