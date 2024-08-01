@@ -61,7 +61,7 @@ class ConcertEventController(
         @PathVariable("concertEventId") concertEventId: Long,
         @RequestBody req: ConcertEventReservationRequest,
     ): TicketingResponse<ReservationResponseDto> {
-        val data = ReservationResponseDto.from(reserveSeatUseCase.execute(userId, concertEventId, req.seatId))
+        val data = ReservationResponseDto.from(reserveSeatUseCase.execute(userId, concertEventId, req.occupationId))
         return TicketingResponse(data)
     }
 }
