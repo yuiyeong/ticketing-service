@@ -24,21 +24,32 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+
+    // for restarting app when code changes
+    implementation("org.springframework.boot:spring-boot-devtools")
+
+    // for mysql
     runtimeOnly("com.mysql:mysql-connector-j")
-    // for swagger
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
+
+    // for redis
+    implementation("org.redisson:redisson-spring-boot-starter:3.33.0")
 
     // for jwt
     api("io.jsonwebtoken:jjwt-api:0.12.6")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.6")
     runtimeOnly("io.jsonwebtoken:jjwt-orgjson:0.12.6")
 
+    // for swagger
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
+
     // for logging
     implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0")
 
-    // for redis
-    implementation("org.redisson:redisson-spring-boot-starter:3.33.0")
+    // for metric
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("io.micrometer:micrometer-registry-prometheus")
 
+    /**************************** For Test ****************************/
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

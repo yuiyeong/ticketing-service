@@ -1,0 +1,28 @@
+spring:
+    config:
+        activate:
+            on-profile: prod
+    datasource:
+        url: jdbc:mysql://db:3306/ticketing?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC
+        username: ${MYSQL_USER}
+        password: ${MYSQL_PASSWORD}
+    data:
+        redis:
+            host: redis
+            port: 6379
+    jpa:
+        hibernate:
+            ddl-auto: validate
+
+logging:
+    request-response:
+        enabled: false
+
+config:
+    scheduler:
+        enabled: ${SCHEDULER_ENABLED:true}
+
+decorator:
+    datasource:
+        p6spy:
+            enable-logging: false

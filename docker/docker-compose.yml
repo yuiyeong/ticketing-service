@@ -1,0 +1,171 @@
+name: ticketing
+services:
+    app:
+        build:
+            context: ..
+            dockerfile: docker/Dockerfile.local
+        volumes:
+            - ..:/app
+            - ../.gradle:/root/.gradle
+        command: ./gradlew bootRun
+        ports:
+            - "8080:8080"
+        environment:
+            - SPRING_PROFILES_ACTIVE=dev
+            - SPRING_DATASOURCE_URL=${DB_URL}
+            - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
+            - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+            - SPRING_DATA_REDIS_HOST=${REDIS_HOST}
+            - SPRING_DATA_REDIS_PORT=${REDIS_PORT}
+        depends_on:
+            db:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+        healthcheck:
+            test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
+            interval: 30s
+            timeout: 10s
+            retries: 5
+        deploy:  # aws 의 t3.medium 과 비슷하게
+            resources:
+                limits:
+                    cpus: '2'
+                    memory: 4G
+                reservations:
+                    cpus: '1'
+                    memory: 2G
+        networks:
+            - backend
+
+    db:
+        image: mysql:8.0
+        environment:
+            MYSQL_DATABASE: ${MYSQL_DATABASE}
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+        volumes:
+            - mysql-data:/var/lib/mysql
+            # mysql extractor 를 위한 user 생성 및 seed data 추가
+            - ../sql:/docker-entrypoint-initdb.d
+        ports:
+            - "3306:3306"
+        command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+        healthcheck:
+            test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        deploy:  # aws 의 t3.medium 과 비슷하게
+            resources:
+                limits:
+                    cpus: '2'
+                    memory: 4G
+                reservations:
+                    cpus: '1'
+                    memory: 2G
+        networks:
+            - backend
+
+    redis:
+        image: redis:6.2-alpine
+        ports:
+            - "6379:6379"
+        volumes:
+            - redis-data:/data
+        command: redis-server --notify-keyspace-events KEA
+        depends_on:
+            db:
+                condition: service_healthy
+        healthcheck:
+            test: [ "CMD", "redis-cli", "ping" ]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        deploy:  # aws 의 t3.small 과 비슷하게
+            resources:
+                limits:
+                    cpus: '2'
+                    memory: 2G
+                reservations:
+                    cpus: '1'
+                    memory: 1G
+        networks:
+            - backend
+
+    mysql-exporter:
+        image: prom/mysqld-exporter:v0.15.1
+        command:
+            - '--config.my-cnf=/etc/mysqld-exporter/.my.cnf'
+        volumes:
+            - ./my.cnf:/etc/mysqld-exporter/.my.cnf
+        environment:
+            - DATA_SOURCE_NAME=${DB_USERNAME}:${DB_PASSWORD}@(db:3306)/
+        ports:
+            - "9104:9104"
+        depends_on:
+            db:
+                condition: service_healthy
+        deploy:
+            resources:
+                limits:
+                    cpus: '1'
+                    memory: 512M
+                reservations:
+                    cpus: '0.5'
+                    memory: 256M
+        networks:
+            - backend
+
+    prometheus:
+        image: prom/prometheus:v2.53.1
+        volumes:
+            - ./prometheus.yml:/etc/prometheus/prometheus.yml
+            - prometheus-data:/prometheus
+        command:
+            - '--config.file=/etc/prometheus/prometheus.yml'
+            - '--storage.tsdb.path=/prometheus'
+            - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+            - '--web.console.templates=/usr/share/prometheus/consoles'
+        ports:
+            - "9090:9090"
+        deploy:  # aws 의 t3.small 과 비슷하게
+            resources:
+                limits:
+                    cpus: '2'
+                    memory: 2G
+                reservations:
+                    cpus: '1'
+                    memory: 1G
+        networks:
+            - backend
+
+    grafana:
+        image: grafana/grafana:11.1.1
+        depends_on:
+            - prometheus
+        ports:
+            - "3000:3000"
+        volumes:
+            - grafana-data:/var/lib/grafana
+        environment:
+            - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+        deploy:   # aws 의 t3.micro 와 비슷하게
+            resources:
+                limits:
+                    cpus: '2'
+                    memory: 1G
+                reservations:
+                    cpus: '1'
+                    memory: 512M
+        networks:
+            - backend
+
+networks:
+    backend:
+        driver: bridge
+
+volumes:
+    mysql-data:
+    redis-data:
+    prometheus-data:
+    grafana-data:
