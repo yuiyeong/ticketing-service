@@ -98,6 +98,7 @@ SELECT cee1_0.id,
 FROM concert_event cee1_0
 WHERE cee1_0.id = ?
 ```
+
 ```sql
 SELECT ce1_0.id,
        ce1_0.created_at,
@@ -108,6 +109,7 @@ SELECT ce1_0.id,
 FROM concert ce1_0
 WHERE ce1_0.id = ?
 ```
+
 ```sql            
 SELECT se1_0.id,
        se1_0.created_at,
@@ -125,6 +127,9 @@ UPDATE
 
 </div>
 </details>
+
+- 잡한 JOIN이 없는 단순 SELECT 쿼리들로 구성되어 있습니다.
+- FOR UPDATE 구문으로 인해 동시성 이슈는 해결되지만, 대량 트래픽 시 Lock 경합이 발생할 수 있습니다.
 
 ## 5. 좌석 예약
 
@@ -154,11 +159,12 @@ SELECT oe1_0.id,
        sa1_0.user_id,
        oe1_0.status,
        oe1_0.user_id
-FROM   occupation oe1_0
+FROM occupation oe1_0
          LEFT JOIN seat_allocation sa1_0
                    ON oe1_0.id = sa1_0.occupation_id
-WHERE  oe1_0.id = ?
-  FOR UPDATE
+WHERE oe1_0.id = ?
+    FOR
+UPDATE
 ```
 
 </div>
@@ -179,10 +185,12 @@ SELECT we1_0.id,
        we1_0.updated_at,
        we1_0.balance,
        we1_0.user_id
-FROM   wallet we1_0
-WHERE  we1_0.user_id = ?
-  FOR UPDATE
+FROM wallet we1_0
+WHERE we1_0.user_id = ?
+    FOR
+UPDATE
 ```
+
 ```sql
 SELECT re1_0.id,
        re1_0.created_at,
@@ -193,10 +201,12 @@ SELECT re1_0.id,
        re1_0.total_amount,
        re1_0.total_seats,
        re1_0.user_id
-FROM   reservation re1_0
-WHERE  re1_0.id = ?
-FOR UPDATE
+FROM reservation re1_0
+WHERE re1_0.id = ?
+    FOR
+UPDATE
 ```
+
 </div>
 </details>
 
@@ -324,9 +334,28 @@ export default function () {
 </div>
 </details>
 
-- 테스트 구성
-    - 최대 가상 사용자(VUs): 10
-    - 반복 횟수: 10
+## 테스트 데이터
+
+- User: 1,000 명
+- Wallet: 1,000 개
+- Concert: 20,000 개
+- ConcertEvent: 100,000 개
+- Seat: 500,000 개
+
+## 테스트 환경
+
+- docker 를 이용하여 구성
+
+| 서비스   | CPU 제한 | CPU 예약 | 메모리 제한 | 메모리 예약 |
+      |-------|--------|--------|--------|--------|
+| app   | 2      | 1      | 4G     | 2G     |
+| db    | 2      | 1      | 4G     | 2G     |
+| redis | 2      | 1      | 2G     | 1G     |
+
+## 테스트 시나리오
+
+- 최대 가상 사용자(VUs): 10 명
+- 1 분간 동시에 진행
 
 ## 테스트 결과
 
@@ -430,6 +459,25 @@ export default function () {
 - 나머지 API들은 대부분 비슷한 수준을 유지하고 있습니다.
 
 ## Caching 적용 전후 비교 및 결론
+
+| 지표              | Caching 적용 전 | Caching 적용 후 | 개선률     |
+|-----------------|--------------|--------------|---------|
+| 총 요청 수          | 200          | 302          | 51% 증가  |
+| 평균 응답 시간        | 47.36ms      | 55.43ms      | -17.04% |
+| 중앙값 응답 시간       | 11.46ms      | 18.49ms      | -61.34% |
+| 최대 응답 시간        | 597.23ms     | 225.34ms     | 62.27%  |
+| 95번째 백분위수 응답 시간 | 219.46ms     | 204.45ms     | 6.84%   |
+| 초당 요청 수         | 2.730111/s   | 4.406714/s   | 61.41%  |
+| 평균 반복 지속 시간     | 41.01s       | 11.87s       | 71.06%  |
+| 최대 반복 지속 시간     | 65s          | 13.77s       | 78.82%  |
+
+| API                                                         | Caching 적용 전 | Caching 적용 후 | 개선률    |
+|-------------------------------------------------------------|--------------|--------------|--------|
+| **GET /api/v1/concerts**                                    | 401ms        | 43.3ms       | 89.20% |
+| GET /api/v1/concert-events/{concertEventId}/available-seats | 197ms        | 192ms        | 2.54%  |
+| POST /api/v1/concert-events/{concertEventId}/occupy         | 207ms        | 201ms        | 2.90%  |
+| GET /api/v1/concerts/{concertId}/available-events           | 64.8ms       | 54.9ms       | 15.28% |
+| POST /api/v1/payments                                       | 81.8ms       | 31.4ms       | 61.61% |
 
 - 평균 응답 시간이 47.36ms 에서 55.43ms 로 약간 증가했지만, 이는 더 많은 요청을 처리했기 때문에 일어난 현상 같습니다.
 - 초당 요청 처리량이 2.73에서 4.41로 크게 증가했습니다. 이 지표가 시스템의 전반적인 처리 능력이 향상되었음을 나타내는 지표라고 생각합니다.
