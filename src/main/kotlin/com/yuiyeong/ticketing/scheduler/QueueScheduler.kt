@@ -11,8 +11,7 @@ import org.springframework.stereotype.Component
 class QueueScheduler(
     private val activateWaitingEntriesUseCase: ActivateWaitingEntriesUseCase,
 ) {
-    // TODO N 계산하기
-    @Scheduled(fixedRateString = "#{@schedulerProperties.queueFixedRate}")
+    @Scheduled(fixedRateString = "#{@queueProperties.activeRate}")
     fun processQueue() {
         try {
             // 대기 중인 항목 활성화

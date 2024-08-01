@@ -57,7 +57,11 @@ config:
     distributed-lock:
         acquire-timeout: 5000 # lock 획득까지 기다릴 시간; 5초
         lock-ttl: 10000 # distributed lock 의 만료 시간; 10초
+    queue:
+        token-ttl-in-seconds: 3600 # token 의 ttl 을 초 단위로; 3600 초
+        max-count-to-move: 1400 # 활성화할 토큰 수
+        batch-size-to-move-to-active: 500 # waiting token 에서 active token 으로 변경할 때 batch size
+        active-rate: 10000 # 활성화 주기; 10 초
     scheduler:
         enabled: true
-        queue-fixed-rate: 60000 # 1분
         occupation-fixed-rate: 60000 # 1분
