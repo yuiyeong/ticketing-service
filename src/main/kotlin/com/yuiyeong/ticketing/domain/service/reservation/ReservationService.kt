@@ -31,12 +31,12 @@ class ReservationService(
         val occupation = occupationRepository.findOneByIdWithLock(occupationId) ?: throw OccupationNotFoundException()
         if (userId != occupation.userId) throw OccupationInvalidException()
 
-        val reservation = Reservation.create(userId, concertEvent, occupation)
+        val reservation = reservationRepository.save(Reservation.create(userId, concertEvent, occupation))
 
         val now = ZonedDateTime.now().asUtc
-        occupationRepository.save(occupation.release(now))
+        occupationRepository.save(occupation.reserve(reservation.id, now))
 
-        return reservationRepository.save(reservation)
+        return reservation
     }
 
     @Transactional(readOnly = true)

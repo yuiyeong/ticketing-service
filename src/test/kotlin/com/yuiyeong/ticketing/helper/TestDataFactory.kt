@@ -151,12 +151,12 @@ object TestDataFactory {
             totalAmount = occupation.totalAmount,
         )
 
-    fun createConcert(): Concert =
+    fun createConcert(postfix: String = ""): Concert =
         Concert(
             id = 0L,
-            title = "Test Concert",
-            singer = "Test Singer",
-            description = "Test Description",
+            title = "Test Concert $postfix",
+            singer = "Test Singer $postfix",
+            description = "Test Description $postfix",
         )
 
     fun createConcertEvent(
@@ -194,6 +194,7 @@ object TestDataFactory {
         id: Long = 0L,
         userId: Long = 1L,
         concertEventId: Long = 1L,
+        reservationId: Long? = null,
         allocations: List<SeatAllocation> = listOf(createSeatAllocation()),
         status: OccupationStatus = OccupationStatus.ACTIVE,
         createdAt: ZonedDateTime = ZonedDateTime.now().asUtc,
@@ -209,6 +210,7 @@ object TestDataFactory {
             createdAt = createdAt,
             expiresAt = expiresAt,
             expiredAt = expiredAt,
+            reservationId = reservationId,
         )
 
     fun createSeatAllocation(

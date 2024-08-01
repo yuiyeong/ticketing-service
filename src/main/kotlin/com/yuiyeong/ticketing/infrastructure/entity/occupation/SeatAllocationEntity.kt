@@ -3,7 +3,6 @@ package com.yuiyeong.ticketing.infrastructure.entity.occupation
 import com.yuiyeong.ticketing.domain.model.occupation.AllocationStatus
 import com.yuiyeong.ticketing.domain.model.occupation.SeatAllocation
 import com.yuiyeong.ticketing.infrastructure.entity.audit.Auditable
-import com.yuiyeong.ticketing.infrastructure.entity.reservation.ReservationEntity
 import jakarta.persistence.ConstraintMode
 import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
@@ -35,19 +34,13 @@ class SeatAllocationEntity(
     val occupiedAt: ZonedDateTime?,
     val expiredAt: ZonedDateTime?,
     val reservedAt: ZonedDateTime?,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "occupation_id", foreignKey = ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    val occupation: OccupationEntity? = null,
+    val reservationId: Long? = null,
     @Embedded
     val auditable: Auditable = Auditable(),
 ) {
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "occupation_id", foreignKey = ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    var occupation: OccupationEntity? = null
-        private set
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reservation_id", foreignKey = ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    var reservation: ReservationEntity? = null
-        private set
-
     fun toSeatAllocation(): SeatAllocation =
         SeatAllocation(
             id = id,
@@ -62,7 +55,10 @@ class SeatAllocationEntity(
         )
 
     companion object {
-        fun from(seatAllocation: SeatAllocation): SeatAllocationEntity =
+        fun create(
+            seatAllocation: SeatAllocation,
+            occupationEntity: OccupationEntity?,
+        ): SeatAllocationEntity =
             SeatAllocationEntity(
                 id = seatAllocation.id,
                 userId = seatAllocation.userId,
@@ -73,6 +69,8 @@ class SeatAllocationEntity(
                 occupiedAt = seatAllocation.occupiedAt,
                 expiredAt = seatAllocation.expiredAt,
                 reservedAt = seatAllocation.reservedAt,
+                occupation = occupationEntity,
+                reservationId = occupationEntity?.reservationId,
             )
     }
 }

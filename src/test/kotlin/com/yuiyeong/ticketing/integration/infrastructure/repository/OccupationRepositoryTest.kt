@@ -43,13 +43,14 @@ class OccupationRepositoryTest {
     }
 
     @Test
-    fun `should return released occupations after releasing and saving it`() {
+    fun `should return released occupations after reserving and saving it`() {
         // given
+        val reservationId = 1221L
         val occupation = createOccupation(78L, listOf(1L, 32L))
         val savedOne = occupationRepository.save(occupation)
 
         // when
-        val updatedOne = occupationRepository.save(savedOne.release(ZonedDateTime.now().asUtc))
+        val updatedOne = occupationRepository.save(savedOne.reserve(reservationId, ZonedDateTime.now().asUtc))
 
         // then
         Assertions.assertThat(updatedOne.id).isEqualTo(savedOne.id)
@@ -186,6 +187,7 @@ class OccupationRepositoryTest {
             createdAt = createdAt,
             expiresAt = createdAt.plusMinutes(5),
             expiredAt = null,
+            reservationId = null,
         )
     }
 }

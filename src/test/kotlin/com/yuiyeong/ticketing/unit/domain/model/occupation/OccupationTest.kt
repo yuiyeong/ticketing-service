@@ -54,29 +54,31 @@ class OccupationTest {
     }
 
     @Test
-    fun `should release an occupation`() {
+    fun `should release an occupation by reservation`() {
         // given
         val userId = 2L
+        val reservationId = 32L
         val now = ZonedDateTime.now().asUtc
         val occupation = createOccupation(userId, now, OccupationStatus.ACTIVE)
 
         // when
-        val result = occupation.release(now)
+        val result = occupation.reserve(reservationId, now)
 
         // then
         Assertions.assertThat(result.status).isEqualTo(OccupationStatus.RELEASED)
     }
 
     @Test
-    fun `should throw OccupationExpiredException when trying to release an expired occupation`() {
+    fun `should throw OccupationExpiredException when trying to reserve an expired occupation`() {
         // given
         val userId = 1L
+        val reservationId = 3L
         val now = ZonedDateTime.now().asUtc
         val expiredOccupation = createOccupation(userId, now, OccupationStatus.EXPIRED)
 
         // when & then
         Assertions
-            .assertThatThrownBy { expiredOccupation.release(now) }
+            .assertThatThrownBy { expiredOccupation.reserve(reservationId, now) }
             .isInstanceOf(OccupationAlreadyExpiredException::class.java)
     }
 
@@ -84,12 +86,13 @@ class OccupationTest {
     fun `should throw OccupationExpiredException when trying to release an occupation after expiresAt`() {
         // given
         val userId = 1L
+        val reservationId = 98L
         val now = ZonedDateTime.now().asUtc.minusHours(1)
         val expiredOccupation = createOccupation(userId, now, OccupationStatus.ACTIVE)
 
         // when & then
         Assertions
-            .assertThatThrownBy { expiredOccupation.release(ZonedDateTime.now().asUtc) }
+            .assertThatThrownBy { expiredOccupation.reserve(reservationId, ZonedDateTime.now().asUtc) }
             .isInstanceOf(OccupationAlreadyExpiredException::class.java)
     }
 
@@ -97,12 +100,13 @@ class OccupationTest {
     fun `should throw OccupationAlreadyReleaseException when trying to release an released occupation`() {
         // given
         val userId = 1L
+        val reservationId = 8L
         val now = ZonedDateTime.now().asUtc
         val releasedOccupation = createOccupation(userId, now, OccupationStatus.RELEASED)
 
         // when & then
         Assertions
-            .assertThatThrownBy { releasedOccupation.release(now) }
+            .assertThatThrownBy { releasedOccupation.reserve(reservationId, now) }
             .isInstanceOf(OccupationAlreadyReleaseException::class.java)
     }
 
@@ -140,6 +144,7 @@ class OccupationTest {
             createdAt = createdAt,
             expiresAt = createdAt.plusMinutes(5),
             expiredAt = null,
+            reservationId = null,
         )
     }
 }
