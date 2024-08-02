@@ -32,7 +32,7 @@ dependencies {
     runtimeOnly("com.mysql:mysql-connector-j")
 
     // for redis
-    implementation("org.redisson:redisson-spring-boot-starter:3.33.0")
+    implementation("org.redisson:redisson-spring-boot-starter:3.34.1")
 
     // for jwt
     api("io.jsonwebtoken:jjwt-api:0.12.6")
