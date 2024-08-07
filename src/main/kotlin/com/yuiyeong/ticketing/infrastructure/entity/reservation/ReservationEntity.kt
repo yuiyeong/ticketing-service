@@ -3,7 +3,6 @@ package com.yuiyeong.ticketing.infrastructure.entity.reservation
 import com.yuiyeong.ticketing.domain.model.reservation.Reservation
 import com.yuiyeong.ticketing.domain.model.reservation.ReservationStatus
 import com.yuiyeong.ticketing.infrastructure.entity.audit.Auditable
-import com.yuiyeong.ticketing.infrastructure.entity.occupation.SeatAllocationEntity
 import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -11,7 +10,6 @@ import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
-import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 import java.math.BigDecimal
 
@@ -28,8 +26,6 @@ class ReservationEntity(
     val status: ReservationEntityStatus,
     val totalSeats: Int,
     val totalAmount: BigDecimal,
-    @OneToMany(mappedBy = "reservation")
-    val seatAllocations: List<SeatAllocationEntity> = listOf(),
     @Embedded
     val auditable: Auditable = Auditable(),
 ) {

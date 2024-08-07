@@ -23,20 +23,24 @@ class OccupationEntity(
     val id: Long,
     val userId: Long,
     val concertEventId: Long,
+    val reservationId: Long?,
     @Enumerated(EnumType.STRING)
     val status: OccupationEntityStatus,
     val expiresAt: ZonedDateTime,
     val expiredAt: ZonedDateTime?,
-    @OneToMany(mappedBy = "occupation", cascade = [CascadeType.ALL])
-    val seatAllocations: List<SeatAllocationEntity> = listOf(),
     @Embedded
     val auditable: Auditable = Auditable(),
 ) {
+    @OneToMany(mappedBy = "occupation", cascade = [CascadeType.ALL])
+    var seatAllocations: List<SeatAllocationEntity> = listOf()
+        private set
+
     fun toOccupation(): Occupation =
         Occupation(
             id = id,
             userId = userId,
             concertEventId = concertEventId,
+            reservationId = reservationId,
             allocations = seatAllocations.map { it.toSeatAllocation() },
             status = status.toOccupationStatus(),
             createdAt = auditable.createdAt,
@@ -50,11 +54,16 @@ class OccupationEntity(
                 id = occupation.id,
                 userId = occupation.userId,
                 concertEventId = occupation.concertEventId,
+                reservationId = occupation.reservationId,
                 status = OccupationEntityStatus.from(occupation.status),
                 expiresAt = occupation.expiresAt,
                 expiredAt = occupation.expiredAt,
-                seatAllocations = occupation.allocations.map { SeatAllocationEntity.from(it) },
-            )
+            ).apply {
+                seatAllocations =
+                    occupation.allocations.map {
+                        SeatAllocationEntity.create(it, this@apply)
+                    }
+            }
     }
 }
 

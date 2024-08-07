@@ -6,6 +6,7 @@ import com.yuiyeong.ticketing.domain.exception.OccupationNotFoundException
 import com.yuiyeong.ticketing.domain.exception.ReservationAlreadyConfirmedException
 import com.yuiyeong.ticketing.domain.exception.ReservationNotFoundException
 import com.yuiyeong.ticketing.domain.exception.ReservationNotOpenedException
+import com.yuiyeong.ticketing.domain.model.occupation.OccupationStatus
 import com.yuiyeong.ticketing.domain.model.reservation.ReservationStatus
 import com.yuiyeong.ticketing.domain.repository.concert.ConcertEventRepository
 import com.yuiyeong.ticketing.domain.repository.concert.ConcertRepository
@@ -89,6 +90,10 @@ class ReservationServiceTest {
             Assertions.assertThat(result.status).isEqualTo(ReservationStatus.PENDING)
             Assertions.assertThat(result.totalSeats).isEqualTo(1)
             Assertions.assertThat(result.totalAmount).isEqualTo(seat.price)
+
+            val releasedOccupation = occupationRepository.findOneById(savedOccupation.id)
+            Assertions.assertThat(releasedOccupation!!.status).isEqualTo(OccupationStatus.RELEASED)
+            Assertions.assertThat(releasedOccupation.reservationId).isEqualTo(result.id)
         }
 
         @Test

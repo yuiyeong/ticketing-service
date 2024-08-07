@@ -205,6 +205,7 @@ class ReservationServiceTest {
             createdAt = createdAt,
             expiresAt = createdAt.plusMinutes(5),
             expiredAt = null,
+            reservationId = null,
         )
     }
 

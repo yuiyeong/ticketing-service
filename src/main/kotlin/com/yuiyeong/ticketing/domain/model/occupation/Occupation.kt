@@ -11,6 +11,7 @@ data class Occupation(
     val id: Long,
     val userId: Long,
     val concertEventId: Long,
+    val reservationId: Long?,
     val allocations: List<SeatAllocation>,
     val status: OccupationStatus,
     val createdAt: ZonedDateTime,
@@ -30,7 +31,10 @@ data class Occupation(
         )
     }
 
-    fun release(moment: ZonedDateTime): Occupation {
+    fun reserve(
+        reservationId: Long,
+        moment: ZonedDateTime,
+    ): Occupation {
         verifyActiveStatus()
 
         // state 가 EXPIRED 로, 변경되기 전에 release 를 호출했을 경우
@@ -38,7 +42,11 @@ data class Occupation(
             throw OccupationAlreadyExpiredException()
         }
 
-        return copy(status = OccupationStatus.RELEASED, allocations = allocations.map { it.markAsReserved() })
+        return copy(
+            reservationId = reservationId,
+            status = OccupationStatus.RELEASED,
+            allocations = allocations.map { it.markAsReserved() },
+        )
     }
 
     private fun verifyActiveStatus() {
@@ -64,6 +72,7 @@ data class Occupation(
                 id = 0L,
                 userId = userId,
                 concertEventId = concertEventId,
+                reservationId = null,
                 allocations = allocations,
                 status = OccupationStatus.ACTIVE,
                 createdAt = createdAt,
