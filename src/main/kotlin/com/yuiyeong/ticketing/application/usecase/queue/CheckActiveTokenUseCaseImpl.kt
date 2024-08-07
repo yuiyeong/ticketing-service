@@ -4,8 +4,8 @@ import com.yuiyeong.ticketing.domain.service.queue.QueueService
 import org.springframework.stereotype.Component
 
 @Component
-class ActivateWaitingEntriesUseCaseImpl(
+class CheckActiveTokenUseCaseImpl(
     private val queueService: QueueService,
-) : ActivateWaitingEntriesUseCase {
-    override fun execute(): Int = queueService.activateWaitingEntries()
+) : CheckActiveTokenUseCase {
+    override fun execute(token: String) = queueService.verifyTokenIsActive(token)
 }

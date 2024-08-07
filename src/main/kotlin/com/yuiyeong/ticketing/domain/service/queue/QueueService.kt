@@ -1,86 +1,94 @@
 package com.yuiyeong.ticketing.domain.service.queue
 
-import com.yuiyeong.ticketing.common.asUtc
+import com.yuiyeong.ticketing.config.property.QueueProperties
 import com.yuiyeong.ticketing.domain.exception.InvalidTokenException
-import com.yuiyeong.ticketing.domain.model.queue.QueueEntry
-import com.yuiyeong.ticketing.domain.model.queue.QueueEntryStatus
-import com.yuiyeong.ticketing.domain.repository.queue.QueueEntryRepository
+import com.yuiyeong.ticketing.domain.exception.QueueNotAvailableException
+import com.yuiyeong.ticketing.domain.exception.TokenNotInActiveQueueException
+import com.yuiyeong.ticketing.domain.model.queue.WaitingInfo
+import com.yuiyeong.ticketing.domain.repository.queue.QueueRepository
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
-import java.time.ZonedDateTime
+import kotlin.math.ceil
+import kotlin.math.min
 
 @Service
 class QueueService(
-    private val entryRepository: QueueEntryRepository,
+    private val queueProperties: QueueProperties,
+    private val queueRepository: QueueRepository,
 ) {
-    @Transactional(readOnly = true)
-    fun getFirstWaitingPosition(): Long = entryRepository.findFirstWaitingPosition() ?: 0
-
-    @Transactional
-    fun enter(
-        userId: Long,
-        token: String,
-        enteredAt: ZonedDateTime,
-        expiresAt: ZonedDateTime,
-    ): QueueEntry {
-        val lastPosition = entryRepository.findLastWaitingPosition() ?: 0
-        val activeSize = entryRepository.findAllByStatus(QueueEntryStatus.PROCESSING).size
-        val status = if (activeSize < MAX_ACTIVE_ENTRIES) QueueEntryStatus.PROCESSING else QueueEntryStatus.WAITING
-        val newPosition = if (status == QueueEntryStatus.WAITING) lastPosition + 1 else 0
-
-        val queueEntry = QueueEntry.create(userId, newPosition, token, status, enteredAt, expiresAt)
-        return entryRepository.save(queueEntry)
-    }
-
-    @Transactional
-    fun exit(entryId: Long): QueueEntry {
-        val entry = entryRepository.findOneByIdWithLock(entryId) ?: throw InvalidTokenException()
-        val current = ZonedDateTime.now().asUtc
-        return entryRepository.save(entry.exit(current))
-    }
-
-    @Transactional(readOnly = true)
-    fun getEntry(token: String?): QueueEntry {
-        if (token == null) throw InvalidTokenException()
-        return entryRepository.findOneByToken(token) ?: throw InvalidTokenException()
-    }
-
-    @Transactional
-    fun activateWaitingEntries(): List<QueueEntry> {
-        val alreadyActivatedEntries = entryRepository.findAllByStatus(QueueEntryStatus.PROCESSING)
-        val newActivatingCount = MAX_ACTIVE_ENTRIES - alreadyActivatedEntries.count()
-        if (newActivatingCount <= 0) {
-            return emptyList() // there is no one to be activated.
+    /**
+     * [token] 이 대기열 또는 활성 Queue 에 있는지 검증
+     * @throws InvalidTokenException
+     */
+    fun verifyTokenIsInAnyQueue(token: String) {
+        if (!queueRepository.isInActiveQueue(token) && !queueRepository.isInWaitingQueue(token)) {
+            throw InvalidTokenException()
         }
-
-        val current = ZonedDateTime.now().asUtc
-        val waitingEntries =
-            entryRepository.findAllByStatusOrderByPositionWithLock(QueueEntryStatus.WAITING, newActivatingCount)
-
-        return entryRepository.saveAll(waitingEntries.map { it.process(current) })
     }
 
-    @Transactional
-    fun expireOverdueEntries(): List<QueueEntry> {
-        val current = ZonedDateTime.now().asUtc
-        val entries =
-            entryRepository.findAllByExpiresAtBeforeAndStatusWithLock(
-                current,
-                QueueEntryStatus.PROCESSING,
-                QueueEntryStatus.WAITING,
-            )
-
-        return entryRepository.saveAll(entries.map { it.expire(current) })
+    /**
+     * [token] 이 활성 Queue 에 있는 token 인지 검증
+     * @throws TokenNotInActiveQueueException
+     */
+    fun verifyTokenIsActive(token: String) {
+        if (!queueRepository.isInActiveQueue(token)) {
+            throw TokenNotInActiveQueueException()
+        }
     }
 
-    @Transactional
-    fun dequeueExistingEntries(userId: Long) {
-        entryRepository
-            .findAllByUserIdWithStatus(userId, QueueEntryStatus.PROCESSING, QueueEntryStatus.WAITING)
-            .forEach { exit(it.id) }
+    /**
+     * [token] 이 대기열에 있다면, 의 대기 정보를 반환하고 대기열에 없다면 null 을 반환
+     * @return [WaitingInfo] 대기 정보
+     */
+    fun getWaitingInfo(token: String): WaitingInfo? {
+        val position = queueRepository.getWaitingQueuePosition(token) ?: return null
+        return WaitingInfo(
+            token = token,
+            position = position,
+            estimatedWaitingTime = calculateEstimatedWaitingTime(position),
+        )
     }
 
-    companion object {
-        const val MAX_ACTIVE_ENTRIES = 10 // 최대 10 명까지 작업 가능함
+    /**
+     * [token] 을 대기열에 추가한다.
+     * @return [WaitingInfo] 추가된 token 의 대기 정보
+     */
+    fun enter(token: String): WaitingInfo {
+        val isAdded = queueRepository.addToWaitingQueue(token)
+        if (!isAdded) throw QueueNotAvailableException()
+        val position = queueRepository.getWaitingQueuePosition(token) ?: 0
+        return WaitingInfo(
+            token = token,
+            position = position,
+            estimatedWaitingTime = calculateEstimatedWaitingTime(position),
+        )
+    }
+
+    /**
+     * [token] 을 대기열 또는 활성 Queue 에서 제거한다.
+     * @throws [InvalidTokenException] 대기열 또는 활성 Queue 에 없는 token 으로 시도한 경우
+     */
+    fun exit(token: String) {
+        verifyTokenIsInAnyQueue(token)
+
+        queueRepository.removeFromQueue(token)
+    }
+
+    /**
+     * 대기열에 있는 token 들 중, 최대 처리 가능한 순번의 token 까지 활성 Queue 로 옮기는 함수
+     */
+    fun activateWaitingEntries(): Int {
+        val waitingQueueSize = queueRepository.getWaitingQueueSize()
+        if (waitingQueueSize == 0) return 0
+
+        val countToMove = min(waitingQueueSize, queueProperties.maxCountToMove)
+        return queueRepository.moveToActiveQueue(countToMove)
+    }
+
+    /**
+     * [position] 번째에 대하여, 예상 대기 시간(초)을 계산해주는 함수
+     */
+    private fun calculateEstimatedWaitingTime(position: Int): Long {
+        val unitSeconds = queueProperties.activeRate / 1000L
+        return ceil(position.toDouble() / queueProperties.maxCountToMove.toDouble()).toLong() * unitSeconds
     }
 }

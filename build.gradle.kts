@@ -32,12 +32,15 @@ dependencies {
     runtimeOnly("com.mysql:mysql-connector-j")
 
     // for redis
-    implementation("org.redisson:redisson-spring-boot-starter:3.33.0")
+    implementation("org.redisson:redisson-spring-boot-starter:3.34.1")
 
     // for jwt
     api("io.jsonwebtoken:jjwt-api:0.12.6")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.6")
     runtimeOnly("io.jsonwebtoken:jjwt-orgjson:0.12.6")
+
+    // for cache
+    implementation("org.springframework.boot:spring-boot-starter-cache")
 
     // for swagger
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
