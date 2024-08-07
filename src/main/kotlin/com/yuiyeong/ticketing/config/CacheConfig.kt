@@ -20,8 +20,7 @@ class CacheConfig {
         val config: Map<String, CacheConfig> =
             mapOf(
                 CacheNames.CONCERTS to CacheConfig(properties.ttlHour, properties.maxIdleTimeHalfHour),
-                CacheNames.AVAILABLE_EVENTS to CacheConfig(properties.ttlTenMin, properties.maxIdleTimeHalfTenMin),
-                CacheNames.CONCERT_EVENT to CacheConfig(properties.ttlTenMin, properties.maxIdleTimeHalfTenMin),
+                CacheNames.AVAILABLE_CONCERT_EVENTS to CacheConfig(properties.ttlTenMin, properties.maxIdleTimeHalfTenMin),
             )
         return RedissonSpringCacheManager(redissonClient, config)
     }
@@ -29,6 +28,5 @@ class CacheConfig {
 
 object CacheNames {
     const val CONCERTS = "concerts"
-    const val AVAILABLE_EVENTS = "availableEvents"
-    const val CONCERT_EVENT = "concertEvent"
+    const val AVAILABLE_CONCERT_EVENTS = "availableConcertEvents"
 }

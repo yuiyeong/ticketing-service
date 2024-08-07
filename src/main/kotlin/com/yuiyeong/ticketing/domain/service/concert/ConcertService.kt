@@ -1,7 +1,6 @@
 package com.yuiyeong.ticketing.domain.service.concert
 
 import com.yuiyeong.ticketing.common.asUtc
-import com.yuiyeong.ticketing.config.CacheNames
 import com.yuiyeong.ticketing.domain.exception.ConcertEventNotFoundException
 import com.yuiyeong.ticketing.domain.model.concert.Concert
 import com.yuiyeong.ticketing.domain.model.concert.ConcertEvent
@@ -9,8 +8,6 @@ import com.yuiyeong.ticketing.domain.model.concert.Seat
 import com.yuiyeong.ticketing.domain.repository.concert.ConcertEventRepository
 import com.yuiyeong.ticketing.domain.repository.concert.ConcertRepository
 import com.yuiyeong.ticketing.domain.repository.concert.SeatRepository
-import org.springframework.cache.annotation.CachePut
-import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.ZonedDateTime
@@ -21,18 +18,15 @@ class ConcertService(
     private val concertEventRepository: ConcertEventRepository,
     private val seatRepository: SeatRepository,
 ) {
-    @Cacheable(value = [CacheNames.CONCERTS], key = "'all'")
     @Transactional(readOnly = true)
     fun getConcerts(): List<Concert> = concertRepository.findAll()
 
-    @Cacheable(value = [CacheNames.AVAILABLE_EVENTS], key = "#concertId")
     @Transactional(readOnly = true)
     fun getAvailableEvents(concertId: Long): List<ConcertEvent> {
         val now = ZonedDateTime.now().asUtc
         return concertEventRepository.findAllWithinPeriodBy(concertId, now)
     }
 
-    @Cacheable(value = [CacheNames.CONCERT_EVENT], key = "#concertEventId")
     @Transactional(readOnly = true)
     fun getConcertEvent(concertEventId: Long): ConcertEvent {
         val concertEvent = concertEventRepository.findOneById(concertEventId) ?: throw ConcertEventNotFoundException()
@@ -47,7 +41,6 @@ class ConcertService(
         return seatRepository.findAllAvailableByConcertEventId(concertEvent.id)
     }
 
-    @CachePut(value = [CacheNames.CONCERT_EVENT], key = "#concertEventId")
     @Transactional
     fun refreshAvailableSeats(concertEventId: Long): ConcertEvent {
         val concertEvent =

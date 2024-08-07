@@ -2,11 +2,13 @@ package com.yuiyeong.ticketing.application.usecase.occupation
 
 import com.yuiyeong.ticketing.application.dto.occupation.OccupationResult
 import com.yuiyeong.ticketing.common.asUtc
+import com.yuiyeong.ticketing.config.CacheNames
 import com.yuiyeong.ticketing.domain.exception.SeatUnavailableException
 import com.yuiyeong.ticketing.domain.service.concert.ConcertService
 import com.yuiyeong.ticketing.domain.service.lock.DistributedLockService
 import com.yuiyeong.ticketing.domain.service.lock.LockKeyGenerator
 import com.yuiyeong.ticketing.domain.service.occupation.OccupationService
+import org.springframework.cache.annotation.CacheEvict
 import org.springframework.stereotype.Component
 import java.time.ZonedDateTime
 
@@ -17,6 +19,7 @@ class OccupySeatUseCaseImpl(
     private val distributedLockService: DistributedLockService,
     private val lockKeyGenerator: LockKeyGenerator,
 ) : OccupySeatUseCase {
+    @CacheEvict(value = [CacheNames.AVAILABLE_CONCERT_EVENTS], allEntries = true)
     override fun execute(
         userId: Long,
         concertEventId: Long,
