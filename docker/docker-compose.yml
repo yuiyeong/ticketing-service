@@ -45,7 +45,7 @@ services:
             MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
         volumes:
             - mysql-data:/var/lib/mysql
-            # mysql extractor 를 위한 user 생성 및 seed data 추가
+#            # mysql extractor 를 위한 user 생성 및 seed data 추가
             - ../sql:/docker-entrypoint-initdb.d
         ports:
             - "3306:3306"
