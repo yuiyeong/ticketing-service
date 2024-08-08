@@ -44,6 +44,8 @@ class PayUseCaseImpl(
         // 3. 결제 결과로 내역 만들기
         val payment = paymentService.create(userId, reservation.id, transaction?.id, failureReason)
 
+        if (payment.isFailed) return PaymentResult.from(payment)
+
         // 4. reservation 의 상태를 완료로 변경
         reservationService.confirm(reservation.id)
 
