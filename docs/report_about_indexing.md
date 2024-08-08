@@ -486,7 +486,7 @@ WHERE se1_0.concert_event_id = ?
 | Case 5. (concert_event_id DESC, is_available) | 0.03096 ms | 0.01899 ms | 0.007392 ms |
 | Case 6. (is_available, concert_event_id)      | 0.03001 ms | 0.01762 ms | 0.009782 ms |
 
-- 인덱스가 없는 경우(No INDEX)가 모든 상황에서 가장 느린 성능을 보입니다.
+- Case 2를 제외한, 모든 상황에서 인덱스가 없는 경우(No INDEX)가 가장 느린 성능을 보입니다.
 - `concert_event_id`에만 인덱스를 걸었을 때(Case 1)도 상당한 성능 향상을 보였습니다.
 - `is_available`에만 인덱스를 걸었을 때(Case 2)는 예약 가능한 좌석이 적을수록 성능이 좋아지지만, 카디널리티가 더 높은 `concert_event_id` 에 인덱스를 걸었을 때 보다 현저히 낮은
   성능 수준을 보입니다.
@@ -552,7 +552,6 @@ WHERE se1_0.concert_event_id = ?
 | Case 5. (concert_event_id DESC, is_available) | 0.1376 ms  | 0.13816 ms | 0.06898 ms |
 | Case 6. (is_available, concert_event_id)      | 0.21370 ms | 0.12837 ms | 0.02969 ms |
 
-- 역시 인덱스가 없는 경우(No INDEX)가 모든 상황에서 가장 느린 성능을 보입니다.
 - `concert_event_id`에만 인덱스를 걸었을 때(Case 1)도 상당한 성능 향상을 보이지만, 예약 가능 비율에 따른 성능 차이가 크지 않습니다.
 - `is_available`에만 인덱스를 걸었을 때(Case 2)는 오히려 성능이 떨어졌습니다.
 - `concert_event_id`와 `is_available`에 각각 인덱스를 걸었을 때(Case 3)는 Case 1보다 성능이 떨어집니다.
@@ -629,7 +628,7 @@ WHERE se1_0.concert_event_id = ?
 
 ### 2.2.4. 최근에 만들어진 ConcertEvent 를 통한 테스트
 
-- 데이터셋:  20,000개의 콘서트 이벤트, 각 콘서트 이벤트 당 500개의 좌석(총 10,000,000 개의 좌석)
+- 데이터셋: 20,000개의 콘서트 이벤트, 각 콘서트 이벤트 당 500개의 좌석(총 10,000,000 개의 좌석)
 - 초기 가설로, 시간이 지날수록 콘서트 이벤트 중 최근에 생성된 데이터에 대한 쿼리가 증가할 것이므로, `Case 5(concert_event_id DESC, is_available 복합인덱스)`의 성능이 가장
   우수할 것으로 예상했습니다.
 - 하지만 테스트 결과, 복합 인덱스를 사용하는 Case 간의 유의미한 성능 차이가 없었습니다.
@@ -660,14 +659,14 @@ WHERE se1_0.concert_event_id = ?
     - 짧은 시간 내에 대부분의 좌석이 예약될 것으로 예상 (`isAvailable`이 빠르게 false로 변경)
     - 시간이 지날수록 `isAvailable`이 false인 데이터가 대다수를 차지
     - 시간이 지날수록 최근에 만들어진 콘서트 이벤트에 대한 쿼리가 늘어남
-- 이러한 특성을 고려했을 때, Case 5 (concert_event_id DESC, is_available) 로 Indexing 을 하는 것이 적절하다고 생각합니다.
-- 초기 대규모 트래픽 처리시,
-    - `concert_event_id`로 빠르게 특정 콘서트 이벤트의 좌석을 찾을 수 있습니다.
-    - `is_available`이 함께 인덱싱되어 있어 가용 좌석 필터링에도 효율적입니다.
-- 시간 경과에 따른 성능에서도,
-    - DESC 옵션으로 인해 최신 콘서트 이벤트가 인덱스 앞부분에 위치하여 성능을 높입니다.
-    - 시간이 지나도 자주 조회되는 최근 데이터에 대한 접근이 빠릅니다.
-- 서비스 기간이 길어져 `isAvailable`이 false인 데이터가 많아져도, `concert_event_id`로 먼저 필터링하므로 성능에 끼치는 영향을 최소화할 수 있습니다.
+- **_이러한 특성을 고려했을 때, `Case 5 (concert_event_id DESC, is_available)` 로 Indexing 을 하는 것이 적절하다고 생각합니다._**
+  - 초기 대규모 트래픽 처리시,
+      - `concert_event_id`로 빠르게 특정 콘서트 이벤트의 좌석을 찾을 수 있습니다.
+      - `is_available`이 함께 인덱싱되어 있어 가용 좌석 필터링에도 효율적입니다.
+  - 시간 경과에 따른 성능에서도,
+      - DESC 옵션으로 인해 최신 콘서트 이벤트가 인덱스 앞부분에 위치하여 성능을 높입니다.
+      - 시간이 지나도 자주 조회되는 최근 데이터에 대한 접근이 빠릅니다.
+  - 서비스 기간이 길어져 `isAvailable`이 false인 데이터가 많아져도, `concert_event_id`로 먼저 필터링하므로 성능에 끼치는 영향을 최소화할 수 있습니다.
 
 ### 2.2.6. Indexing 적용
 

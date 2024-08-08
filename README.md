@@ -81,6 +81,10 @@
 
 - [Indexing 을 통한 조회 성능 개선 보고서](./docs/report_about_indexing.md)
 
+## 콘서트 예약 시스템의 확장성 향상을 위한 서비스 분리 전략 보고서
+
+- [콘서트 예약 시스템의 확장성 향상을 위한 서비스 분리 전략과 분산 트랜잭션 관리: MSA 전환 설계](./docs/report_about_msa.md)
+
 ## 회고
 
 - [프로젝트 중간 리뷰](./docs/half-review.md)
