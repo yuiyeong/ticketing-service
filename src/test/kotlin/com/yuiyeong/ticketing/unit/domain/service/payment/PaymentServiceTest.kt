@@ -1,6 +1,7 @@
 package com.yuiyeong.ticketing.unit.domain.service.payment
 
 import com.yuiyeong.ticketing.common.asUtc
+import com.yuiyeong.ticketing.domain.event.payment.PaymentEventPublisher
 import com.yuiyeong.ticketing.domain.model.payment.Payment
 import com.yuiyeong.ticketing.domain.model.payment.PaymentStatus
 import com.yuiyeong.ticketing.domain.model.reservation.Reservation
@@ -35,11 +36,14 @@ class PaymentServiceTest {
     @Mock
     private lateinit var paymentRepository: PaymentRepository
 
+    @Mock
+    private lateinit var paymentEventPublisher: PaymentEventPublisher
+
     private lateinit var paymentService: PaymentService
 
     @BeforeEach
     fun beforeEach() {
-        paymentService = PaymentService(reservationRepository, transactionRepository, paymentRepository)
+        paymentService = PaymentService(reservationRepository, transactionRepository, paymentRepository, paymentEventPublisher)
     }
 
     @Test
