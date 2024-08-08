@@ -21,9 +21,11 @@ class PayUseCaseImpl(
         token: String,
         reservationId: Long,
     ): PaymentResult {
+        // 1. reservation 가져오기 및 검증
         val reservation = reservationService.getReservation(reservationId)
+        reservation.verifyStatusIsNotConfirmed()
 
-        // 결제 시도
+        // 2. 결제 시도
         var transaction: Transaction? = null
         var failureReason: String? = null
         runCatching {
@@ -39,13 +41,13 @@ class PayUseCaseImpl(
                 }
         }
 
-        // 결제 결과로 내역 만들기
+        // 3. 결제 결과로 내역 만들기
         val payment = paymentService.create(userId, reservation.id, transaction?.id, failureReason)
 
-        // reservation 의 상태를 완료로 변경
+        // 4. reservation 의 상태를 완료로 변경
         reservationService.confirm(reservation.id)
 
-        // queue 에서 entry 제거
+        // 5. queue 에서 entry 제거
         queueService.exit(token)
 
         return PaymentResult.from(payment)

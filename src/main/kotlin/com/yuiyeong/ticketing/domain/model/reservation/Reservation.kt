@@ -29,7 +29,7 @@ data class Reservation(
         return copy(status = ReservationStatus.PAYMENT_FAILED)
     }
 
-    private fun verifyStatusIsNotConfirmed() {
+    fun verifyStatusIsNotConfirmed() {
         if (status == ReservationStatus.CONFIRMED) {
             throw ReservationAlreadyConfirmedException()
         }
