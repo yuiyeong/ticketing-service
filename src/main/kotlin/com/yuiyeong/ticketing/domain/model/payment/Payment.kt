@@ -18,6 +18,9 @@ data class Payment(
     val createdAt: ZonedDateTime,
     val updatedAt: ZonedDateTime,
 ) {
+    val isFailed: Boolean
+        get() = status == PaymentStatus.FAILED
+
     companion object {
         fun create(
             userId: Long,
