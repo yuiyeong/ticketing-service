@@ -11,13 +11,22 @@ import jakarta.persistence.ForeignKey
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.Index
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import java.time.ZonedDateTime
 
 @Entity
-@Table(name = "concert_event")
+@Table(
+    name = "concert_event",
+    indexes = [
+        Index(
+            name = "idx_concert_reservation_date_desc",
+            columnList = "concert_id, reservation_start_at DESC, reservation_end_at DESC",
+        ),
+    ],
+)
 class ConcertEventEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
