@@ -69,13 +69,17 @@
 
 - [좌석 점유에 관한 동시성 문제](./docs/report_of_race_condition.md)
 
-## 캐싱 보고서
+## 시나리오별 쿼리 분석 및 캐싱 적용에 대한 보고서
 
 - [Query 분석 및 Caching 으로 인한 개선](./docs/report_about_caching.md)
 
 ## 대기열 시스템 보고서
 
 - [대기열 시스템 보고서](./docs/report_about_queue_system.md)
+
+## Indexing 을 통한 조회 성능 개선 보고서
+
+- [Indexing 을 통한 조회 성능 개선 보고서](./docs/report_about_indexing.md)
 
 ## 회고
 
