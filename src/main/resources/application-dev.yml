@@ -2,14 +2,11 @@ spring:
     config:
         activate:
             on-profile: dev
-    datasource:
-        url: jdbc:mysql://localhost:3306/ticketing?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC
-        username: root
-        password: very_difficult_root_password
-    data:
-        redis:
-            host: localhost
-            port: 6379
+    devtools:
+        restart:
+            enabled: true
+        livereload:
+            enabled: true
 
 decorator:
     datasource:

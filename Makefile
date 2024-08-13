@@ -7,7 +7,7 @@ build:
 	@docker build . -f docker/Dockerfile.local -t ${name} || { echo "Build failed"; exit 1; }
 
 up:
-	@docker compose -f docker/docker-compose.yml --compatibility up --build -d
+	@docker compose -f docker/docker-compose.yml --compatibility up -d
 
 down:
 	@docker compose -f docker/docker-compose.yml down
