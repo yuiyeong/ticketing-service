@@ -1,7 +1,7 @@
 package com.yuiyeong.ticketing.infrastructure.slack
 
 import com.slack.api.Slack
-import com.yuiyeong.ticketing.config.property.SlackProperties
+import com.yuiyeong.ticketing.config.SlackProperties
 import com.yuiyeong.ticketing.domain.event.payment.PaymentEvent
 import com.yuiyeong.ticketing.domain.notification.PaymentNotificationService
 import org.slf4j.LoggerFactory

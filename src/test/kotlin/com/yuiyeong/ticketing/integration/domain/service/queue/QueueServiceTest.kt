@@ -1,6 +1,6 @@
 package com.yuiyeong.ticketing.integration.domain.service.queue
 
-import com.yuiyeong.ticketing.config.property.QueueProperties
+import com.yuiyeong.ticketing.config.QueueProperties
 import com.yuiyeong.ticketing.domain.exception.InvalidTokenException
 import com.yuiyeong.ticketing.domain.exception.TokenNotInActiveQueueException
 import com.yuiyeong.ticketing.domain.repository.queue.QueueRepository
@@ -78,7 +78,9 @@ class QueueServiceTest {
         Assertions.assertThat(waitingInfo).isNotNull()
         Assertions.assertThat(waitingInfo!!.token).isEqualTo(token)
         Assertions.assertThat(waitingInfo.position).isEqualTo(expectedPosition)
-        Assertions.assertThat(waitingInfo.estimatedWaitingTime).isEqualTo(expectedPosition * properties.estimatedWorkingTimeInMinutes)
+        Assertions
+            .assertThat(waitingInfo.estimatedWaitingTime)
+            .isEqualTo(expectedPosition * properties.estimatedWorkingTimeInMinutes)
     }
 
     @Test
@@ -121,7 +123,9 @@ class QueueServiceTest {
         val expectedPosition = 3
         Assertions.assertThat(waitingInfo.token).isEqualTo(token)
         Assertions.assertThat(waitingInfo.position).isEqualTo(expectedPosition)
-        Assertions.assertThat(waitingInfo.estimatedWaitingTime).isEqualTo(expectedPosition * properties.estimatedWorkingTimeInMinutes)
+        Assertions
+            .assertThat(waitingInfo.estimatedWaitingTime)
+            .isEqualTo(expectedPosition * properties.estimatedWorkingTimeInMinutes)
     }
 
     @Test

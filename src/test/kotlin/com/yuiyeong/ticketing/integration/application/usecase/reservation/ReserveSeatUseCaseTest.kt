@@ -62,13 +62,39 @@ class ReserveSeatUseCaseTest {
             occupationRepository.saveAll(
                 listOf(
                     // 만료 상태 점유
-                    TestDataFactory.createOccupation(3L, concertEvent, OccupationStatus.EXPIRED, pastExpiresAt, seats[0]),
+                    TestDataFactory.createOccupation(
+                        3L,
+                        concertEvent,
+                        OccupationStatus.EXPIRED,
+                        pastExpiresAt,
+                        seats[0],
+                    ),
                     // 예약 상태 점유
-                    TestDataFactory.createOccupation(19L, concertEvent, OccupationStatus.RELEASED, pastExpiresAt, seats[1], seats[2]),
+                    TestDataFactory.createOccupation(
+                        19L,
+                        concertEvent,
+                        OccupationStatus.RELEASED,
+                        pastExpiresAt,
+                        seats[1],
+                        seats[2],
+                    ),
                     // 만료 시간이 지난 점유
-                    TestDataFactory.createOccupation(17L, concertEvent, OccupationStatus.ACTIVE, pastExpiresAt, seats[3]),
+                    TestDataFactory.createOccupation(
+                        17L,
+                        concertEvent,
+                        OccupationStatus.ACTIVE,
+                        pastExpiresAt,
+                        seats[3],
+                    ),
                     // 만료 시간이 지나지 않은 점유
-                    TestDataFactory.createOccupation(98L, concertEvent, OccupationStatus.ACTIVE, now, seats[4], seats[5]),
+                    TestDataFactory.createOccupation(
+                        98L,
+                        concertEvent,
+                        OccupationStatus.ACTIVE,
+                        now,
+                        seats[4],
+                        seats[5],
+                    ),
                 ),
             )
         expiredOccupation = occupations[0]

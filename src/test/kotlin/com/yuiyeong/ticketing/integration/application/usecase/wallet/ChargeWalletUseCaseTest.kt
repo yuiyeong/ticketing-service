@@ -26,7 +26,8 @@ class ChargeWalletUseCaseTest {
         // given
         val userId = 765L
         val amount = 300000L
-        val originalWallet = walletRepository.save(TestDataFactory.createWallet(userId = userId, balance = BigDecimal.ONE))
+        val originalWallet =
+            walletRepository.save(TestDataFactory.createWallet(userId = userId, balance = BigDecimal.ONE))
 
         // when
         val result = chargeWalletUseCase.execute(userId, amount)

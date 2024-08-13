@@ -1,6 +1,6 @@
 package com.yuiyeong.ticketing.infrastructure.redis.repository
 
-import com.yuiyeong.ticketing.config.property.QueueProperties
+import com.yuiyeong.ticketing.config.QueueProperties
 import com.yuiyeong.ticketing.domain.repository.queue.QueueRepository
 import org.redisson.api.ExpiredObjectListener
 import org.redisson.api.RScoredSortedSet

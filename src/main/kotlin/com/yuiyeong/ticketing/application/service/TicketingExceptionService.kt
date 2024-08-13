@@ -17,12 +17,14 @@ class TicketingExceptionService {
                     e.errorCode.name.lowercase(),
                     e.errorCode.message,
                 )
+
             is NotFoundException ->
                 TicketingError(
                     ErrorStatusCode.NOT_FOUND,
                     e.errorCode.name.lowercase(),
                     e.errorCode.message,
                 )
+
             else ->
                 TicketingError(
                     ErrorStatusCode.INTERNAL_ERROR,

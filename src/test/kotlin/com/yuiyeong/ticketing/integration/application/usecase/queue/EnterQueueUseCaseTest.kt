@@ -1,7 +1,7 @@
 package com.yuiyeong.ticketing.integration.application.usecase.queue
 
 import com.yuiyeong.ticketing.application.usecase.queue.EnterQueueUseCase
-import com.yuiyeong.ticketing.config.property.QueueProperties
+import com.yuiyeong.ticketing.config.QueueProperties
 import com.yuiyeong.ticketing.infrastructure.redis.repository.RedisQueueRepository
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
@@ -47,7 +47,9 @@ class EnterQueueUseCaseTest {
         // then: 11번째로 대기열에 진입했다는 대기 정보가 와야한다.
         val expectedPosition = 11
         Assertions.assertThat(waitingInfo.position).isEqualTo(expectedPosition)
-        Assertions.assertThat(waitingInfo.estimatedWaitingTime).isEqualTo(expectedPosition * queueProperties.estimatedWorkingTimeInMinutes)
+        Assertions
+            .assertThat(waitingInfo.estimatedWaitingTime)
+            .isEqualTo(expectedPosition * queueProperties.estimatedWorkingTimeInMinutes)
     }
 
     @Test

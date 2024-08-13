@@ -13,7 +13,7 @@ down:
 	@docker compose -f docker/docker-compose.yml down
 
 logs:
-	@docker compose -f docker/docker-compose.yml logs -f
+	@docker compose -f docker/docker-compose.yml logs -f app
 
 help:
 	@echo "Available commands:"

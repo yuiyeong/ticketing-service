@@ -7,11 +7,11 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 
 @Component
-@ConditionalOnProperty(name = ["config.scheduler.enabled"], havingValue = "true", matchIfMissing = false)
+@ConditionalOnProperty(prefix = "config.scheduler", name = ["enabled"], havingValue = "true", matchIfMissing = false)
 class OccupationScheduler(
     private val expireOccupationsUseCase: ExpireOccupationsUseCase,
 ) {
-    @Scheduled(fixedRateString = "#{@schedulerProperties.occupationFixedRate}")
+    @Scheduled(fixedRateString = "\${config.scheduler.occupation-fixed-rate}")
     fun expireOverdueOccupations() {
         try {
             // 점유 만료

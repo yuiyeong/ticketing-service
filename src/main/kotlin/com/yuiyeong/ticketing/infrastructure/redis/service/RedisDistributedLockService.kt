@@ -1,6 +1,6 @@
 package com.yuiyeong.ticketing.infrastructure.redis.service
 
-import com.yuiyeong.ticketing.config.property.DistributedLockProperties
+import com.yuiyeong.ticketing.config.DistributedLockProperties
 import com.yuiyeong.ticketing.domain.service.lock.DistributedLockService
 import org.redisson.api.RedissonClient
 import org.springframework.stereotype.Component
@@ -32,7 +32,12 @@ class RedisDistributedLockService(
         action: () -> T,
     ): T? {
         val lock = redissonClient.getFairLock(key)
-        return if (lock.tryLock(distributedLockProperties.acquireTimeout, distributedLockProperties.lockTtl, TimeUnit.MILLISECONDS)) {
+        return if (lock.tryLock(
+                distributedLockProperties.acquireTimeout,
+                distributedLockProperties.lockTtl,
+                TimeUnit.MILLISECONDS,
+            )
+        ) {
             try {
                 action()
             } finally {

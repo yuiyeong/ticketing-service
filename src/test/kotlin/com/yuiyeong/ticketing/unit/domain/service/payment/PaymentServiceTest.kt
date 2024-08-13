@@ -43,7 +43,8 @@ class PaymentServiceTest {
 
     @BeforeEach
     fun beforeEach() {
-        paymentService = PaymentService(reservationRepository, transactionRepository, paymentRepository, paymentEventPublisher)
+        paymentService =
+            PaymentService(reservationRepository, transactionRepository, paymentRepository, paymentEventPublisher)
     }
 
     @Test

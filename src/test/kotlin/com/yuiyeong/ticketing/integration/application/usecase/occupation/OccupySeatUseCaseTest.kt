@@ -53,7 +53,8 @@ class OccupySeatUseCaseTest {
 
         val now = ZonedDateTime.now().asUtc
         val future = now.plusHours(1)
-        unavailableConcertEvent = concertEventRepository.save(TestDataFactory.createConcertEvent(concert, future, future.plusHours(5)))
+        unavailableConcertEvent =
+            concertEventRepository.save(TestDataFactory.createConcertEvent(concert, future, future.plusHours(5)))
 
         val past = now.minusHours(1)
         val concertEvent = TestDataFactory.createConcertEvent(concert, past, past.plusHours(5), 2, 1)

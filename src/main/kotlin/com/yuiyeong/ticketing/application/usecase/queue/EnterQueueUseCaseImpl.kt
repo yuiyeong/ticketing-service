@@ -2,7 +2,7 @@ package com.yuiyeong.ticketing.application.usecase.queue
 
 import com.yuiyeong.ticketing.application.dto.queue.WaitingInfoResult
 import com.yuiyeong.ticketing.common.asUtc
-import com.yuiyeong.ticketing.config.property.QueueProperties
+import com.yuiyeong.ticketing.config.QueueProperties
 import com.yuiyeong.ticketing.domain.service.queue.QueueService
 import com.yuiyeong.ticketing.domain.service.queue.TokenService
 import org.springframework.stereotype.Component

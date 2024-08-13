@@ -1,6 +1,6 @@
 package com.yuiyeong.ticketing.integration.infrastructure.redis.repository
 
-import com.yuiyeong.ticketing.config.property.QueueProperties
+import com.yuiyeong.ticketing.config.QueueProperties
 import com.yuiyeong.ticketing.infrastructure.redis.repository.RedisQueueRepository
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach

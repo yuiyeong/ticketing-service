@@ -39,7 +39,8 @@ class OccupationService(
     @Transactional
     fun expireOverdueOccupations(): List<Occupation> {
         val current = ZonedDateTime.now().asUtc
-        val occupations = occupationRepository.findAllByStatusAndExpiresAtBeforeWithLock(OccupationStatus.ACTIVE, current)
+        val occupations =
+            occupationRepository.findAllByStatusAndExpiresAtBeforeWithLock(OccupationStatus.ACTIVE, current)
         return occupationRepository.saveAll(occupations.map { it.expire() })
     }
 }

@@ -7,11 +7,11 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 
 @Component
-@ConditionalOnProperty(name = ["config.scheduler.enabled"], havingValue = "true", matchIfMissing = false)
+@ConditionalOnProperty(prefix = "config.scheduler", name = ["enabled"], havingValue = "true", matchIfMissing = false)
 class QueueScheduler(
     private val activateWaitingEntriesUseCase: ActivateWaitingEntriesUseCase,
 ) {
-    @Scheduled(fixedRateString = "#{@queueProperties.activeRate}")
+    @Scheduled(fixedRateString = "#{@queueConfig.activeRate}")
     fun processQueue() {
         try {
             // 대기 중인 항목 활성화

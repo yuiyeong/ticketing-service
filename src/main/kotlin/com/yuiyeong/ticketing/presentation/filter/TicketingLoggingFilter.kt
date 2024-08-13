@@ -1,7 +1,7 @@
 package com.yuiyeong.ticketing.presentation.filter
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.yuiyeong.ticketing.config.property.LoggingProperties
+import com.yuiyeong.ticketing.config.LoggingProperties
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -68,6 +68,7 @@ class TicketingLoggingFilter(
                         request.contentType,
                     )
                 }"
+
             else -> getCompactBody(request.contentAsByteArray)
         }
     }
@@ -83,6 +84,7 @@ class TicketingLoggingFilter(
                         response.contentType,
                     )
                 }"
+
             else -> getCompactBody(response.contentAsByteArray)
         }
     }

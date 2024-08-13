@@ -65,7 +65,15 @@ class PayUseCaseTest {
         val concert = concertRepository.save(TestDataFactory.createConcert())
         val concertEvent = concertEventRepository.save(TestDataFactory.createAvailableEvent(concert, 10, 9))
         val seats = seatRepository.saveAll(TestDataFactory.createSeatsOfConcertEvent(concertEvent))
-        val occupation = occupationRepository.save(TestDataFactory.createReleasedOccupation(userId, concertEvent, seats[0], seats[1]))
+        val occupation =
+            occupationRepository.save(
+                TestDataFactory.createReleasedOccupation(
+                    userId,
+                    concertEvent,
+                    seats[0],
+                    seats[1],
+                ),
+            )
         reservation = reservationRepository.save(TestDataFactory.createPendingReservation(concertEvent, occupation))
     }
 

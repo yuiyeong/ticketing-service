@@ -146,7 +146,8 @@ class OccupationRepositoryTest {
                 oddUserOccupations.filter { it.expiresAt < moment } + evenUserOccupations.filter { it.expiresAt < moment }
 
             // when
-            val occupations = occupationRepository.findAllByStatusAndExpiresAtBeforeWithLock(OccupationStatus.ACTIVE, moment)
+            val occupations =
+                occupationRepository.findAllByStatusAndExpiresAtBeforeWithLock(OccupationStatus.ACTIVE, moment)
 
             // then
             Assertions.assertThat(occupations.count()).isEqualTo(occupationsToBeExpired.count())

@@ -1,7 +1,7 @@
 package com.yuiyeong.ticketing.unit.domain.infrastructure.jwt
 
 import com.yuiyeong.ticketing.common.asUtc
-import com.yuiyeong.ticketing.config.property.JwtProperties
+import com.yuiyeong.ticketing.config.JwtProperties
 import com.yuiyeong.ticketing.domain.exception.InvalidTokenException
 import com.yuiyeong.ticketing.domain.service.queue.TokenService
 import com.yuiyeong.ticketing.infrastructure.jwt.JwtTokenService
@@ -15,7 +15,8 @@ class JwtTokenServiceTest {
 
     @BeforeEach
     fun beforeEach() {
-        tokenService = JwtTokenService(JwtProperties())
+        tokenService =
+            JwtTokenService(JwtProperties("test_very_difficult_and_secure_secret_key_that_is_at_least_256_bits"))
     }
 
     @Test

@@ -32,7 +32,8 @@ class GetAvailableConcertEventsUseCaseTest {
         val past = now.minusHours(1)
         val concert = concertRepository.save(TestDataFactory.createConcert())
         concertEventRepository.save(TestDataFactory.createConcertEvent(concert, future, future.plusHours(5)))
-        val availableEvent = concertEventRepository.save(TestDataFactory.createConcertEvent(concert, past, past.plusHours(5)))
+        val availableEvent =
+            concertEventRepository.save(TestDataFactory.createConcertEvent(concert, past, past.plusHours(5)))
 
         // when
         val result = getAvailableConcertEventsUseCase.execute(concert.id)

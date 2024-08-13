@@ -42,7 +42,10 @@ class ExpireOccupationsUseCaseTest {
         val occupiedSeatCount = concertEvent.maxSeatCount - concertEvent.availableSeatCount
         val occupations =
             occupationRepository.saveAll(
-                TestDataFactory.creatActiveOccupationsWithPastExpiresAt(concertEvent, seats.subList(0, occupiedSeatCount)),
+                TestDataFactory.creatActiveOccupationsWithPastExpiresAt(
+                    concertEvent,
+                    seats.subList(0, occupiedSeatCount),
+                ),
             )
 
         // when
@@ -63,7 +66,8 @@ class ExpireOccupationsUseCaseTest {
         val seats = seatRepository.saveAll(TestDataFactory.createSeatsOfConcertEvent(concertEvent))
         val (seats1, seats2) = seats.partition { it.id > 5 }
         // 만료 시간이 지난 점유
-        val occupations = occupationRepository.saveAll(TestDataFactory.creatActiveOccupationsWithPastExpiresAt(concertEvent, seats1))
+        val occupations =
+            occupationRepository.saveAll(TestDataFactory.creatActiveOccupationsWithPastExpiresAt(concertEvent, seats1))
         // 만료 시간이 지나지 않은 점유
         occupationRepository.saveAll(TestDataFactory.creatActiveOccupationsWithFutureExpiresAt(concertEvent, seats2))
 
@@ -87,16 +91,31 @@ class ExpireOccupationsUseCaseTest {
         val pastExpiresAt = ZonedDateTime.now().asUtc.minusMinutes(10)
         // 2개가 만료 상태
         occupationRepository.saveAll(
-            TestDataFactory.creatOccupations(concertEvent, listOf(seats[0], seats[1]), OccupationStatus.EXPIRED, pastExpiresAt),
+            TestDataFactory.creatOccupations(
+                concertEvent,
+                listOf(seats[0], seats[1]),
+                OccupationStatus.EXPIRED,
+                pastExpiresAt,
+            ),
         )
         // 2개가 예약 상태
         occupationRepository.saveAll(
-            TestDataFactory.creatOccupations(concertEvent, listOf(seats[2], seats[3]), OccupationStatus.RELEASED, pastExpiresAt),
+            TestDataFactory.creatOccupations(
+                concertEvent,
+                listOf(seats[2], seats[3]),
+                OccupationStatus.RELEASED,
+                pastExpiresAt,
+            ),
         )
         // 2개가 만료 시간이 지난 점유 상태
         val occupations =
             occupationRepository.saveAll(
-                TestDataFactory.creatOccupations(concertEvent, listOf(seats[4], seats[5]), OccupationStatus.ACTIVE, pastExpiresAt),
+                TestDataFactory.creatOccupations(
+                    concertEvent,
+                    listOf(seats[4], seats[5]),
+                    OccupationStatus.ACTIVE,
+                    pastExpiresAt,
+                ),
             )
 
         // when

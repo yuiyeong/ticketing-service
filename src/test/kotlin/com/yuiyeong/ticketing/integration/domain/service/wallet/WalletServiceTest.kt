@@ -1,4 +1,5 @@
 package com.yuiyeong.ticketing.integration.domain.service.wallet
+
 import com.yuiyeong.ticketing.domain.exception.InsufficientBalanceException
 import com.yuiyeong.ticketing.domain.exception.InvalidAmountException
 import com.yuiyeong.ticketing.domain.exception.WalletNotFoundException

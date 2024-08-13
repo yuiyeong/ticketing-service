@@ -1,6 +1,6 @@
 package com.yuiyeong.ticketing.domain.service.queue
 
-import com.yuiyeong.ticketing.config.property.QueueProperties
+import com.yuiyeong.ticketing.config.QueueProperties
 import com.yuiyeong.ticketing.domain.exception.InvalidTokenException
 import com.yuiyeong.ticketing.domain.exception.QueueNotAvailableException
 import com.yuiyeong.ticketing.domain.exception.TokenNotInActiveQueueException

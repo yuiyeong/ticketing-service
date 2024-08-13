@@ -1,6 +1,6 @@
 package com.yuiyeong.ticketing.infrastructure.jwt
 
-import com.yuiyeong.ticketing.config.property.JwtProperties
+import com.yuiyeong.ticketing.config.JwtProperties
 import com.yuiyeong.ticketing.domain.exception.InvalidTokenException
 import com.yuiyeong.ticketing.domain.service.queue.TokenService
 import io.jsonwebtoken.JwtException

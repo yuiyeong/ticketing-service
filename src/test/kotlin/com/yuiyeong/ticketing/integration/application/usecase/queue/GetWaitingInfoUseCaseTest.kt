@@ -1,7 +1,7 @@
 package com.yuiyeong.ticketing.integration.application.usecase.queue
 
 import com.yuiyeong.ticketing.application.usecase.queue.GetWaitingInfoUseCase
-import com.yuiyeong.ticketing.config.property.QueueProperties
+import com.yuiyeong.ticketing.config.QueueProperties
 import com.yuiyeong.ticketing.domain.exception.InvalidTokenException
 import com.yuiyeong.ticketing.infrastructure.redis.repository.RedisQueueRepository
 import org.assertj.core.api.Assertions
@@ -48,7 +48,9 @@ class GetWaitingInfoUseCaseTest {
         val expectedPosition = 2
         Assertions.assertThat(waitingInfo.token).isEqualTo(token)
         Assertions.assertThat(waitingInfo.position).isEqualTo(expectedPosition)
-        Assertions.assertThat(waitingInfo.estimatedWaitingTime).isEqualTo(expectedPosition * queueProperties.estimatedWorkingTimeInMinutes)
+        Assertions
+            .assertThat(waitingInfo.estimatedWaitingTime)
+            .isEqualTo(expectedPosition * queueProperties.estimatedWorkingTimeInMinutes)
     }
 
     @Test
