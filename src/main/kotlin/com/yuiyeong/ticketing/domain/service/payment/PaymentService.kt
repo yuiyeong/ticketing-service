@@ -1,5 +1,7 @@
 package com.yuiyeong.ticketing.domain.service.payment
 
+import com.yuiyeong.ticketing.domain.event.payment.PaymentEvent
+import com.yuiyeong.ticketing.domain.event.payment.PaymentEventPublisher
 import com.yuiyeong.ticketing.domain.exception.ReservationNotFoundException
 import com.yuiyeong.ticketing.domain.exception.TransactionNotFoundException
 import com.yuiyeong.ticketing.domain.model.payment.Payment
@@ -14,6 +16,7 @@ class PaymentService(
     private val reservationRepository: ReservationRepository,
     private val transactionRepository: TransactionRepository,
     private val paymentRepository: PaymentRepository,
+    private val paymentEventPublisher: PaymentEventPublisher,
 ) {
     @Transactional
     fun create(
@@ -29,6 +32,7 @@ class PaymentService(
             }
 
         val payment = Payment.create(userId, reservation, transaction, failureReason)
+        paymentEventPublisher.publish(PaymentEvent(userId, reservationId, transaction, failureReason))
         return paymentRepository.save(payment)
     }
 
