@@ -1,8 +1,8 @@
 package com.yuiyeong.ticketing.config
 
-import com.yuiyeong.ticketing.presentation.interceptor.UserTokenInterceptor
-import com.yuiyeong.ticketing.presentation.resolver.CurrentTokenArgumentResolver
-import com.yuiyeong.ticketing.presentation.resolver.CurrentUserIdArgumentResolver
+import com.yuiyeong.ticketing.interfaces.presentation.interceptor.UserTokenInterceptor
+import com.yuiyeong.ticketing.interfaces.presentation.resolver.CurrentTokenArgumentResolver
+import com.yuiyeong.ticketing.interfaces.presentation.resolver.CurrentUserIdArgumentResolver
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry
