@@ -42,7 +42,7 @@ spring:
 
 
 slack:
-    webhook-url: https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+    webhook-url: https://hooks.slack.com/services/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
 
 
 logging:
