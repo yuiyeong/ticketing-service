@@ -33,8 +33,12 @@ class PaymentService(
                 transactionRepository.findOneById(id) ?: throw TransactionNotFoundException()
             }
 
-        paymentEventPublisher.publish(PaymentEvent(userId, reservationId, transaction, failureReason))
+        // 결제 내역 저장
         val payment = paymentRepository.save(Payment.create(userId, reservation, transaction, failureReason))
+
+        // 결제 이벤트 발행
+        paymentEventPublisher.publish(PaymentEvent.create(payment))
+
         return payment
     }
 
