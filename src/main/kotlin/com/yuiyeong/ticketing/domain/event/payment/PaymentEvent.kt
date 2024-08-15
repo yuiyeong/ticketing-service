@@ -6,5 +6,6 @@ data class PaymentEvent(
     val userId: Long,
     val reservationId: Long,
     val transaction: Transaction?,
+    val paymentId: Long,
     val failureReason: String?,
 )
