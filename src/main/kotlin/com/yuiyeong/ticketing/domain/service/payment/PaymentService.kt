@@ -10,6 +10,7 @@ import com.yuiyeong.ticketing.domain.repository.reservation.ReservationRepositor
 import com.yuiyeong.ticketing.domain.repository.wallet.TransactionRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.math.BigDecimal
 
 @Service
 class PaymentService(
@@ -22,6 +23,7 @@ class PaymentService(
     fun create(
         userId: Long,
         reservationId: Long,
+        amount: BigDecimal,
         transactionId: Long?,
         failureReason: String?,
     ): Payment {
@@ -31,9 +33,9 @@ class PaymentService(
                 transactionRepository.findOneById(id) ?: throw TransactionNotFoundException()
             }
 
-        val payment = Payment.create(userId, reservation, transaction, failureReason)
         paymentEventPublisher.publish(PaymentEvent(userId, reservationId, transaction, failureReason))
-        return paymentRepository.save(payment)
+        val payment = paymentRepository.save(Payment.create(userId, reservation, transaction, failureReason))
+        return payment
     }
 
     @Transactional(readOnly = true)

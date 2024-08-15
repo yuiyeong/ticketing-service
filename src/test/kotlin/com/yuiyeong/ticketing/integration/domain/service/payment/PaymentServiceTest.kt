@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional
 import org.testcontainers.containers.MySQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
+import java.math.BigDecimal
 import kotlin.test.Test
 
 @SpringBootTest
@@ -55,7 +56,7 @@ class PaymentServiceTest {
             val savedTransaction = transactionRepository.save(transaction)
 
             // when
-            val result = paymentService.create(userId, savedReservation.id, savedTransaction.id, null)
+            val result = paymentService.create(userId, savedReservation.id, transaction.amount, savedTransaction.id, null)
 
             // then
             Assertions.assertThat(result.userId).isEqualTo(userId)
@@ -76,7 +77,7 @@ class PaymentServiceTest {
             val failureReason = "Insufficient balance"
 
             // when
-            val result = paymentService.create(userId, savedReservation.id, null, failureReason)
+            val result = paymentService.create(userId, savedReservation.id, reservation.totalAmount, null, failureReason)
 
             // then
             Assertions.assertThat(result.userId).isEqualTo(userId)
@@ -97,7 +98,7 @@ class PaymentServiceTest {
             // when & then
             Assertions
                 .assertThatThrownBy {
-                    paymentService.create(userId, nonExistentReservationId, null, null)
+                    paymentService.create(userId, nonExistentReservationId, BigDecimal.ZERO, null, null)
                 }.isInstanceOf(ReservationNotFoundException::class.java)
         }
 
@@ -112,7 +113,7 @@ class PaymentServiceTest {
             // when & then
             Assertions
                 .assertThatThrownBy {
-                    paymentService.create(userId, savedReservation.id, nonExistentTransactionId, null)
+                    paymentService.create(userId, savedReservation.id, reservation.totalAmount, nonExistentTransactionId, null)
                 }.isInstanceOf(TransactionNotFoundException::class.java)
         }
     }

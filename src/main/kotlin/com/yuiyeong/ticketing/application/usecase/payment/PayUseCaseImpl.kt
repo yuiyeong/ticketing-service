@@ -2,7 +2,6 @@ package com.yuiyeong.ticketing.application.usecase.payment
 
 import com.yuiyeong.ticketing.application.dto.payment.PaymentResult
 import com.yuiyeong.ticketing.domain.exception.TicketingException
-import com.yuiyeong.ticketing.domain.model.wallet.Transaction
 import com.yuiyeong.ticketing.domain.service.payment.PaymentService
 import com.yuiyeong.ticketing.domain.service.queue.QueueService
 import com.yuiyeong.ticketing.domain.service.reservation.ReservationService
@@ -26,23 +25,15 @@ class PayUseCaseImpl(
         reservation.verifyStatusIsNotConfirmed()
 
         // 2. 결제 시도
-        var transaction: Transaction? = null
-        var failureReason: String? = null
-        runCatching {
-            walletService.pay(userId, reservation.totalAmount)
-        }.onSuccess {
-            transaction = it
-        }.onFailure { exception ->
-            failureReason =
-                if (exception is TicketingException) {
-                    exception.errorCode.message
-                } else {
-                    exception.localizedMessage
-                }
-        }
+        val payResult = walletService.paySafely(userId, reservation.totalAmount)
+        val (transactionId, failureReason) =
+            payResult.fold(
+                onSuccess = { Pair(it.id, null) },
+                onFailure = { Pair(null, extractFailureMessage(it)) },
+            )
 
-        // 3. 결제 결과로 내역 만들기
-        val payment = paymentService.create(userId, reservation.id, transaction?.id, failureReason)
+        // 3. 결제 내역 만들기
+        val payment = paymentService.create(userId, reservation.id, reservation.totalAmount, transactionId, failureReason)
 
         if (payment.isFailed) return PaymentResult.from(payment)
 
@@ -54,4 +45,10 @@ class PayUseCaseImpl(
 
         return PaymentResult.from(payment)
     }
+
+    private fun extractFailureMessage(e: Throwable) =
+        when (e) {
+            is TicketingException -> e.errorCode.message
+            else -> e.localizedMessage
+        }
 }

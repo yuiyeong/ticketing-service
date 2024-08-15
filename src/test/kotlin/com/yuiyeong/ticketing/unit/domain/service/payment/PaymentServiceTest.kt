@@ -63,7 +63,7 @@ class PaymentServiceTest {
         }
 
         // when
-        val payment = paymentService.create(userId, reservation.id, transaction.id, null)
+        val payment = paymentService.create(userId, reservation.id, reservation.totalAmount, transaction.id, null)
 
         // then
         Assertions.assertThat(payment.userId).isEqualTo(userId)
@@ -98,7 +98,7 @@ class PaymentServiceTest {
         }
 
         // when
-        val payment = paymentService.create(userId, reservation.id, null, failureReason)
+        val payment = paymentService.create(userId, reservation.id, reservation.totalAmount, null, failureReason)
 
         // then
         Assertions.assertThat(payment.userId).isEqualTo(userId)

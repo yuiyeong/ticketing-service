@@ -30,6 +30,12 @@ class WalletService(
         amount: BigDecimal,
     ) = createTransaction(userId, amount, TransactionType.PAYMENT)
 
+    @Transactional
+    fun paySafely(
+        userId: Long,
+        amount: BigDecimal,
+    ): Result<Transaction> = runCatching { createTransaction(userId, amount, TransactionType.PAYMENT) }
+
     private fun createTransaction(
         userId: Long,
         amount: BigDecimal,
