@@ -147,6 +147,21 @@ CREATE TABLE `payment`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
 
+-- payment outbox 테이블
+CREATE TABLE `payment_outbox`
+(
+    `id`                   bigint                       NOT NULL AUTO_INCREMENT,
+    `payment_id`           bigint                       NOT NULL,
+    `payload`              text                         NOT NULL,
+    `published_time_milli` bigint                       NOT NULL,
+    `status`               enum ('CREATED','PUBLISHED') NOT NULL,
+    `created_at`           datetime(6)                  NOT NULL,
+    `updated_at`           datetime(6)                  NOT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
+
 -- wallet 테이블
 CREATE TABLE `wallet`
 (
