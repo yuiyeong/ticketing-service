@@ -79,3 +79,11 @@ config:
         max-idle-time-half-hour: 1800000
         ttl-ten-min: 600000
         max-idle-time-half-ten-min: 300000
+    outbox:
+        threshold-as-min: 5 # 5분
+    kafka:
+        consumer-group-id:
+            payment: "payment-consumer-group-0"
+            payment-outbox: "payment-consumer-group-1"
+        topic:
+            payment: "payment-completed-topic"
