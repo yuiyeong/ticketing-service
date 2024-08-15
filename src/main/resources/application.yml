@@ -87,6 +87,7 @@ config:
     scheduler:
         enabled: true
         occupation-fixed-rate: 60000 # 1분
+        reproducing-fixed-rate: 60000 # 1분
     caching:
         ttl-hour: 3600000  # 1시간
         max-idle-time-half-hour: 1800000 # 30분
