@@ -25,6 +25,9 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
+    // for kafka
+    implementation("org.springframework.kafka:spring-kafka")
+
     // for restarting app when code changes
     implementation("org.springframework.boot:spring-boot-devtools")
 
@@ -65,6 +68,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:mysql")
+    testImplementation("org.testcontainers:kafka")
 }
 
 kotlin {
