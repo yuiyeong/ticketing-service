@@ -41,7 +41,7 @@ spring:
         time-zone: UTC
 
 slack:
-    webhook-url: https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+    webhook-url: https://hooks.slack.com/services/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
 
 logging:
     request-response:
@@ -74,8 +74,17 @@ config:
     scheduler:
         enabled: false
         occupation-fixed-rate: 60000
+        reproducing-fixed-rate: 60000 # 1분
     caching:
         ttl-hour: 3600000
         max-idle-time-half-hour: 1800000
         ttl-ten-min: 600000
         max-idle-time-half-ten-min: 300000
+    outbox:
+        threshold-as-min: 5 # 5분
+    kafka:
+        consumer-group-id:
+            payment: "payment-consumer-group-0"
+            payment-outbox: "payment-consumer-group-1"
+        topic:
+            payment: "payment-completed-topic"

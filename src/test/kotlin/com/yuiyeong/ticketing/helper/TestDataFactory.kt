@@ -1,6 +1,7 @@
 package com.yuiyeong.ticketing.helper
 
 import com.yuiyeong.ticketing.common.asUtc
+import com.yuiyeong.ticketing.domain.event.payment.PaymentEvent
 import com.yuiyeong.ticketing.domain.model.concert.Concert
 import com.yuiyeong.ticketing.domain.model.concert.ConcertEvent
 import com.yuiyeong.ticketing.domain.model.concert.Seat
@@ -10,6 +11,7 @@ import com.yuiyeong.ticketing.domain.model.occupation.OccupationStatus
 import com.yuiyeong.ticketing.domain.model.occupation.SeatAllocation
 import com.yuiyeong.ticketing.domain.model.payment.Payment
 import com.yuiyeong.ticketing.domain.model.payment.PaymentMethod
+import com.yuiyeong.ticketing.domain.model.payment.PaymentOutbox
 import com.yuiyeong.ticketing.domain.model.payment.PaymentStatus
 import com.yuiyeong.ticketing.domain.model.reservation.Reservation
 import com.yuiyeong.ticketing.domain.model.reservation.ReservationStatus
@@ -19,6 +21,7 @@ import com.yuiyeong.ticketing.domain.model.wallet.Wallet
 import com.yuiyeong.ticketing.domain.vo.DateTimeRange
 import java.math.BigDecimal
 import java.time.ZonedDateTime
+import kotlin.random.Random
 
 object TestDataFactory {
     fun createUnavailableEvent(concert: Concert): ConcertEvent {
@@ -311,5 +314,22 @@ object TestDataFactory {
             balance = balance,
             createdAt = createdAt,
             updatedAt = updatedAt,
+        )
+
+    fun createRandomPaymentEvent(failureReason: String? = null): PaymentEvent {
+        val random = Random(System.currentTimeMillis())
+        return PaymentEvent(
+            userId = random.nextLong(1L, 200L),
+            reservationId = random.nextLong(1L, 200L),
+            paymentId = random.nextLong(1L, 200L),
+            amount = BigDecimal(random.nextLong(1_000L, 20_000L)),
+            failureReason = failureReason,
+            publishedTimeMilli = System.currentTimeMillis() - random.nextLong(300L, 1000L),
+        )
+    }
+
+    fun createRandomPaymentOutbox(failureReason: String? = null) =
+        PaymentOutbox.createFrom(
+            createRandomPaymentEvent(failureReason),
         )
 }
