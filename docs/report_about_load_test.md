@@ -114,7 +114,7 @@ export default function () {
 
 ### k6 수행 결과
 
-![스크린샷 2024-08-23 오전 12.26.59.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/315950f2-a9dd-4897-a8e5-56c1bbdae102/3bc8d15a-e102-433b-b8fc-28f4fca054af/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2024-08-23_%E1%84%8B%E1%85%A9%E1%84%8C%E1%85%A5%E1%86%AB_12.26.59.png)
+![img_load_test_01.png](./img/img_load_test01.png)
 
 ```bash
 
@@ -307,7 +307,7 @@ export default function (data) {
 
 ### k6 수행 결과
 
-![스크린샷 2024-08-23 오전 1.10.39.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/315950f2-a9dd-4897-a8e5-56c1bbdae102/050eac16-8356-4915-a095-9e87a84286e7/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2024-08-23_%E1%84%8B%E1%85%A9%E1%84%8C%E1%85%A5%E1%86%AB_1.10.39.png)
+![img_load_test_02.png](./img/img_load_test02.png)
 
 ```bash
           /\      |‾‾| /‾‾/   /‾‾/
@@ -618,7 +618,7 @@ export default function (data) {
 
 ### k6 수행 결과
 
-![스크린샷 2024-08-23 오전 2.54.22.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/315950f2-a9dd-4897-a8e5-56c1bbdae102/43fe8e9a-861e-4237-9348-1d3cccecb4ca/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2024-08-23_%E1%84%8B%E1%85%A9%E1%84%8C%E1%85%A5%E1%86%AB_2.54.22.png)
+![img_load_test_03.png](./img/img_load_test03.png)
 
 ```bash
 
