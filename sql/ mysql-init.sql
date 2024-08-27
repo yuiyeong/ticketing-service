@@ -54,7 +54,8 @@ CREATE TABLE `concert_event`
     `reservation_end_at`   datetime(6)  NOT NULL,
     `created_at`           datetime(6)  NOT NULL,
     `updated_at`           datetime(6)  NOT NULL,
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    KEY `idx_concert_reservation_date_desc` (`concert_id`, `reservation_start_at` DESC, `reservation_end_at` DESC)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
@@ -69,7 +70,8 @@ CREATE TABLE `seat`
     `is_available`     bit(1)         NOT NULL,
     `created_at`       datetime(6)    NOT NULL,
     `updated_at`       datetime(6)    NOT NULL,
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    KEY `idx_concert_event_desc_available` (`concert_event_id` DESC, `is_available`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;

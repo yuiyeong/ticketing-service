@@ -69,8 +69,6 @@ services:
 
     redis:
         image: redis:6.2-alpine
-        volumes:
-            - redis-data:/data
         ports:
             - "6379:6379"
         command: redis-server --notify-keyspace-events KEA
@@ -182,6 +180,7 @@ services:
             - '--storage.tsdb.path=/prometheus'
             - '--web.console.libraries=/usr/share/prometheus/console_libraries'
             - '--web.console.templates=/usr/share/prometheus/consoles'
+            - '--enable-feature=remote-write-receiver'
         deploy:
             resources:
                 limits:
@@ -220,7 +219,6 @@ networks:
 
 volumes:
     mysql-data:
-    redis-data:
     prometheus-data:
     grafana-data:
     kafka-controller-data:
